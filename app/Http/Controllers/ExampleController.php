@@ -14,5 +14,10 @@ class ExampleController extends Controller
         //
     }
 
+    public function test()
+    {
+        return '1.1.1';
+    }
+
     //
 }

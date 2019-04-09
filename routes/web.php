@@ -1,16 +1,12 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-|
-*/
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return date('Y-m-d H:i:s');
+});
+$router->group(['prefix' => 'api'], function () use ($router) {
+    $router->get('/companies/current[/{id}]', [
+        'as' => 'companies/current', 'uses' => 'CompaniesController@current'
+    ]);
+    $router->get('/companies[/{id}]', ['as' => 'api.ccrp.companies.index', 'uses' => 'CompaniesController@index']);
 });
