@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -53,6 +52,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'message_url' => env('APP_MESSAGE_URL', 'https://message-ms.coldyun.net/api/'),
 
     /*
     |--------------------------------------------------------------------------
@@ -160,7 +160,8 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
+//        Illuminate\Translation\TranslationServiceProvider::class,
+        Overtrue\LaravelLang\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
@@ -176,6 +177,20 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+        //阿里云短信接口
+        Curder\LaravelAliyunSms\ServiceProvider::class,
+
+        //是不是移动端
+        Jenssegers\Agent\AgentServiceProvider::class,
+
+        //阿里云OSS
+        Jacobcyl\AliOSS\AliOssServiceProvider::class,
+
+        //表单生成器
+//        Distilleries\FormBuilder\FormBuilderServiceProvider::class,
+//        Kris\LaravelFormBuilder\FormBuilderServiceProvider::class,
+        LaravelFormBuilder\FormBuilderProvider::class,
 
     ],
 
@@ -225,6 +240,10 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+
+        'Agent' => Jenssegers\Agent\Facades\Agent::class,
+//        'FormBuilder'       => Distilleries\FormBuilder\Facades\FormBuilder::class,
+//        'FormBuilder' => Kris\LaravelFormBuilder\Facades\FormBuilder::class,
 
     ],
 

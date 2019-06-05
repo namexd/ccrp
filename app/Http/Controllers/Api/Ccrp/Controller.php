@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\User;
-use App\Models\UserHasApp;
 use App\Http\Controllers\Api\Controller as BaseController;
 
 class Controller extends BaseController
@@ -14,20 +13,17 @@ class Controller extends BaseController
     public $company;
     public $company_ids;
 
-    public function __construct()
-    {
-    }
-
     public function check($company_id = null)
     {
-        $ucenter_user = $this->user();
-        $user_app = UserHasApp::where('user_id', $ucenter_user->id)->where('app_id', $this->app_id)->first();
 
-        if ($user_app == null) {
+        $access = session()->get('access');
+        if($access and $access['info'])
+        {
+            $info = $access['info'];
+            $user = User::where('id', $info['userid'])->first();
+        }else{
             return $this->response->error('系统账号绑定错误', 457);
         }
-        $user = User::where('id', $user_app->app_userid)->first();
-
         if ($user->status == 0) {
             return $this->response->error('系统账号验证错误', 457);
         } else {

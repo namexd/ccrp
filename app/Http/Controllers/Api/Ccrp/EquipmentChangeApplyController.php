@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Models\EquipmentChangeApply;
+use App\Models\Message;
 use App\Transformers\EquipmentChangeApplyTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -53,7 +54,25 @@ class EquipmentChangeApplyController extends Controller
         $this->check();
         $result = $this->model->add($request->all());
         if ($result instanceof Model)
+        {
+
+            $message=[
+                'subject'=>'有新的冷链变更单申请',
+                'content'=>'有新的冷链变更单申请,请登录CCSC后台处理',
+                'message_type'=>'5',
+                'content_detail'=>[
+                    'number'=>$result->id,
+                    'status'=>'未处理',
+                    'handler'=>'客服',
+                ],
+                'from_type'=>'3',
+                'send_time'=>time(),
+                'app_id'=>3,
+                'app_user_id'=>'2,3,9'
+            ];
+            (new Message())->asyncSend($message);
             return $this->response->item($result,new EquipmentChangeApplyTransformer())->statusCode(201);
+        }
         else
             $this->response->errorInternal($result);
     }
