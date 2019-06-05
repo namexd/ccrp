@@ -106,99 +106,6 @@ function add_query_param($url, $key, $value)
     }
 }
 
-/**
- * 加密
- * @param $data
- * @param $key
- * @return string
- */
-function encrypt($data, $key)
-{
-    $char = $str = '';
-    $key = md5($key);
-    $x = 0;
-    $len = strlen($data);
-    $l = strlen($key);
-    for ($i = 0; $i < $len; $i++) {
-        if ($x == $l) {
-            $x = 0;
-        }
-        $char .= $key{$x};
-        $x++;
-    }
-    for ($i = 0; $i < $len; $i++) {
-        $str .= chr(ord($data{$i}) + (ord($char{$i})) % 256);
-    }
-    return base64_encode($str);
-}
-
-
-/**
- * app加密认证
- * @param $appkey
- * @param $appsecret
- * @param $info
- * @return string
- */
-function app_access_encode($appkey, $appsecret, $info)
-{
-    return encrypt(time() . '|||' . strtoupper($appkey) . '|||' . strtoupper($appsecret) . '|||' . json_encode($info), $appkey);
-}
-
-
-/**
- * 解密
- * @param $data
- * @param $key
- * @return string
- */
-function decrypt($data, $key)
-{
-
-    $char = $str = '';
-    $key = md5($key);
-    $x = 0;
-    $replaces = array(' ' => '+');
-    $data = base64_decode(strtr($data, $replaces));
-    $len = strlen($data);
-    $l = strlen($key);
-    for ($i = 0; $i < $len; $i++) {
-        if ($x == $l) {
-            $x = 0;
-        }
-        $char .= substr($key, $x, 1);
-        $x++;
-    }
-    for ($i = 0; $i < $len; $i++) {
-        if (ord(substr($data, $i, 1)) < ord(substr($char, $i, 1))) {
-            $str .= chr((ord(substr($data, $i, 1)) + 256) - ord(substr($char, $i, 1)));
-        } else {
-            $str .= chr(ord(substr($data, $i, 1)) - ord(substr($char, $i, 1)));
-        }
-    }
-    return $str;
-}
-
-/**
- * app解密认证
- * @param $appkey
- * @param $appsecret
- * @param $access
- * @param int $checktime
- * @return string
- */
-function app_access_decode($appkey, $appsecret, $access, $checktime = 0)
-{
-    $data = decrypt($access, $appkey);
-    $data = explode("|||", $data);
-    if ($checktime and isset($data[0]) and (abs(time() - $data[0]) > $checktime)) {
-        return null;
-    }
-    if (isset($data[2]) and $data[2] == strtoupper($appsecret)) {
-        return json_decode($data[3],true);
-    }
-    return null;
-}
 
 //判断是否是移动端访问
 function is_mobile()
@@ -278,15 +185,18 @@ function time_clock($clock = 0, $date = NULL)
     return $rs;
 
 }
+
 /**
  * 时间戳格式化
  * @param int $time
  * @return string 完整的时间显示
  */
-function time_format($time = NULL, $format='Y-m-d H:i'){
+function time_format($time = NULL, $format = 'Y-m-d H:i')
+{
     $time = $time === NULL ? time() : intval($time);
     return date($format, $time);
 }
+
 /**
  * 获取指定日期段内每一天的日期
  * @param  Date $startdate 开始日期
@@ -311,7 +221,34 @@ function getDays($startdate, $enddate, $format = 'Y-m-d')
 
     return $date;
 }
-function request()
+
+/**
+ * 微服务内网加密认证
+ * @param $appkey
+ * @param $appsecret
+ * @param $info
+ * @return string
+ */
+function microservice_access_encode($appkey, $appsecret, $info)
 {
-    return new \Illuminate\Http\Request();
+    return base64_encode(time() . '|||' . strtoupper($appkey) . '|||' . strtoupper($appsecret) . '|||' . json_encode($info));
+}
+
+/**
+ * 微服务内网解密认证
+ * @param $access
+ * @return string
+ */
+function microservice_access_decode($access)
+{
+    $data = base64_decode($access);
+    if (!$data) {
+        return null;
+    }
+    $data = explode("|||", $data);
+    $response['time'] = $data[0] ?? 0;
+    $response['appkey'] = $data[1] ?? null;
+    $response['appsecret'] = $data[2] ?? null;
+    $response['info'] = isset($data[3])?json_decode($data[3], true) : null;
+    return $response;
 }
