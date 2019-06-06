@@ -56,7 +56,7 @@ class EquipmentChangeApplyController extends Controller
         {
 
             $message=[
-                'subject'=>'有新的冷链变更单申请',
+                'subject'=>'【'.$result->company->title.'】有新的冷链变更单申请',
                 'content'=>'有新的冷链变更单申请,请登录CCSC后台处理',
                 'message_type'=>'5',
                 'content_detail'=>[
