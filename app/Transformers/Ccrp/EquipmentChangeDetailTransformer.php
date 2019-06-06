@@ -5,7 +5,6 @@ namespace App\Transformers\Ccrp;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\EquipmentChangeApply;
 use App\Models\Ccrp\EquipmentChangeDetail;
-use App\Transformers\Ccrp\CoolerTransformer;
 use League\Fractal\TransformerAbstract;
 
 
