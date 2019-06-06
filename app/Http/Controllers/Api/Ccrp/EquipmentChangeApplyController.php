@@ -63,6 +63,7 @@ class EquipmentChangeApplyController extends Controller
                     'number'=>$result->id,
                     'status'=>'未处理',
                     'handler'=>'客服',
+                    'remark'=>'申请单位：'.$result->company->title
                 ],
                 'from_type'=>'3',
                 'send_time'=>time(),
