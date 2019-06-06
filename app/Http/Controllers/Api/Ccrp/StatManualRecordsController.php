@@ -93,7 +93,7 @@ class StatManualRecordsController extends Controller
             $stat_month->cooler_type = $record['cooler_type'];
             $stat_month->temp_cool = $record['temp_cool'];
             $stat_month->temp_cold = $record['temp_cold'];
-            $stat_month->sign_note = $record['sign_note'];
+            $stat_month->sign_note = $record['sign_note']??'';
             $stat_month->sign_id = $signature->id;
             $stat_month->sign_time = $signature->sign_time;
             $stat_month->sign_time_a = $sign_time_a;
