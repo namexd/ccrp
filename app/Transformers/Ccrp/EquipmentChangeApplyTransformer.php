@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Transformers;
+namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\EquipmentChangeApply;
 use League\Fractal\TransformerAbstract;
