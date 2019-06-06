@@ -13,6 +13,5 @@ class Controller extends CcrpController
         if (isset(request()->all()['company_id'])) {
             $this->company_id = request()->company_id;
         }
-        parent::__construct();
     }
 }
