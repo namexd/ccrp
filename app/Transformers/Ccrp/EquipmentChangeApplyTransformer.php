@@ -2,7 +2,7 @@
 
 namespace App\Transformers;
 
-use App\Models\EquipmentChangeApply;
+use App\Models\Ccrp\EquipmentChangeApply;
 use League\Fractal\TransformerAbstract;
 
 class EquipmentChangeApplyTransformer extends TransformerAbstract
