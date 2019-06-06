@@ -13,7 +13,6 @@ class CheckTasksController extends Controller
 
     public function __construct(CheckTask $checkTask)
     {
-        parent::__construct();
         $this->model = $checkTask;
     }
 
