@@ -14,7 +14,6 @@ class EquipmentChangeApplyController extends Controller
 
     public function __construct(EquipmentChangeApply $equipmentChangeApply)
     {
-        parent::__construct();
         $this->model = $equipmentChangeApply;
     }
 
