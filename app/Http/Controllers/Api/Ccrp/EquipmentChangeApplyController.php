@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Models\Ccrp\EquipmentChangeApply;
 use App\Models\Message;
-use App\Transformers\EquipmentChangeApplyTransformer;
+use App\Transformers\Ccrp\EquipmentChangeApplyTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
