@@ -14,7 +14,7 @@ class ContactTransformer extends TransformerAbstract
         $rs = [
             'id' => $contact->contact_id,
             'name' => $contact->name,
-            'phone' => hidePhone($contact->phone),
+            'phone' => $contact->phone,
             'job' => $contact->job,
             'note' => $contact->note,
             'company_id' => $contact->company_id,
