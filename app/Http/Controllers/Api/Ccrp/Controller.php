@@ -12,7 +12,12 @@ class Controller extends BaseController
     public $user;
     public $company;
     public $company_ids;
+    public $userinfo;
 
+    public function user()
+    {
+        return $this->userinfo;
+    }
     public function check($company_id = null)
     {
 
@@ -20,6 +25,7 @@ class Controller extends BaseController
         if($access and $access['info'])
         {
             $info = $access['info'];
+            $this->userinfo = $info['userinfo'];
             $user = User::where('id', $info['userid'])->first();
         }else{
             return $this->response->error('系统账号绑定错误', 457);
