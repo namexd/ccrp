@@ -10,10 +10,7 @@ use App\Models\User;
 use App\Transformers\Ccrp\ContactTransformer;
 use App\Transformers\Ccrp\Reports\CompanySettingsTransformer;
 use App\Transformers\Ccrp\WarningerTransformer;
-use App\Transformers\UserHasAppTransformer;
-use App\Transformers\UserTransformer;
-use function App\Utils\hidePhone;
-use Route;
+use App\Transformers\UserHidePhoneTransformer;
 
 class CompaniesController extends Controller
 {
@@ -81,7 +78,7 @@ class CompaniesController extends Controller
                 $this->setCrudModel(User::class);
                 $app = App::where('slug',App::冷链监测系统)->first();
                 $users =User::whereIn('id', $app->hasUser->where('app_id',$app->id)->where('app_unitid',$this->company->id)->pluck('user_id'))->get();
-                return $this->display($this->response->collection($users,new UserTransformer()),'columns');
+                return $this->display($this->response->collection($users,new UserHidePhoneTransformer()),'columns');
                 break;
 
         }

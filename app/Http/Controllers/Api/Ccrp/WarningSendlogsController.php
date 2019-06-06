@@ -19,7 +19,7 @@ class WarningSendlogsController extends Controller
             case  'index':
                 break;
             case  'overtemp':
-                $model->where('event_type', '超温报警');
+                $model->where('event_type', '温度报警');
                 break;
             case  'poweroff':
                 $model->whereIn('event_type', ['市电断电' , '市电上电']);
