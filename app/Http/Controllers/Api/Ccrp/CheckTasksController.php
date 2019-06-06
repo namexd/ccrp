@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Models\CheckTask;
-use App\Models\CheckTaskResult;
+use App\Models\Ccrp\CheckTask;
+use App\Models\Ccrp\CheckTaskResult;
 use App\Transformers\Ccrp\CheckTaskTransformer;
 use Illuminate\Http\Request;
 

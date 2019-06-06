@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Models\EquipmentChangeApply;
+use App\Models\Ccrp\EquipmentChangeApply;
 use App\Models\Message;
 use App\Transformers\EquipmentChangeApplyTransformer;
 use Illuminate\Database\Eloquent\Model;
