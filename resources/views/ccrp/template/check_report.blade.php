@@ -53,7 +53,7 @@
 </head>
 <body>
 <div>
-    <h4 align=center>{{$result->task->company->title}}冷链资源管理系统<u style="font-size: 13pt">第{{\Carbon\Carbon::createFromTimestamp($result->task->start)->quarter}}{{\App\Models\CheckTemplate::CYCLE_TYPE[$result->task->template->cycle_type]}}</u>巡检报告</h4>
+    <h4 align=center>{{$result->task->company->title}}冷链资源管理系统<u style="font-size: 13pt">第{{\Carbon\Carbon::createFromTimestamp($result->task->start)->quarter}}{{\App\Models\Ccrp\CheckTemplate::CYCLE_TYPE[$result->task->template->cycle_type]}}</u>巡检报告</h4>
 
     <h3><b>一、概述</b></h3>
 
