@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Api\Ccrp\Report;
 
-use App\Http\Requests\Api\Request;
+use App\Http\Requests\Api\Ccrp\Request;
 
 class DateRangeRequest extends Request
 {
