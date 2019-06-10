@@ -26,7 +26,7 @@ class WarningSenderEvent extends Coldchain2Model
 
     function options()
     {
-        return $this->hasMany(WarningEventOption::class, 'warning_type', 'warning_type')->where('warning_type',WarningEvent::断电预警);
+        return WarningEventOption::where('warning_type', WarningEvent::断电预警)->get();
     }
 
     public static function lists($company_ids,$handled=null)

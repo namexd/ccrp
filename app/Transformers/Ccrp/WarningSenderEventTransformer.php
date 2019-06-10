@@ -38,6 +38,6 @@ class WarningSenderEventTransformer extends TransformerAbstract
 
     public function includeOptions(WarningSenderEvent $event)
     {
-        return $this->collection($event->options, new WarningEventOptionTransformer());
+        return $this->collection($event->options(), new WarningEventOptionTransformer());
     }
 }
