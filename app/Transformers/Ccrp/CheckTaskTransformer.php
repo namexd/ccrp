@@ -3,7 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Certification;
-use App\Models\CheckTask;
+use App\Models\Ccrp\CheckTask;
 use League\Fractal\TransformerAbstract;
 
 class CheckTaskTransformer extends TransformerAbstract
