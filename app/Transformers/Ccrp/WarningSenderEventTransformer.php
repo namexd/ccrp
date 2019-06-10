@@ -17,7 +17,7 @@ class WarningSenderEventTransformer extends TransformerAbstract
         $sender = $event->sender;
         $result = [
             'id' => $event->logid,
-            'cooler_name' => '-',
+            'cooler_name' => '',
             'device_name' => $sender->note??'',
             'device_sn' => $event->sender_id,
             'warning_type' => WarningEvent::断电预警,
