@@ -18,7 +18,7 @@ class CheckTaskTransformer extends TransformerAbstract
             'start'=>$checkTask->start,
             'end'=>$checkTask->end,
             'status'=>$checkTask->status,
-            'url'=>config('api.domain').'/api/ccrp/check_tasks/'.$checkTask->id
+            'url'=>config('app.we_url').'/api/ccrp/check_tasks/'.$checkTask->id
         ];
         return $arr;
     }
