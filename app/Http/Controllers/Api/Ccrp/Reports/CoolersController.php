@@ -41,7 +41,7 @@ class CoolersController extends Controller
 
     public function countCoolerNumber(Cooler $cooler)
     {
-//        $this->check($this->company_id);
+        $this->check($this->company_id);
         $company_id=$this->company_id??$this->company->id;
         $parent=Company::find($company_id);
         $companies=Company::where('pid', $company_id)->where('status',1)->where('company_group', $parent->company_group)->get();
@@ -64,7 +64,7 @@ class CoolersController extends Controller
     }
     public function countCoolerVolume(Cooler $cooler)
     {
-//        $this->check($this->company_id);
+        $this->check($this->company_id);
         $company_id=$this->company_id??$this->company->id;
         $parent=Company::find($company_id);
         $companies=Company::where('pid', $company_id)->where('status',1)->where('company_group', $parent->company_group)->get();
@@ -88,7 +88,7 @@ class CoolersController extends Controller
     }
     public function countCoolerStatus(Cooler $cooler)
     {
-//        $this->check($this->company_id);
+        $this->check($this->company_id);
         $company_id=$this->company_id??$this->company->id;
         $parent=Company::find($company_id);
         $companies=Company::where('pid', $company_id)->where('status',1)->where('company_group', $parent->company_group)->get();
