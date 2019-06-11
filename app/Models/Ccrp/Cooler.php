@@ -251,8 +251,11 @@ class Cooler extends Coldchain2Model
     }
     static public function coolerType()
     {
+        $i=0;
         foreach (self::COOLER_TYPE as $key => $type) {
-            $result['type_'.$key] = $type;
+            $result[$i]['value'] = 'type_'.$key;
+            $result[$i]['label'] = $type;
+            $i++;
         }
         return $result;
     }
