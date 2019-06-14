@@ -97,6 +97,7 @@ $api->version('v1', [
                 $resp= file_get_contents('http://pr01.coldyun.com/WPServer/clearorder?sn='.$id);
                 return json_decode($resp,true);
             });
+            $api->get('menus','MenusController@index');
             //CCrp数据报表
             $api->group([
                 'namespace' => 'Reports',

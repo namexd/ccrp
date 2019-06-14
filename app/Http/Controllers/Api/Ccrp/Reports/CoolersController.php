@@ -53,12 +53,8 @@ class CoolersController extends Controller
             $result[$key]['title']=$company->title;
             $result[$key]['region_code']=$company->region_code;
         }
-        if (1==(request()->get('export')))
-        {
-            return  Excel::download(new CoolerExport(1,$result),$parent->title.'各地设备数量统计'.date('Ymdhis').'.xlsx');
-        }
         $data['data']=$result;
-        $data['meta']['columns']=Cooler::coolerType();
+        $data['meta']['columns']['parent']=$parent->title;
         return $this->response->array($data);
 
     }
@@ -76,13 +72,8 @@ class CoolersController extends Controller
             $result[$key]['title']=$company->title;
             $result[$key]['region_code']=$company->region_code;
         }
-        if (1==(request()->get('export')))
-        {
-
-            return  Excel::download(new CoolerExport(2,$result),$parent->title.'各地设备数量统计'.date('Ymdhis').'.xlsx');
-        }
         $data['data']=$result;
-//        $data['meta']['columns']=Cooler::coolerType();
+        $data['meta']['columns']['parent']=$parent->title;
         return $this->response->array($data);
 
     }
@@ -100,12 +91,8 @@ class CoolersController extends Controller
             $result[$key]['title']=$company->title;
             $result[$key]['region_code']=$company->region_code;
         }
-        if (1==(request()->get('export')))
-        {
-            return  Excel::download(new CoolerExport(3,$result),$parent->title.'冷链设备使用状态统计'.date('Ymdhis').'.xlsx');
-        }
         $data['data']=$result;
-//        $data['meta']['columns']=Cooler::coolerType();
+        $data['meta']['columns']['parent']=$parent->title;
         return $this->response->array($data);
 
     }
