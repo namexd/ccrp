@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Ccrp\Reports;
 
-use App\Exports\CoolerExport;
 use App\Http\Requests\Api\Ccrp\Report\DateRangeRequest;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Cooler;
@@ -11,7 +10,6 @@ use App\Transformers\Ccrp\Reports\CoolerLogTransformer;
 use App\Transformers\Ccrp\Reports\WarningersTransformer;
 use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Input;
-use Maatwebsite\Excel\Facades\Excel;
 
 
 /**

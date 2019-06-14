@@ -26,7 +26,7 @@ class Message extends Model
 
     public function asyncSend($params)
     {
-        $app = App::where('slug', 'we')->first();
+        $app = App::where('slug', 'ccrp')->first();
         $url = config('app.message_url');
         $access = microservice_access_encode($app->appkey, $app->appsecret,['test'=>'hello ,im ccsc.admin requester']);
         $client = new Client();

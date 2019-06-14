@@ -98,6 +98,8 @@ $api->version('v1', [
                 return json_decode($resp,true);
             });
             $api->get('menus','MenusController@index');
+            $api->post('export_data', 'ExportsController@exportData')->name('api.ccrp.export_data');
+
             //CCrp数据报表
             $api->group([
                 'namespace' => 'Reports',
