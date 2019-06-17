@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Models\App;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\User;
 use App\Http\Controllers\Api\Controller as BaseController;
 use App\Models\Microservice\MicroserviceAPI;
-use function App\Utils\microservice_access_encode;
 
 class Controller extends BaseController
 {
@@ -16,7 +14,6 @@ class Controller extends BaseController
     public $company;
     public $company_ids;
     public $userinfo;
-    public $slug='ccrp';
 
     public function user()
     {
@@ -70,12 +67,4 @@ class Controller extends BaseController
         }
     }
 
-    public function microServiceClient($method,$url,$action,$params)
-    {
-        $app = App::where('slug', $this->slug)->first();
-        $access = microservice_access_encode($app->appkey, $app->appsecret, ['info' => '微服务通讯']);
-        $api = new MicroserviceAPI($access, $url);
-        $res = $api->action($method, $action, $params);
-        return $res;
-    }
 }
