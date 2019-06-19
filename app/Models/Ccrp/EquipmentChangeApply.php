@@ -104,7 +104,7 @@ class EquipmentChangeApply extends Model
         return $result;
     }
 
-    public function getStatistics()
+    public function getStatistics($company_ids)
     {
         $prev_date=Carbon::now()->subYear(1)->toDateTimeString();
         $now_date=Carbon::now()->toDateTimeString();
@@ -113,11 +113,12 @@ class EquipmentChangeApply extends Model
         sum(if(status=0,1,0)) as unhandled,
         sum(if(status=1,1,0)) as handling,
         sum(if(status=2,1,0)) as handled
-        ')->get();
+        ')->whereIn('company_id',$company_ids)->first();
         $month_counter = $this->selectRaw('
         DATE_FORMAT(apply_time,"%Y-%m") as month,
         count(1) as month_counter
         ')->whereBetween('apply_time', [$prev_date,$now_date])
+            ->whereIn('company_id',$company_ids)
             ->groupBY(DB::raw(' DATE_FORMAT(apply_time,"%Y-%m")'))
             ->get();
         $today = $this->selectRaw('
@@ -125,7 +126,8 @@ class EquipmentChangeApply extends Model
         ifnull(sum(if(status=0,1,0)),0) as unhandled,
         ifnull(sum(if(status=1,1,0)),0) as handling,
         ifnull(sum(if(status=2,1,0)),0) as handled
-        ')->whereDate('apply_time',$now_date)->get();
+        ')->whereDate('apply_time',$now_date)
+            ->whereIn('company_id',$company_ids)->first();
         return compact('total','today','month_counter');
     }
 }

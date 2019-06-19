@@ -92,7 +92,8 @@ class EquipmentChangeApplyController extends Controller
 
     public function statistics()
     {
-       $result=$this->model->getStatistics();
+       $this->check();
+       $result=$this->model->getStatistics($this->company_ids);
        return $this->response->array($result);
     }
 
