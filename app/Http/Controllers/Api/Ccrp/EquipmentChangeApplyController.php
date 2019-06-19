@@ -90,6 +90,11 @@ class EquipmentChangeApplyController extends Controller
         return $this->response->item($equipment_change_apply, new EquipmentChangeApplyTransformer());
     }
 
+    public function statistics()
+    {
+       $result=$this->model->getStatistics();
+       return $this->response->array($result);
+    }
 
     /**
      * Update the specified resource in storage.

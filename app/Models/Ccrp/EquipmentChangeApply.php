@@ -72,14 +72,14 @@ class EquipmentChangeApply extends Model
         try {
             $apply = DB::transaction(function () use ($data) {
                 $attributes = array_only($data, $this->fillable);
-                $attributes['apply_time']=Carbon::now();
+                $attributes['apply_time'] = Carbon::now();
                 if ($apply = self::create($attributes)) {
                     $details = json_decode($data['details'], true);
                     $news = json_decode($data['news'], true);
-                    if (is_array($details)&&!is_null($details)) {
+                    if (is_array($details) && !is_null($details)) {
                         $apply->details()->createMany($details);
                     }
-                    if (is_array($news)&&!is_null($news)) {
+                    if (is_array($news) && !is_null($news)) {
                         $apply->news()->createMany($news);
                     }
                     return $apply;
@@ -102,5 +102,30 @@ class EquipmentChangeApply extends Model
             $k++;
         }
         return $result;
+    }
+
+    public function getStatistics()
+    {
+        $prev_date=Carbon::now()->subYear(1)->toDateTimeString();
+        $now_date=Carbon::now()->toDateTimeString();
+        $total = $this->selectRaw('
+        count(1) as count,
+        sum(if(status=0,1,0)) as unhandled,
+        sum(if(status=1,1,0)) as handling,
+        sum(if(status=2,1,0)) as handled
+        ')->get();
+        $month_counter = $this->selectRaw('
+        DATE_FORMAT(apply_time,"%Y-%m") as month,
+        count(1) as month_counter
+        ')->whereBetween('apply_time', [$prev_date,$now_date])
+            ->groupBY(DB::raw(' DATE_FORMAT(apply_time,"%Y-%m")'))
+            ->get();
+        $today = $this->selectRaw('
+        count(1) as count,
+        ifnull(sum(if(status=0,1,0)),0) as unhandled,
+        ifnull(sum(if(status=1,1,0)),0) as handling,
+        ifnull(sum(if(status=2,1,0)),0) as handled
+        ')->whereDate('apply_time',$now_date)->get();
+        return compact('total','today','month_counter');
     }
 }

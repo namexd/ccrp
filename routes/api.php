@@ -78,6 +78,8 @@ $api->version('v1', [
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
+            $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');
+
             $api->get('equipment_change_types', 'EquipmentChangeApplyController@getChangeType');
             //第三方校准证书
             $api->get('jzzs', 'CertificationsController@index');
