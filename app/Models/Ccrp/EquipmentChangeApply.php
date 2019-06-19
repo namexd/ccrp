@@ -110,9 +110,9 @@ class EquipmentChangeApply extends Model
         $now_date=Carbon::now()->toDateTimeString();
         $total = $this->selectRaw('
         count(1) as count,
-        sum(if(status=0,1,0)) as unhandled,
-        sum(if(status=1,1,0)) as handling,
-        sum(if(status=2,1,0)) as handled
+         ifnull(sum(if(status=0,1,0)),0) as unhandled,
+         ifnull(sum(if(status=1,1,0)),0) as handling,
+         ifnull(sum(if(status=2,1,0)),0) as handled
         ')->whereIn('company_id',$company_ids)->first();
         $month_counter = $this->selectRaw('
         DATE_FORMAT(apply_time,"%Y-%m") as month,
