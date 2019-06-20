@@ -23,6 +23,11 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
             'status' => $apply->status,
             'status_name' => $apply::STATUS[$apply->status],
         ];
+        if($apply->handler)
+        {
+            $rs['handler']=$apply->user->name;
+            $rs['end_time']=$apply->end_time;
+        }
         return $rs;
     }
 
