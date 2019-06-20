@@ -31,7 +31,7 @@ class EquipmentChangeApplyController extends Controller
             $this->model = $this->model->where('status', $request->status);
         }
         if ($request->start_time && $request->end_time) {
-            $this->model = $this->model->whereBetween('apply_time', [$request->date_start,$request->date_end]);
+            $this->model = $this->model->whereBetween('apply_time', [$request->start_time,$request->end_time]);
         }
         $data = $this->model->with(['company', 'details', 'news'])->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
         return $this->response->paginator($data, new EquipmentChangeApplyTransformer());
