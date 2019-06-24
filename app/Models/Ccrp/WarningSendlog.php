@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models\Ccrp;
+use Carbon\Carbon;
+
 class WarningSendlog extends Coldchain2pgModel
 {
     protected $table = 'warning_sendlog';
@@ -11,6 +13,9 @@ class WarningSendlog extends Coldchain2pgModel
         2 => '邮件',
         3 => '微信',
     ];
+    const 预警类型_离线='离线报警';
+    const 预警类型_超温='温度报警';
+    const 预警类型_断电='市电断电';
 
     public function eventOverTemp()
     {
@@ -35,5 +40,13 @@ class WarningSendlog extends Coldchain2pgModel
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
+    }
+    public function getYesterdayOffLineCount($company_ids)
+    {
+        $start=Carbon::yesterday()->startOfDay()->timestamp;
+        $end=Carbon::yesterday()->endOfDay()->timestamp;
+        return $this->where('event_type',"'".self::预警类型_离线."'")
+            ->whereIn('company_id',$company_ids)
+            ->whereBetween('send_time',[$start,$end])->count();
     }
 }

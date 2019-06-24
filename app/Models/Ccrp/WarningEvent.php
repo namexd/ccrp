@@ -2,6 +2,8 @@
 
 namespace App\Models\Ccrp;
 
+use Carbon\Carbon;
+
 class WarningEvent extends Coldchain2Model
 {
     protected $table = 'warning_event';
@@ -54,5 +56,14 @@ class WarningEvent extends Coldchain2Model
         }
         return $res;
     }
-
+    public function getYesterdayTempStat($company_ids)
+    {
+        $result=$this->selectRaw('
+        ifnull(sum(if(warning_type=1,1,0)),0) as high_temp,
+        ifnull(sum(if(warning_type=2,1,0)),0) as low_temp')
+            ->whereIn('company_id',$company_ids)
+            ->whereRaw('FROM_UNIXTIME(warning_event_time,"%Y-%m-%d")='.Carbon::yesterday()->format('Y-m-d'))
+            ->first();
+        return $result;
+    }
 }

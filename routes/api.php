@@ -123,6 +123,9 @@ $api->version('v1', [
 
                 $api->get('companies/infomation/{slug}','CompaniesController@infomationDetail')->name('api.ccrp.reports.companies.info.detail');
                 $api->get('companies/infomation','CompaniesController@infomation')->name('api.ccrp.reports.companies.infomation');
+                //预警类型统计
+                $api->get('warning_type_statistics', 'WarningersController@warningTypeStatistics')->name('api.ccrp.warning_type_statistics');
+
             });
             //同步数据，获取data_id之后的新数据
 //            $api->post('collectors/sync',function (){

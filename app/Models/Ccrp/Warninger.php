@@ -105,6 +105,10 @@ class Warninger extends Coldchain2Model
         return $result;
     }
 
+    public function getOverRunList($cooler_id,$start,$end)
+    {
+
+    }
     static public function fieldTitles()
     {
         return

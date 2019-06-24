@@ -2,6 +2,7 @@
 
 namespace App\Models\Ccrp;
 use App\Traits\ControllerDataRange;
+use Carbon\Carbon;
 
 class WarningSenderEvent extends Coldchain2Model
 {
@@ -37,5 +38,13 @@ class WarningSenderEvent extends Coldchain2Model
             $res = $res->where('handled', $handled);
         }
         return $res;
+    }
+
+    public function getYesterDayPowerOff($company_ids)
+    {
+        return $this->where('warning_type',5)
+            ->whereRaw('FROM_UNIXTIME(sensor_event_time,"%Y-%m-%d")='.Carbon::yesterday()->format('Y-m-d'))
+            ->whereIn('company_id',$company_ids)
+            ->count();
     }
 }
