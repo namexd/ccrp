@@ -70,4 +70,22 @@ class WarningersController extends Controller
         return $this->response->array($result);
     }
 
+    public function cooler_temp_overrun(WarningOverRunRequest $request, Warninger $warninger)
+    {
+        $todayTime = mktime(0, 0, 0, date('m'), date('d'), date('Y')) + 24 * 3600 - 1;
+        if ($request->get('start'))
+            $start = strtotime(str_replace('+', ' ', $request->get('start')));
+        else
+            $start = mktime(0, 0, 0, date('m'), '1', date('Y'));//1号
+
+        if ($request->get('end'))
+            $end = strtotime(str_replace('+', ' ', $request->get('end')));
+        else
+            $end = $todayTime;
+        $cooler_id = $request->get('cooler_id');
+        $this->check($this->company_id);
+        $result = $warninger->getOverRunList($cooler_id, $start, $end)->paginate($this->pagesize);
+        return $this->response->paginator($result, new CompanyTransformer())->addMeta('columns', $warninger->colums);
+
+    }
 }
