@@ -45,8 +45,10 @@ class WarningSendlog extends Coldchain2pgModel
     {
         $start=Carbon::yesterday()->startOfDay()->timestamp;
         $end=Carbon::yesterday()->endOfDay()->timestamp;
-        return $this->where('event_type',"'".self::预警类型_离线."'")
+        return $this
+            ->where('event_type',self::预警类型_离线)
             ->whereIn('company_id',$company_ids)
-            ->whereBetween('send_time',[$start,$end])->count();
+            ->whereBetween('send_time',[$start,$end])
+            ->count();
     }
 }

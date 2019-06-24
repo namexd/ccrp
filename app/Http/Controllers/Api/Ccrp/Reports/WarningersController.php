@@ -60,13 +60,13 @@ class WarningersController extends Controller
     public function warningTypeStatistics(WarningEvent $warningEvent, WarningSendlog $sendlog, WarningSenderEvent $event)
     {
         $this->check();
-        if (!$result=\Cache::get('warning_type_statistics'.$this->company->id))
-        {
+//        if (!$result=\Cache::get('warning_type_statistics'.$this->company->id))
+//        {
             $result['data']['temp'] = $warningEvent->getYesterdayTempStat($this->company_ids);
             $result['data']['power_off'] = $event->getYesterDayPowerOff($this->company_ids);
             $result['data']['off_line'] = $sendlog->getYesterdayOffLineCount($this->company_ids);
-            \Cache::put('warning_type_statistics'.$this->company->id,$result,Carbon::today()->endOfDay());
-        }
+//            \Cache::put('warning_type_statistics'.$this->company->id,$result,Carbon::today()->endOfDay());
+//        }
         return $this->response->array($result);
     }
 

@@ -10,7 +10,7 @@ class WarningSenderEvent extends Coldchain2Model
 
     const 已处理=1;
     const 未处理=0;
-
+    const 断电预警=0;
     use ControllerDataRange;
     public function __construct()
     {
@@ -42,8 +42,10 @@ class WarningSenderEvent extends Coldchain2Model
 
     public function getYesterDayPowerOff($company_ids)
     {
-        return $this->where('warning_type',5)
-            ->whereRaw('FROM_UNIXTIME(sensor_event_time,"%Y-%m-%d")='.Carbon::yesterday()->format('Y-m-d'))
+        $start=Carbon::yesterday()->startOfDay()->timestamp;
+        $end=Carbon::yesterday()->endOfDay()->timestamp;
+        return self::where('warning_type',self::断电预警)
+            ->whereBetween('sensor_event_time',[$start,$end])
             ->whereIn('company_id',$company_ids)
             ->count();
     }

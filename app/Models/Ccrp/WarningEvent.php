@@ -58,11 +58,13 @@ class WarningEvent extends Coldchain2Model
     }
     public function getYesterdayTempStat($company_ids)
     {
+        $start=Carbon::yesterday()->startOfDay()->timestamp;
+        $end=Carbon::yesterday()->endOfDay()->timestamp;
         $result=$this->selectRaw('
         ifnull(sum(if(warning_type=1,1,0)),0) as high_temp,
         ifnull(sum(if(warning_type=2,1,0)),0) as low_temp')
             ->whereIn('company_id',$company_ids)
-            ->whereRaw('FROM_UNIXTIME(warning_event_time,"%Y-%m-%d")='.Carbon::yesterday()->format('Y-m-d'))
+            ->whereBetween('warning_event_time',[$start,$end])
             ->first();
         return $result;
     }
