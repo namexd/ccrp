@@ -143,15 +143,12 @@ class Warninger extends Coldchain2Model
 //                    $map['temp'] = array('gt', intval($setting['temp_high']));
                     array_push($map,['temp','>',intval($setting['temp_high'])]);
                 }
-                return ['asd'=>$map];
                 $history = new DataHistory();
 
                 $sensor_id = strval(abs2($collector['supplier_collector_id']));
                 $table = "sensor." . $sensor_id;
                 $pgModel = $history->setTable($table);
                 $collector['data'] =$pgModel->select('data_id','sensor_id','temp,humi','sensor_collect_time','sender_trans_time')->where($map)->orderBy('sensor_collect_time','asc')->get();
-
-
                 if ($the_collector['collector_time_span'] == null) {
                     $map = array();
                     $map['sensor_collect_time'] = array('lt', strtotime('-1 day'));
