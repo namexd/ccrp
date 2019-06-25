@@ -121,7 +121,7 @@ class Warninger extends Coldchain2Model
             foreach ($collectors as $key => &$collector) {
                 $the_collector = Collector::find($collector['collector_id']);
                 //温度上下线
-                $setting = WarningSetting::select('temp_high,temp_low')->where(array('collector_id' => $collector['collector_id']))->first();
+                $setting = WarningSetting::select('temp_high','temp_low')->where(array('collector_id' => $collector['collector_id']))->first();
                 $collector['temp_high'] = $setting['temp_high'];
                 $collector['temp_low'] = $setting['temp_low'];
 
@@ -149,13 +149,13 @@ class Warninger extends Coldchain2Model
                 $sensor_id = strval(abs2($collector['supplier_collector_id']));
                 $table = "sensor." . $sensor_id;
                 $pgModel = $history->setTable($table);
-                $collector['data'] =$pgModel->select('data_id,sensor_id,temp,humi,sensor_collect_time,sender_trans_time')->where($map)->orderBy('sensor_collect_time','asc')->get();
+                $collector['data'] =$pgModel->select('data_id','sensor_id','temp,humi','sensor_collect_time','sender_trans_time')->where($map)->orderBy('sensor_collect_time','asc')->get();
 
 
                 if ($the_collector['collector_time_span'] == null) {
                     $map = array();
                     $map['sensor_collect_time'] = array('lt', strtotime('-1 day'));
-                    $spans =$pgModel->select('data_id,sensor_id,temp,humi,sensor_collect_time,sender_trans_time')->where($map)->orderBy('sensor_collect_time','desc')->limit(2)->get();
+                    $spans =$pgModel->select('data_id','sensor_id','temp','humi','sensor_collect_time','sender_trans_time')->where($map)->orderBy('sensor_collect_time','desc')->limit(2)->get();
                     $time_span = round(abs($spans[0]['sensor_collect_time'] - $spans[1]['sensor_collect_time']) / 60);
                     if (in_array($time_span, array(1, 2, 5))) {
                         $collector['collector_time_span'] = $time_span;
