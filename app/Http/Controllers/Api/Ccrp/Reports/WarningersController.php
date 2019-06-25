@@ -84,7 +84,7 @@ class WarningersController extends Controller
             $end = $todayTime;
         $cooler_id = $request->get('cooler_id');
         $this->check();
-        $result = $warninger->getOverRunList($cooler_id, $start, $end);
+        $result['data'] = $warninger->getOverRunList($cooler_id, $start, $end);
         return $this->response->array($result);
 
     }

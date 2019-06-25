@@ -114,11 +114,13 @@ class Warninger extends Coldchain2Model
         if ($cooler['install_time'] > $start)
             $start = $cooler['install_time'];
 
-        $map['sensor_collect_time'] = array('between', $start.','.$end);
         if ($cooler) {
-            $collectors = Collector::where('cooler_id', $cooler_id)->whereRaw('((uninstall_time = 0 or uninstall_time >'.$start.') and ( install_time <'.$end.'))')->get();
-
+            $collectors = Collector::where('cooler_id', $cooler_id)->whereRaw('((uninstall_time = 0 or uninstall_time >'.$start.') and ( install_time <'.$end.'))')->get()->toArray();
+            $history = new DataHistory();
             foreach ($collectors as $key => &$collector) {
+                $sensor_id = strval(abs2($collector['supplier_collector_id']));
+                $table = "sensor." . $sensor_id;
+                $pgModel = $history->setTable($table);
                 $the_collector = Collector::find($collector['collector_id']);
                 //温度上下线
                 $setting = WarningSetting::select('temp_high','temp_low')->where(array('collector_id' => $collector['collector_id']))->first();
@@ -127,32 +129,24 @@ class Warninger extends Coldchain2Model
 
                 if ($the_collector['install_time'] > $start)
                     $start = $the_collector['install_time'];
-                $map = array();
                 if ($the_collector['uninstall_time'] < $end and $the_collector['uninstall_time'] > 0)
-//                    $map['sensor_collect_time'] = array(array('gt', intval($start)), array('lt', intval($the_collector['uninstall_time'])));
-                    array_push($map, ['sensor_collect_time', 'between', [intval($start), intval($the_collector['uninstall_time'])]]);
+                $pgModel=$pgModel->whereBetween('sensor_collect_time',[intval($start), intval($the_collector['uninstall_time'])]);
                 else
-//                    $map['sensor_collect_time'] = array(array('gt', intval($start)), array('lt', intval($end)));
-                    array_push($map, ['sensor_collect_time', 'between', [intval($start), intval($end)]]);
+                $pgModel=$pgModel->whereBetween('sensor_collect_time',[intval($start), intval($end)]);
 
 
                 if ($the_collector['temp_type'] == 1) {
-//                    $map['temp'] = array(array('gt', intval($setting['temp_high'])), array('lt', intval($setting['temp_low'])), 'or');
-                    array_push($map,[['temp','>',intval($setting['temp_high'])],'or',['temp','<',intval($setting['temp_low'])]]);
+                    $pgModel=$pgModel->where(function ($query) use($setting){
+                        $query->where('temp','>',intval($setting['temp_high']))->whereOr('temp','<',intval($setting['temp_low']));
+                    });
                 } elseif ($the_collector['temp_type'] == 2) {
-//                    $map['temp'] = array('gt', intval($setting['temp_high']));
-                    array_push($map,['temp','>',intval($setting['temp_high'])]);
+                    $pgModel=$pgModel->where('temp','>',intval($setting['temp_high']));
                 }
-                $history = new DataHistory();
 
-                $sensor_id = strval(abs2($collector['supplier_collector_id']));
-                $table = "sensor." . $sensor_id;
-                $pgModel = $history->setTable($table);
-                $collector['data'] =$pgModel->select('data_id','sensor_id','temp,humi','sensor_collect_time','sender_trans_time')->where($map)->orderBy('sensor_collect_time','asc')->get();
+                $collector['data'] =$pgModel->select('data_id','sensor_id','temp','humi','sensor_collect_time','sender_trans_time')->orderBy('sensor_collect_time','asc')->get()->toArray();
                 if ($the_collector['collector_time_span'] == null) {
-                    $map = array();
-                    $map['sensor_collect_time'] = array('lt', strtotime('-1 day'));
-                    $spans =$pgModel->select('data_id','sensor_id','temp','humi','sensor_collect_time','sender_trans_time')->where($map)->orderBy('sensor_collect_time','desc')->limit(2)->get();
+                    $pgModel=$pgModel->where('sensor_collect_time','<',strtotime('-1 day'));
+                    $spans =$pgModel->select('data_id','sensor_id','temp','humi','sensor_collect_time','sender_trans_time')->orderBy('sensor_collect_time','desc')->limit(2)->get()->toArray();
                     $time_span = round(abs($spans[0]['sensor_collect_time'] - $spans[1]['sensor_collect_time']) / 60);
                     if (in_array($time_span, array(1, 2, 5))) {
                         $collector['collector_time_span'] = $time_span;
@@ -176,9 +170,11 @@ class Warninger extends Coldchain2Model
                 }
 
             }
-            sortArrByField($collectors, 'data_count');//排序
 
-           return $collectors;
+            sortArrByField($collectors, 'data_count');//排序
+            $result['cooler']=$cooler;
+            $result['cooler']['collector']=$collectors;
+            return $result;
         }else{
             return [];
         }
