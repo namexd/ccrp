@@ -574,3 +574,20 @@ function abs2($str)
     if (gettype($str) == 'integer') return abs($str);
     else return trim(strval(str_replace('-', '', $str)));
 }
+
+function sortArrByField(&$array, $field, $desc = false)
+{
+
+    $fieldArr = array();
+
+    foreach ($array as $k => $v) {
+
+        $fieldArr[$k] = $v[$field];
+
+    }
+
+    $sort = $desc == false ? SORT_DESC : SORT_ASC;
+
+    array_multisort($fieldArr, $sort, $array);
+
+}

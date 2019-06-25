@@ -60,17 +60,17 @@ class WarningersController extends Controller
     public function warningTypeStatistics(WarningEvent $warningEvent, WarningSendlog $sendlog, WarningSenderEvent $event)
     {
         $this->check();
-//        if (!$result=\Cache::get('warning_type_statistics'.$this->company->id))
-//        {
+        if (!$result=\Cache::get('warning_type_statistics'.$this->company->id))
+        {
             $result['data']['temp'] = $warningEvent->getYesterdayTempStat($this->company_ids);
             $result['data']['power_off'] = $event->getYesterDayPowerOff($this->company_ids);
             $result['data']['off_line'] = $sendlog->getYesterdayOffLineCount($this->company_ids);
-//            \Cache::put('warning_type_statistics'.$this->company->id,$result,Carbon::today()->endOfDay());
-//        }
+            \Cache::put('warning_type_statistics'.$this->company->id,$result,Carbon::today()->endOfDay());
+        }
         return $this->response->array($result);
     }
 
-    public function cooler_temp_overrun(WarningOverRunRequest $request, Warninger $warninger)
+    public function coolerTempOverRun(WarningOverRunRequest $request, Warninger $warninger)
     {
         $todayTime = mktime(0, 0, 0, date('m'), date('d'), date('Y')) + 24 * 3600 - 1;
         if ($request->get('start'))
@@ -83,9 +83,9 @@ class WarningersController extends Controller
         else
             $end = $todayTime;
         $cooler_id = $request->get('cooler_id');
-        $this->check($this->company_id);
-        $result = $warninger->getOverRunList($cooler_id, $start, $end)->paginate($this->pagesize);
-        return $this->response->paginator($result, new CompanyTransformer())->addMeta('columns', $warninger->colums);
+        $this->check();
+        $result = $warninger->getOverRunList($cooler_id, $start, $end);
+        return $this->response->array($result);
 
     }
 }

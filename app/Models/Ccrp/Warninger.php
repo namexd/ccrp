@@ -3,6 +3,8 @@
 namespace App\Models\Ccrp;
 
 use App\Traits\ModelFields;
+use function App\Utils\abs2;
+use function App\Utils\sortArrByField;
 use DB;
 
 class Warninger extends Coldchain2Model
@@ -95,9 +97,9 @@ class Warninger extends Coldchain2Model
         sum(IF(warning_type="1", 1, 0)) as temp_count_high,
         sum(IF(warning_type="2", 1, 0)) as temp_count_low'))
                         ->whereBetween('warning_event_time', [$start, $end])->groupBy('company_id');
-                },'coolers'=>function($query) use($start,$end){
+                }, 'coolers' => function ($query) use ($start, $end) {
                     $query->select(DB::raw('company_id,COUNT(company_id) as count_cooler'))
-                    ->whereRaw("(uninstall_time = 0 or uninstall_time >" . $start . ") and (install_time is NULL or install_time=0 or  install_time <" . $end . ")")
+                        ->whereRaw("(uninstall_time = 0 or uninstall_time >".$start.") and (install_time is NULL or install_time=0 or  install_time <".$end.")")
                         ->groupBy('company_id');
                 }])->whereIn('id', $companyIds);
                 break;
@@ -105,20 +107,96 @@ class Warninger extends Coldchain2Model
         return $result;
     }
 
-    public function getOverRunList($cooler_id,$start,$end)
+    public function getOverRunList($cooler_id, $start, $end)
     {
+        $cooler = Cooler::find($cooler_id);
+        //如果采集的数据第一条早于安装时间，则取安装时间
+        if ($cooler['install_time'] > $start)
+            $start = $cooler['install_time'];
 
+        $map['sensor_collect_time'] = array('between', $start.','.$end);
+        if ($cooler) {
+            $collectors = Collector::where('cooler_id', $cooler_id)->whereRaw('((uninstall_time = 0 or uninstall_time >'.$start.') and ( install_time <'.$end.'))')->get();
+
+            foreach ($collectors as $key => &$collector) {
+                $the_collector = Collector::find($collector['collector_id']);
+                //温度上下线
+                $setting = WarningSetting::select('temp_high,temp_low')->where(array('collector_id' => $collector['collector_id']))->first();
+                $collector['temp_high'] = $setting['temp_high'];
+                $collector['temp_low'] = $setting['temp_low'];
+
+                if ($the_collector['install_time'] > $start)
+                    $start = $the_collector['install_time'];
+                $map = array();
+                if ($the_collector['uninstall_time'] < $end and $the_collector['uninstall_time'] > 0)
+//                    $map['sensor_collect_time'] = array(array('gt', intval($start)), array('lt', intval($the_collector['uninstall_time'])));
+                    array_push($map, ['sensor_collect_time', 'between', [intval($start), intval($the_collector['uninstall_time'])]]);
+                else
+//                    $map['sensor_collect_time'] = array(array('gt', intval($start)), array('lt', intval($end)));
+                    array_push($map, ['sensor_collect_time', 'between', [intval($start), intval($end)]]);
+
+
+                if ($the_collector['temp_type'] == 1) {
+//                    $map['temp'] = array(array('gt', intval($setting['temp_high'])), array('lt', intval($setting['temp_low'])), 'or');
+                    array_push($map,[['temp','>',intval($setting['temp_high'])],'or',['temp','<',intval($setting['temp_low'])]]);
+                } elseif ($the_collector['temp_type'] == 2) {
+//                    $map['temp'] = array('gt', intval($setting['temp_high']));
+                    array_push($map,['temp','>',intval($setting['temp_high'])]);
+                }
+                return ['asd'=>$map];
+                $history = new DataHistory();
+
+                $sensor_id = strval(abs2($collector['supplier_collector_id']));
+                $table = "sensor." . $sensor_id;
+                $pgModel = $history->setTable($table);
+                $collector['data'] =$pgModel->select('data_id,sensor_id,temp,humi,sensor_collect_time,sender_trans_time')->where($map)->orderBy('sensor_collect_time','asc')->get();
+
+
+                if ($the_collector['collector_time_span'] == null) {
+                    $map = array();
+                    $map['sensor_collect_time'] = array('lt', strtotime('-1 day'));
+                    $spans =$pgModel->select('data_id,sensor_id,temp,humi,sensor_collect_time,sender_trans_time')->where($map)->orderBy('sensor_collect_time','desc')->limit(2)->get();
+                    $time_span = round(abs($spans[0]['sensor_collect_time'] - $spans[1]['sensor_collect_time']) / 60);
+                    if (in_array($time_span, array(1, 2, 5))) {
+                        $collector['collector_time_span'] = $time_span;
+                       Collector::where(array('collector_id' => $collector['collector_id']))->update(['collector_time_span'=> $time_span]);
+                    }
+                }
+
+                $collector['data_count'] = count($collector['data']);//数据数量
+                if ($collector['data_count'] == 0) {
+                    $collector['data'] = array();
+                }
+                if ($collector['temp_high']) {
+                    $high_count = 0;
+                    foreach ($collector['data'] as $tmp) {
+                        if ($tmp['temp'] > $collector['temp_high']) {
+                            $high_count++;
+                        }
+                    }
+                    $collector['data_count_temp_high'] = $high_count;
+                    $collector['data_count_temp_low'] = $collector['data_count'] - $high_count;
+                }
+
+            }
+            sortArrByField($collectors, 'data_count');//排序
+
+           return $collectors;
+        }else{
+            return [];
+        }
     }
+
     static public function fieldTitles()
     {
         return
             [
-                'warninger_name'=>'预警通道名称',
-                'warninger_type'=>'预警类型',
-                'warninger_body'=>'一级预警设置',
-                'warninger_body_level2'=>'二级预警设置',
-                'warninger_body_level3'=>'三级预警设置',
-                'bind_times'=>'绑定次数',
+                'warninger_name' => '预警通道名称',
+                'warninger_type' => '预警类型',
+                'warninger_body' => '一级预警设置',
+                'warninger_body_level2' => '二级预警设置',
+                'warninger_body_level3' => '三级预警设置',
+                'bind_times' => '绑定次数',
 
                 'count_tem_unhandled' => '未处理温度预警',
                 'temp_count_all' => '温度预警总计',
@@ -145,6 +223,6 @@ class Warninger extends Coldchain2Model
 
     public function getWarningerTypeAttribute($value)
     {
-        return isset(self::WARNINGER_TYPES[$value])?self::WARNINGER_TYPES[$value]:$value;
+        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
 }

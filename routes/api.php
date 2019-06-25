@@ -125,6 +125,8 @@ $api->version('v1', [
                 $api->get('companies/infomation','CompaniesController@infomation')->name('api.ccrp.reports.companies.infomation');
                 //预警类型统计
                 $api->get('warning_type_statistics', 'WarningersController@warningTypeStatistics')->name('api.ccrp.warning_type_statistics');
+                //预警超温统计
+                $api->get('cooler_temp_overrun', 'WarningersController@coolerTempOverRun')->name('api.ccrp.reports.cooler_temp_overrun');
 
             });
             //同步数据，获取data_id之后的新数据
