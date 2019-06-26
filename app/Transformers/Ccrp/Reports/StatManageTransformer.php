@@ -3,6 +3,8 @@
 namespace App\Transformers\Ccrp\Reports;
 
 use App\Models\Ccrp\Reports\StatMange;
+use App\Transformers\Ccrp\CompanyInfoTransformer;
+use App\Transformers\Ccrp\CompanyListTransformer;
 use App\Transformers\Ccrp\CompanyTransformer;
 use League\Fractal\TransformerAbstract;
 
@@ -39,6 +41,6 @@ class StatManageTransformer extends TransformerAbstract
 
     public function includeCompany(StatMange $statMange)
     {
-        return $this->item($statMange->company,new CompanyTransformer());
+        return $this->item($statMange->company,new CompanyListTransformer());
     }
 }

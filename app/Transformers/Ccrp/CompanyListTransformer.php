@@ -18,7 +18,8 @@ class CompanyListTransformer extends TransformerAbstract
             'short' => $company->short_title,
             'address' => $company->address,
             'address_lat' => $company->address_lat,
-            'address_lon' => $company->address_lon
+            'address_lon' => $company->address_lon,
+            'category' => $company->categories
         ];
         return $arr;
     }

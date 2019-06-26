@@ -5,7 +5,7 @@ namespace App\Models\Ccrp;
 
 class Category extends Coldchain2Model
 {
-    protected $table = 'cooler_category';
+    protected $table = 'company_categories';
     function coolers(){
     return $this->hasMany(Cooler::class,'category_id','id')
         ->where([

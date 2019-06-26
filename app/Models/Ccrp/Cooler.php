@@ -353,4 +353,16 @@ class Cooler extends Coldchain2Model
            '
         )->first();
     }
+
+    //新增冰箱
+    public function addCooler($attributes)
+    {
+        return $this->create(array_only($attributes,$this->fillable));
+    }
+
+    //编辑冰箱
+    public function editCooler($attributes)
+    {
+        return $this->update(array_only($attributes,$this->fillable));
+    }
 }
