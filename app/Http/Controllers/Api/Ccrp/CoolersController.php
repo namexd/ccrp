@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
+use App\Http\Requests\Api\Ccrp\Setting\CoolerAddRequest;
 use App\Models\Ccrp\Cooler;
+use App\Models\Ccrp\Sys\CoolerType;
 use App\Transformers\Ccrp\CoolerHistoryTransformer;
 use App\Transformers\Ccrp\CoolerTransformer;
 use App\Transformers\Ccrp\CoolerType100Transformer;
+use App\Transformers\Ccrp\Sys\CoolerTypeTransformer;
 use Illuminate\Http\Request;
 
 ;
@@ -76,17 +79,25 @@ class CoolersController extends Controller
         return $this->response->paginator($coolers, new CoolerType100Transformer());
     }
 
-    public function store()
+    public function store(CoolerAddRequest $request)
     {
-        $result = $this->cooler->addCooler(request()->all());
+        $this->check();
+        $request['company_id']=$this->company->id;
+        $result = $this->cooler->addCooler($request->all());
         return $this->response->item($result, new CoolerTransformer)->setStatusCode(201);
     }
 
     public function update(Request $request, $id)
     {
+        $this->check();
         $cooler=$this->cooler->find($id);
         $result=$cooler->editCooler($request->all());
         return $this->response->item($result,new CoolerTransformer());
+    }
+
+    public function coolerType()
+    {
+        return $this->response->collection(CoolerType::all(),new CoolerTypeTransformer());
     }
 
 }

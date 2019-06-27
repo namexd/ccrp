@@ -3,6 +3,7 @@
 namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatMange;
+use App\Models\CoolerCategory;
 use App\Traits\ModelFields;
 use App\Traits\ModelTree;
 use Carbon\Carbon;
@@ -177,6 +178,10 @@ class Company extends Coldchain2Model
     public function users()
     {
         return $this->hasMany(User::class, 'company_id', 'id');
+    }
+    public function cooler_category()
+    {
+        return $this->hasMany(CoolerCategory::class,'company_id','id');
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\Ccrp\WarningSenderEvent;
 use App\Transformers\Ccrp\CompanyInfoTransformer;
 use App\Transformers\Ccrp\CompanyListTransformer;
 use App\Transformers\Ccrp\CompanyTransformer;
+use App\Transformers\Ccrp\CoolerCategoryTransformer;
 use function App\Utils\get_last_months;
 use function App\Utils\get_month_first;
 use function App\Utils\get_month_last;
@@ -204,5 +205,13 @@ class CompaniesController extends Controller
         $data['data'] = $value;
         return $this->response->array($data);
 
+    }
+
+    public function coolerCategory()
+    {
+        $this->check();
+        $company_id=$this->company->id;
+        $company=Company::find($company_id);
+        return $this->response->collection($company->cooler_category,new CoolerCategoryTransformer());
     }
 }

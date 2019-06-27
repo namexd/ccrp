@@ -43,6 +43,8 @@ $api->version('v1', [
             // 管辖下级单位的管理水平报表
             $api->get('companies/stat/manage/{id?}/{month?}', 'CompaniesController@statManage')->name('api.ccrp.companies.stat_manage');
             $api->get('companies/stat/warnings/{id?}/{month?}', 'CompaniesController@statWarnings')->name('api.ccrp.companies.stat_warnings');
+            //冰箱分类
+            $api->get('company/cooler_category', 'CompaniesController@coolerCategory')->name('api.ccrp.companies.cooler_category');
             // 所有冰箱
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
@@ -51,6 +53,7 @@ $api->version('v1', [
             $api->get('coolers/{cooler}/history', 'CoolersController@history')->name('api.ccrp.coolers.history');
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
+            $api->get('sys/coolers', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
 
             // 所有探头
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');

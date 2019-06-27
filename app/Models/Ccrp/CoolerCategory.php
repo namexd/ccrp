@@ -1,5 +1,7 @@
 <?php
 namespace App\Models;
+use App\Models\Ccrp\Coldchain2Model;
+
 class CoolerCategory extends Coldchain2Model
 {
     protected $table = 'cooler_category';
