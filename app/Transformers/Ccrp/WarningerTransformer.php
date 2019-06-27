@@ -45,10 +45,10 @@ class WarningerTransformer extends TransformerAbstract
             $phones = explode(',',$phones_str);
             foreach($phones as $phone)
             {
-                $rs .= $contacts[$phone]? $contacts[$phone]."(".hidePhone($phone)."),":hidePhone($phone) .',';
+                $rs .= isset($contacts[$phone])? $contacts[$phone]."(".hidePhone($phone)."),":hidePhone($phone) .',';
             }
         }else{
-            $rs = $contacts[$phones_str]? $contacts[$phones_str]."(".hidePhone($phones_str).")":hidePhone($phones_str);
+            $rs = isset($contacts[$phones_str])? $contacts[$phones_str]."(".hidePhone($phones_str).")":hidePhone($phones_str);
         }
         return $rs;
     }
