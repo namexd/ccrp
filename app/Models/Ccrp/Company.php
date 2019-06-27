@@ -98,6 +98,8 @@ class Company extends Coldchain2Model
             'title' => '单位名称',
             'short_title' => '简称',
             'manager' => '负责人',
+            'region_name' => '地区',
+            'address' => '地址',
             'address_lat' => '地图北纬',
             'address_lon' => '地图东经',
             'shebei_install' => '安装的冷链装备',
@@ -128,7 +130,6 @@ class Company extends Coldchain2Model
             'shebei_actived_type100' => '启用的移动保温箱',
             'shebei_install_type101' => '安装的冷藏车',
             'shebei_actived_type101' => '启用的冷藏车',
-            'region_name' => '地区',
         ];
     }
 
