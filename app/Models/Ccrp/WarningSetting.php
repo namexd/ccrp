@@ -10,4 +10,9 @@ class WarningSetting extends Coldchain2Model
         return $this->belongsTo('collector');
     }
 
+    public function warninger()
+    {
+        return $this->belongsTo(Warninger::class,'warninger_id','warninger_id');
+    }
+
 }

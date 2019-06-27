@@ -8,6 +8,8 @@ use League\Fractal\TransformerAbstract;
 
 class WarningSettingTransformer extends TransformerAbstract
 {
+
+    protected $availableIncludes = ['warninger'];
     public function transform(WarningSetting $setting)
     {
         return [
@@ -17,6 +19,17 @@ class WarningSettingTransformer extends TransformerAbstract
             'temp_warning' => $setting->temp_warning,
             'status' => $setting->status,
             'created_at' =>$setting->set_time?Carbon::createFromTimestamp($setting->set_time)->toDateTimeString():'',
+            'warninger_id' => $setting->warninger_id,
         ];
+    }
+
+    public function includeWarninger(WarningSetting $setting)
+    {
+        if($setting->warninger_id)
+        {
+            return $this->item($setting->warninger, new WarningerTransformer());
+        }else{
+            return null;
+        }
     }
 }
