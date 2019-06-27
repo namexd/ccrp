@@ -58,7 +58,14 @@ ORDER BY lf.`day`,lf.id,lf.tm;';
             $data[$vo->id]['title'] = $vo->title;
             $data[$vo->id][$vo->day][$vo->tm] = $vo->login;
         }
-       return $data;
+        $res=[];
+        $i=0;
+        foreach ($data as $key=>$v)
+        {
+            $res[$i]=$v;
+            $i++;
+        }
+       return $res;
 
     }
     static public function fieldTitles()
