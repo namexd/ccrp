@@ -46,7 +46,7 @@ class User extends Authenticatable
     protected static function fieldTitles()
     {
         return [
-            'name' => '姓名',
+            'name' => '名称',
             'phone' => '手机',
             'phone_verified'=> '手机验证',
             'realname'=> '真实姓名',

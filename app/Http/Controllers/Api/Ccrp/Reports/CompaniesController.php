@@ -35,7 +35,7 @@ class CompaniesController extends Controller
             "title" => '可以绑定系统的人员',
             'meta' => [
                 "header" => '单位联系人',
-                "detail_data" => '/api/ccrp/reports/companies/infomation/concats',
+                "detail_data" => '/api/ccrp/reports/companies/infomation/concats?with=columns',
                 "detail_template"=>'list'
             ]
         ];
