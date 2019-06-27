@@ -13,18 +13,18 @@ class CoolerCategoryTransformer extends TransformerAbstract
     {
         $arr=[
             'id'=>$category->id,
-//            'pid'=>$category->pid,
-//            'group'=>$category->group,
-//            'cooler_type'=>$category->cooler_type,
-            'title'=>$category->title
-//            'cooler_count'=>$category->cooler_count,
-//            'cooler_sum'=>$category->cooler_sum,
-//            'ctime'=>$category->ctime,
-//            'cuid'=>$category->cuid,
-//            'utime'=>$category->utime,
-//            'sort'=>$category->sort,
-//            'status'=>$category->status,
-//            'company_id'=>$category->company_id
+            'pid'=>$category->pid,
+            'group'=>$category->group,
+            'cooler_type'=>$category->cooler_type,
+            'title'=>$category->title,
+            'cooler_count'=>$category->cooler_count,
+            'cooler_sum'=>$category->cooler_sum,
+            'ctime'=>$category->ctime,
+            'cuid'=>$category->cuid,
+            'utime'=>$category->utime,
+            'sort'=>$category->sort,
+            'status'=>$category->status,
+            'company_id'=>$category->company_id
         ];
         return $arr;
     }

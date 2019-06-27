@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 
 $api = app('Dingo\Api\Routing\Router');
 
@@ -43,8 +42,8 @@ $api->version('v1', [
             // 管辖下级单位的管理水平报表
             $api->get('companies/stat/manage/{id?}/{month?}', 'CompaniesController@statManage')->name('api.ccrp.companies.stat_manage');
             $api->get('companies/stat/warnings/{id?}/{month?}', 'CompaniesController@statWarnings')->name('api.ccrp.companies.stat_warnings');
-            //冰箱分类
-            $api->get('company/cooler_category', 'CompaniesController@coolerCategory')->name('api.ccrp.companies.cooler_category');
+            //冰箱单位分类
+            $api->resource('cooler_categories', CoolerCategoryController::class);
             // 所有冰箱
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
