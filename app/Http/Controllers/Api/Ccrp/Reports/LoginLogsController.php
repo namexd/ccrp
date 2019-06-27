@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Ccrp\Report\MonthRequest;
 use App\Models\Ccrp\Reports\LoginLog;
 use App\Transformers\Ccrp\Reports\LoginLogTransformer;
 use App\Transformers\Ccrp\Reports\WarningersTransformer;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Input;
 
 
@@ -29,8 +30,12 @@ class LoginLogsController extends Controller
     {
         $this->check($this->company_id);
         $date =Input::get('month');
-        $login_logs['data']= $loginLog->getReportByMonth($this->company_ids,$date);
-        return $this->response->array($login_logs);
+        if (!$login_logs=\Cache::get('company_login_log'.$this->company->id.$date))
+        {
+            $login_logs= $loginLog->getReportByMonth($this->company_ids,$date);
+            \Cache::put('company_login_log'.$this->company->id.$date,$login_logs,Carbon::now()->addMonth(1));
+        }
+        return $this->response->array(['data'=>$login_logs]);
     }
 
     /**

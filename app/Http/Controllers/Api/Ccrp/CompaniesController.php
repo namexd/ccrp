@@ -206,12 +206,4 @@ class CompaniesController extends Controller
         return $this->response->array($data);
 
     }
-
-    public function coolerCategory()
-    {
-        $this->check();
-        $company_id=$this->company->id;
-        $company=Company::find($company_id);
-        return $this->response->collection($company->cooler_category,new CoolerCategoryTransformer());
-    }
 }

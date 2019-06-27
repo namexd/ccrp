@@ -91,8 +91,9 @@ class CoolersController extends Controller
     {
         $this->check();
         $cooler=$this->cooler->find($id);
-        $result=$cooler->editCooler($request->all());
-        return $this->response->item($result,new CoolerTransformer());
+        $cooler->fill($request->all());
+        $cooler->save();
+        return $this->response->item($cooler,new CoolerTransformer());
     }
 
     public function coolerType()

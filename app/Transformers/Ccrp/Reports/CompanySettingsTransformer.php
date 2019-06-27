@@ -23,6 +23,10 @@ class CompanySettingsTransformer extends TransformerAbstract
             "shebei_actived" => $company->shebei_actived,
 
         ];
+        if(request()->get('with'))
+        {
+            unset($info['pid']);
+        }
         return $info;
     }
 }
