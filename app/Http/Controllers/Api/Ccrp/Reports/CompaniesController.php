@@ -52,7 +52,7 @@ class CompaniesController extends Controller
         $info['data'][] = [
             "title" => '超温预警，离线预警，断电预警设置',
             'meta' => [
-                "header" => '预警参数设置',
+                "header" => '预警参数默认设置',
                 "detail_data" => '/api/ccrp/reports/companies/infomation/warning_settings?with=columns',
                 "detail_template"=>'list'
             ]
