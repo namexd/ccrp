@@ -82,6 +82,7 @@ class CoolersController extends Controller
     public function store(CoolerAddRequest $request)
     {
         $this->check();
+        $this->authorize('unit_operate', $this->company);
         $request['company_id']=$this->company->id;
         $result = $this->cooler->addCooler($request->all());
         return $this->response->item($result, new CoolerTransformer)->setStatusCode(201);
@@ -90,6 +91,7 @@ class CoolersController extends Controller
     public function update(Request $request, $id)
     {
         $this->check();
+        $this->authorize('unit_operate', $this->company);
         $cooler=$this->cooler->find($id);
         $cooler->fill($request->all());
         $cooler->save();

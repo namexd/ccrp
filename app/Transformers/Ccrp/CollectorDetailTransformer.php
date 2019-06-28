@@ -4,11 +4,12 @@ namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Collector;
 use Carbon\Carbon;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class CollectorDetailTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['warningSetting'];
+    protected $availableIncludes = ['warningSetting','cooler'];
     public function transform(Collector $collector)
     {
         return [
@@ -37,7 +38,14 @@ class CollectorDetailTransformer extends TransformerAbstract
         {
             return $this->item($collector->warningSetting, new WarningSettingTransformer());
         }else{
-            return null;
+            return new Item([],function (){
+                return [];
+            });
         }
+    }
+
+    public function includeCooler(Collector $collector)
+    {
+        return $this->item($collector->cooler,new CoolerTransformer());
     }
 }

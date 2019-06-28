@@ -181,9 +181,10 @@ class Company extends Coldchain2Model
     {
         return $this->hasMany(User::class, 'company_id', 'id');
     }
+
     public function cooler_category()
     {
-        return $this->hasMany(CoolerCategory::class,'company_id','id');
+        return $this->hasMany(CoolerCategory::class, 'company_id', 'id');
     }
 
     /**
@@ -707,8 +708,8 @@ class Company extends Coldchain2Model
 
     public static function branchListWithOrders($id, $withoutId = null, $fields = ['id', 'pid', 'title', 'short_title'])
     {
-        $parent = self::where('id',$id)->first();
-        $query = self::where('pid', $id)->where('status',1)->where('company_group', $parent->company_group);
+        $parent = self::where('id', $id)->first();
+        $query = self::where('pid', $id)->where('status', 1)->where('company_group', $parent->company_group);
         if ($withoutId) {
             $query = $query->where('id', '!=', $withoutId);
         }
@@ -727,44 +728,36 @@ class Company extends Coldchain2Model
         return $this->hasMany(CompanyUseSetting::class);
     }
 
-    public function defaultSetting($category='all')
+    public function defaultSetting($category = 'all')
     {
 
-        if($category=='all')
-        {
-            $default = Setting::orderBy('sort','asc')->all();
-        }else{
-            $default = Setting::where('category',$category)->orderBy('sort','asc')->get();
+        if ($category == 'all') {
+            $default = Setting::orderBy('sort', 'asc')->all();
+        } else {
+            $default = Setting::where('category', $category)->orderBy('sort', 'asc')->get();
         }
 //
-        $settings = $default->pluck('value','id')->toArray();
-        if($this->cdc_amdin==1)
-        {
-            $diySettings = $this->hasSettings->pluck('value','setting_id')->toArray();
-        }else
-        {
-            $diySettings = $this->useSettings->pluck('value','setting_id')->toArray();
+        $settings = $default->pluck('value', 'id')->toArray();
+        if ($this->cdc_amdin == 1) {
+            $diySettings = $this->hasSettings->pluck('value', 'setting_id')->toArray();
+        } else {
+            $diySettings = $this->useSettings->pluck('value', 'setting_id')->toArray();
         }
-        if($diySettings)
-        {
+        if ($diySettings) {
             $settings = $settings + $diySettings;
         }
 
-        foreach ($default as &$vo)
-        {
+        foreach ($default as &$vo) {
             $vo->diy_value = null;
         }
-        if($diySettings)
-        {
-            foreach ($default as &$vo)
-            {
-                if($vo->value != $diySettings[$vo->id])
-                {
+        if ($diySettings) {
+            foreach ($default as &$vo) {
+                if ($vo->value != $diySettings[$vo->id]) {
                     $vo->diy_value = $diySettings[$vo->id];
                 }
             }
         }
-       return $default;
+        return $default;
 
     }
 }

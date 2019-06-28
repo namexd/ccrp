@@ -54,5 +54,8 @@ class User extends Authenticatable
             'region'=> '地区',
         ];
     }
-
+    public function hasApps()
+    {
+        return $this->hasMany(UserHasApp::class);
+    }
 }
