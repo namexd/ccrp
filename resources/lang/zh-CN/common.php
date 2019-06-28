@@ -2,7 +2,11 @@
 
 return [
     'id' => 'ID',
-    'name' => '姓名',
+    'name' => '名称',
+    'slug' => '标识',
+    'value' => '值',
+    'tip' => '提示',
+    'options' => '选项',
     'username' => '用户名',
     'password' => '密码',
     'content' => '内容',
@@ -11,4 +15,7 @@ return [
     'address' => '地址',
     'created_at' => '创建时间',
     'updated_at' => '更新时间',
+    'category' => '分类',
+    'type' => '类型',
+    'group' => '分组',
 ];

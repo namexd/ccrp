@@ -4,11 +4,13 @@ namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatCooler;
 use App\Traits\ControllerDataRange;
+use App\Traits\ModelFields;
 use function App\Utils\time_clock;
 
 class Cooler extends Coldchain2Model
 {
 
+    use ModelFields;
     use ControllerDataRange;
     public $default_date = '今日';
 

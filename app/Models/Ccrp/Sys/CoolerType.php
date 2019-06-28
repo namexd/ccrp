@@ -1,8 +1,11 @@
 <?php
-namespace App\Models\Ccrp\Sys;
-use App\Models\Ccrp\Coldchain2Model;
 
-class CoolerType extends Coldchain2Model
+namespace App\Models\Ccrp\Sys;
+
+use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
+
+
+class CoolerType extends Coldchain2ModelWithTimestamp
 {
     protected $table = 'sys_cooler_types';
     protected $primaryKey = 'id';
@@ -15,4 +18,5 @@ class CoolerType extends Coldchain2Model
         'description',
         'note'
     ];
+
 }
