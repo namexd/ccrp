@@ -3,6 +3,7 @@
 namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatMange;
+use App\Models\Ccrp\Sys\Setting;
 use App\Models\CoolerCategory;
 use App\Traits\ModelFields;
 use App\Traits\ModelTree;
@@ -715,4 +716,55 @@ class Company extends Coldchain2Model
         return $query->select($fields)->get();
     }
 
+
+    public function hasSettings()
+    {
+        return $this->hasMany(CompanyHasSetting::class);
+    }
+
+    public function useSettings()
+    {
+        return $this->hasMany(CompanyUseSetting::class);
+    }
+
+    public function defaultSetting($category='all')
+    {
+
+        if($category=='all')
+        {
+            $default = Setting::orderBy('sort','asc')->all();
+        }else{
+            $default = Setting::where('category',$category)->orderBy('sort','asc')->get();
+        }
+//
+        $settings = $default->pluck('value','id')->toArray();
+        if($this->cdc_amdin==1)
+        {
+            $diySettings = $this->hasSettings->pluck('value','setting_id')->toArray();
+        }else
+        {
+            $diySettings = $this->useSettings->pluck('value','setting_id')->toArray();
+        }
+        if($diySettings)
+        {
+            $settings = $settings + $diySettings;
+        }
+
+        foreach ($default as &$vo)
+        {
+            $vo->diy_value = null;
+        }
+        if($diySettings)
+        {
+            foreach ($default as &$vo)
+            {
+                if($vo->value != $diySettings[$vo->id])
+                {
+                    $vo->diy_value = $diySettings[$vo->id];
+                }
+            }
+        }
+       return $default;
+
+    }
 }
