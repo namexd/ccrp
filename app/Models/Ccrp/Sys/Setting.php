@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models\Ccrp;
+namespace App\Models\Ccrp\Sys;
 
-use stdClass;
+use App\Models\Ccrp\Coldchain2Model;
+use App\Traits\ModelFields;
 
 class Setting extends Coldchain2Model
 {
+    use ModelFields;
     protected $table = 'settings';
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -27,13 +29,36 @@ class Setting extends Coldchain2Model
         'array' => '数组 array',
     ];
     const GROUPS = [
-        '0' => '使用单位设置',
-        '1' => 'CDC管理单位设置',
+        '0' => '使用账号',
+        '1' => '管理账号',
     ];
     const STATUSES = [
         '0' => '禁用',
         '1' => '正常',
     ];
+
+
+    const  CATEGORIES= [
+        'company'=>'单位设置',
+        'warninger'=>'报警通道',
+        'warning_setting'=>'预警设置',
+        'report'=>'报表设置',
+        'other'=>'其他',
+    ];
+
+    protected static function columnsFields()
+    {
+        return [
+            'category',
+            'name',
+            'slug',
+            'value',
+            'group',
+            'type',
+            'tip',
+            'options',
+        ];
+    }
 
     public function checkObject($object_value)
     {

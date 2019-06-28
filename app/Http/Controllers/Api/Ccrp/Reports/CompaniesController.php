@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\Ccrp\Reports;
 use App\Models\App;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Contact;
+use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Warninger;
 use App\Models\User;
 use App\Transformers\Ccrp\ContactTransformer;
 use App\Transformers\Ccrp\Reports\CompanySettingsTransformer;
+use App\Transformers\Ccrp\Sys\SettingTransformer;
 use App\Transformers\Ccrp\WarningerTransformer;
 use App\Transformers\UserHidePhoneTransformer;
 
@@ -47,6 +49,14 @@ class CompaniesController extends Controller
                 "detail_template"=>'list'
             ]
         ];
+        $info['data'][] = [
+            "title" => '超温预警，离线预警，断电预警设置',
+            'meta' => [
+                "header" => '预警参数设置',
+                "detail_data" => '/api/ccrp/reports/companies/infomation/warning_settings?with=columns',
+                "detail_template"=>'list'
+            ]
+        ];
         $info["meta"]["columns"] = [
             [
                 "label" => "",
@@ -79,6 +89,14 @@ class CompaniesController extends Controller
                 $app = App::where('slug',App::冷链监测系统)->first();
                 $users =User::whereIn('id', $app->hasUser->where('app_id',$app->id)->where('app_unitid',$this->company->id)->pluck('user_id'))->get();
                 return $this->display($this->response->collection($users,new UserHidePhoneTransformer()),'columns');
+                break;
+            case 'warning_settings':
+                $this->setCrudModel(Setting::class);
+                /** @var Company $company */
+                $company = $this->company;
+                $setting = $company->defaultSetting('warning_setting');
+                $return = $this->response->collection($setting, new SettingTransformer());
+                return $this->display($return,'columns');
                 break;
 
         }
