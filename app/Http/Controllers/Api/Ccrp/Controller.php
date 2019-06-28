@@ -64,7 +64,9 @@ class Controller extends BaseController
 
             $ids = $this->company ? $this->company->ids() : [];
             $this->company_ids = $ids;
+            \Auth::loginUsingId($info['userinfo']['id']);
         }
     }
+
 
 }

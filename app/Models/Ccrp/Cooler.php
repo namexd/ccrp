@@ -3,6 +3,7 @@
 namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatCooler;
+use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
 use function App\Utils\time_clock;
@@ -134,6 +135,10 @@ class Cooler extends Coldchain2Model
     function collectorsTempTypeError()
     {
         return $this->hasMany(Collector::class, 'cooler_id', 'cooler_id')->where('status', Collector::状态_正常)->where('temp_type', Collector::温区_未知);
+    }
+    function cooler_category()
+    {
+        return $this->belongsTo(CoolerCategory::class,'category_id','id');
     }
 
     function history($start_time, $end_time)
