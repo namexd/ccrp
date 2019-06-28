@@ -25,7 +25,7 @@ class CollectorsController extends Controller
         $collectors = Collector::whereIn('company_id', $this->company_ids)->where('status', 1)->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate($this->pagesize);
 
-        return $this->response->paginator($collectors, new CollectorTransformer());
+        return $this->response->paginator($collectors, new CollectorDetailTransformer());
     }
 
 
