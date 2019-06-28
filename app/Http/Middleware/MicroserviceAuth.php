@@ -28,6 +28,15 @@ class MicroserviceAuth
     private function auth($request)
     {
         $access = microservice_access_decode($request->header('access'));
+        if (request()->get('debug')) {
+            $response['_debug']['access'] =$request->header('access');
+            $response['_debug']['access_decode'] = $access;
+            $response['_debug']['method'] = request()->method();
+            $response['_debug']['request'] = request()->all();
+
+            print_r($response);
+            exit();
+        }
         $access_decode = null;
         if($access and $access['appkey'] and $access['appsecret'])
         {
