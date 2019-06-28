@@ -133,6 +133,20 @@ class Collector extends Coldchain2Model
         $sn = str_replace('-', '', $this->supplier_collector_id);
         $history->tableName($sn);
 
+
+         $check = "select to_regclass('sensor.idx_sensor_".$sn."_collect_time');";
+         $rs = \DB::connection('dbhistory')->select($check);
+         if($rs and $rs[0]->to_regclass == null)
+         {
+             $update_index = "DO $$
+BEGIN
+IF to_regclass('sensor.idx_sensor_".$sn."_collect_time') IS NULL THEN
+    CREATE INDEX idx_sensor_".$sn."_collect_time ON \"sensor\".\"".$sn."\" (sensor_collect_time);
+END IF;
+END$$;";
+             $rs = \DB::connection('dbhistory')->select($update_index);
+         }
+
         return $history->setTable('sensor.' . $sn . '')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
     }
 
