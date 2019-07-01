@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
+use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
+use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\User;
 use App\Http\Controllers\Api\Controller as BaseController;
 use App\Models\Microservice\MicroserviceAPI;

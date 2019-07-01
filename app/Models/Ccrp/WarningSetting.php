@@ -4,7 +4,7 @@ namespace App\Models\Ccrp;
 class WarningSetting extends Coldchain2Model
 {
     protected $table='warning_setting';
-
+  public $timestamps=false;
     function collector()
     {
         return $this->belongsTo('collector');

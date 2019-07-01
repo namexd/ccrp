@@ -9,8 +9,8 @@ class DateRangeRequest extends Request
     public function rules()
     {
         return [
-            'start'=>'required|date_format:Y-m-d H:i:s',
-            'end'=>'required|date_format:Y-m-d H:i:s',
+            'start'=>'required',
+            'end'=>'required',
         ];
     }
     public function attributes()

@@ -53,12 +53,13 @@ $api->version('v1', [
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
             $api->get('sys/coolers', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
-
+            $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
             $api->get('collectors/realtime', 'CollectorsController@realtime')->name('api.ccrp.collectors.realtime');
             $api->get('collectors/{collector}/history', 'CollectorsController@history')->name('api.ccrp.collectors.history');
             $api->get('collectors/{collector}', 'CollectorsController@show')->name('api.ccrp.collectors.show');
+            $api->post('collectors', 'CollectorsController@store')->name('api.ccrp.collectors.store');
             // 所有联系人
             $api->get('contacts', 'ConcatsController@index')->name('api.ccrp.contacts.index');
             // 是否包含手机号的联系人

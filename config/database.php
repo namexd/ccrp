@@ -100,6 +100,18 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
+        'dbqingxi' => [
+            'driver' => env('DB_QINGXI_CONNECTION','mysql'),
+            'host' => env('DB_QINGXI_HOST', '127.0.0.1'),
+            'port' => env('DB_QINGXI_PORT', '3306'),
+            'database' => env('DB_QINGXI_DATABASE', 'forge'),
+            'username' => env('DB_QINGXI_USERNAME', 'forge'),
+            'password' => env('DB_QINGXI_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' =>  env('DB_QINGXI_PREFIX', ''),
+            'strict' => true,
+            'engine' => null,
+        ],
         'pgccsc' => [
             'driver' => env('PG_CCSC_CONNECTION','pgsql'),
             'host' => env('PG_CCSC_HOST', '127.0.0.1'),

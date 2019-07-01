@@ -42,7 +42,7 @@ class CoolerTransformer extends TransformerAbstract
     public function includeStatCooler(Cooler $cooler)
     {
         $date = request()->get('date')??date('Y-m', strtotime('-1 Month'));
-        return $this->collection($cooler->statCooler->where('month', $date), new StatCoolerTransformer());
+        return $this->item($cooler->statCooler->where('month', $date), new StatCoolerTransformer());
     }
 
     public function includeCategory(Cooler $cooler)
