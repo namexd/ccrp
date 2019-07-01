@@ -28,10 +28,11 @@ class CompanyTransformer extends TransformerAbstract
         {
             $arr['warning_events'] =$company->warning_events;
         }
-        if ($company->coolers)
-        {
-            $arr['coolers'] =$company->coolers;
-        }
         return $arr;
+    }
+
+    public function includeCooler(Company $company)
+    {
+        return $this->collection($company->coolers,new CoolerTransformer());
     }
 }
