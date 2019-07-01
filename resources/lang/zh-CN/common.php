@@ -4,7 +4,7 @@ return [
     'id' => 'ID',
     'name' => '名称',
     'slug' => '标识',
-    'value' => '值',
+    'value' => '数值',
     'tip' => '提示',
     'options' => '选项',
     'username' => '用户名',

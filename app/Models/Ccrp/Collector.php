@@ -133,7 +133,21 @@ class Collector extends Coldchain2Model
         $sn = str_replace('-', '', $this->supplier_collector_id);
         $history->tableName($sn);
 
-        return $history->setTable('sensor.'.$sn.'')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
+
+         $check = "select to_regclass('sensor.idx_sensor_".$sn."_collect_time');";
+         $rs = \DB::connection('dbhistory')->select($check);
+         if($rs and $rs[0]->to_regclass == null)
+         {
+             $update_index = "DO $$
+BEGIN
+IF to_regclass('sensor.idx_sensor_".$sn."_collect_time') IS NULL THEN
+    CREATE INDEX idx_sensor_".$sn."_collect_time ON \"sensor\".\"".$sn."\" (sensor_collect_time);
+END IF;
+END$$;";
+             $rs = \DB::connection('dbhistory')->select($update_index);
+         }
+
+        return $history->setTable('sensor.' . $sn . '')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
     }
 
     public function uninstall($collector_id, $note = '')
@@ -150,15 +164,15 @@ class Collector extends Coldchain2Model
         $log['change_note'] = $note;
         CollectorChangeLog::create($log);
 
-        $set['supplier_collector_id']= '-'.abs2($collector['supplier_collector_id']);
+        $set['supplier_collector_id'] = '-'.abs2($collector['supplier_collector_id']);
         $set['status'] = 2;
         $set['uninstall_time'] = time();
-        $id =$collector->update($set);
+        $id = $collector->update($set);
         if ($id) {
             (new Cooler)->flush_collector_num($id['cooler_id']);
             //更新报警器，自动解除已绑定的探头
-            $where= 'FIND_IN_SET("'.$collector_id.'", collector_id)';
-            $model_ledspeaker =new Ledspeaker();
+            $where = 'FIND_IN_SET("'.$collector_id.'", collector_id)';
+            $model_ledspeaker = new Ledspeaker();
             $ledspeakers = $model_ledspeaker->whereRaw($where)->get();
             foreach ($ledspeakers as $vo) {
                 $collector = $vo['collector_id'];
@@ -172,7 +186,7 @@ class Collector extends Coldchain2Model
                 $vo->save();
             }
             //设置报警设置状态为2  报废
-           $collector->warningSetting->update(['status' => 2]);
+            $collector->warningSetting->update(['status' => 2]);
 
 
         }
