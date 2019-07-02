@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
+use App\Http\Requests\Api\Ccrp\Report\MonthRequest;
 use App\Http\Requests\Api\Ccrp\StatManualRecordRequest;
 use App\Models\Ccrp\CompanyHasFunction;
+use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Reports\StatManualRecord;
 use App\Models\Ccrp\Signature;
 use App\Traits\ControllerUploader;
@@ -93,7 +95,7 @@ class StatManualRecordsController extends Controller
             $stat_month->cooler_type = $record['cooler_type'];
             $stat_month->temp_cool = $record['temp_cool'];
             $stat_month->temp_cold = $record['temp_cold'];
-            $stat_month->sign_note = $record['sign_note']??'';
+            $stat_month->sign_note = $record['sign_note'] ?? '';
             $stat_month->sign_id = $signature->id;
             $stat_month->sign_time = $signature->sign_time;
             $stat_month->sign_time_a = $sign_time_a;
@@ -103,5 +105,12 @@ class StatManualRecordsController extends Controller
         $this->response->created();
     }
 
+    public function list($cooler_id,$month)
+    {
+        $this->check();
+        $manualRecord=new StatManualRecord();
+        $data['data']=$manualRecord->getListByCoolerAndMonth($cooler_id,$month);
+        return $this->response->array($data);
+    }
 
 }
