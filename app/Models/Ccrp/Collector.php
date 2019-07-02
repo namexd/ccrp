@@ -169,7 +169,7 @@ END$$;";
         $set['uninstall_time'] = time();
         $id = $collector->update($set);
         if ($id) {
-            (new Cooler)->flush_collector_num($id['cooler_id']);
+           (new Cooler)->flush_collector_num($collector['cooler_id']);
             //更新报警器，自动解除已绑定的探头
             $where = 'FIND_IN_SET("'.$collector_id.'", collector_id)';
             $model_ledspeaker = new Ledspeaker();

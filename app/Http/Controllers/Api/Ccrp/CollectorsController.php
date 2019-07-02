@@ -125,22 +125,61 @@ class CollectorsController extends Controller
                 $result->cooler->collector_num++;
                 $result->cooler->save();
 
-                $aa= (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
+                (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
             }
         return $this->response->item($result, new CollectorDetailTransformer())->setStatusCode(201);
 
     }
 
-    public function update(Request $request, $id)
+    public function update(CollectorRequest $request, $id)
     {
         $this->check();
         $this->authorize('unit_operate', $this->company);
-        $collector=$this->collector->find($id);
-        $collector->fill($request->all());
-        $collector->save();
-        return $this->response->item($collector,new CollectorDetailTransformer());
+        $cooler_object = new Cooler();
+
+        $old = $this->collector->find($id);
+        $request['install_uid'] = $this->user->id;
+        //更换了冰箱
+        if ($request->get('cooler_id') <> $old['cooler_id']) {
+            unset($request['collector_id']);
+            $request['supplier_collector_id'] = $old['supplier_collector_id'];
+            $request['company_id'] = $this->company_id;
+            $request['supplier_product_model'] = $old['supplier_product_model'];
+            $request['supplier_id'] = $old['supplier_id'];
+            $cooler = $cooler_object->find($request['cooler_id']);
+            $request['category_id'] = $cooler['category_id'];
+            $request['cooler_name'] = $cooler['cooler_name'];
+            $this->collector->uninstall($old['collector_id'], '更换监测装备');
+            $result = $this->collector->create($request->all());
+        }else
+        {
+            $result = $old->update($request);
+        }
+        if ($result) {
+            $cooler_object->flush_collector_num($request->get('cooler_id'));
+            $cooler_object->flush_collector_num($old['cooler_id']);
+            return $this->response->item($result,new CollectorDetailTransformer());
+
+        } else {
+            return $this->response->errorInternal('修改失败');
+        }
+
     }
 
+    public function uninstall($id)
+    {
+        $this->check();
+        $change_note=request()->get('change_note');
+        if ($change_note == '') return $this->response->errorBadRequest('备注不能为空');
+        if (strlen($change_note) < 4) return $this->response->errorBadRequest('“备注”中请填写清楚具体报废的原因');
+
+        $result = $this->collector->uninstall($id, $change_note);
+        if ($result) {
+           return $this->response->noContent();
+        } else {
+            return $this->response->errorInternal('报废失败');
+        }
+    }
     public function coolerType()
     {
         return $this->response->collection(CoolerType::all(),new CoolerTypeTransformer());

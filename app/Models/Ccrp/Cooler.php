@@ -376,11 +376,10 @@ class Cooler extends Coldchain2Model
     //刷新探头数量
 
     public function flush_collector_num($cooler_id){
-        $cooler=self::find($cooler_id);
+        $cooler=Cooler::find($cooler_id);
         $map['cooler_id']=$cooler_id;
         $map['status']=1;
         $count = Collector::where($map)->count();
-        $cooler->fill(['collector_num'=>$count]);
-        $cooler->save();
+        $cooler->update(['collector_num'=>$count]);
     }
 }
