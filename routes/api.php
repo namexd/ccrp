@@ -9,7 +9,14 @@ $api->version('v1', [
 ], function ($api) {
     // 版本
     $api->get('version', function () {
-        return '1.0.19.4.25';
+         return \App\Models\Ccrp\Collectorguanxi::first();
+    });
+    $api->get('coolers/test', function (){
+//        $table_name = '"sensor"."454678752"';
+//        $sql2="select create_sensortable('454678752') as result;";
+//        $rs2=\DB::connection('dbhistory')->select($sql2);
+//        dd($rs2);
+        dd(\App\Models\Ccrp\Collectorguanxi::first());
     });
     //测试：生成access发送请求
     $api->get('test/send', 'HelloController@send');
@@ -45,6 +52,7 @@ $api->version('v1', [
             //冰箱单位分类
             $api->resource('cooler_categories', CoolerCategoryController::class);
             // 所有冰箱
+
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
             $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');
@@ -60,6 +68,7 @@ $api->version('v1', [
             $api->get('collectors/{collector}/history', 'CollectorsController@history')->name('api.ccrp.collectors.history');
             $api->get('collectors/{collector}', 'CollectorsController@show')->name('api.ccrp.collectors.show');
             $api->post('collectors', 'CollectorsController@store')->name('api.ccrp.collectors.store');
+            $api->put('collectors/{id}', 'CollectorsController@update')->name('api.ccrp.collectors.update');
             // 所有联系人
             $api->get('contacts', 'ConcatsController@index')->name('api.ccrp.contacts.index');
             // 是否包含手机号的联系人

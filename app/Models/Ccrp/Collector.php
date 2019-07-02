@@ -158,7 +158,7 @@ END$$;";
         if (!$collector) return false;
 
         //添加LOG
-        $log = $collector;
+        $log = $collector->toArray();
         $log['change_time'] = time();
         $log['change_option'] = 1;
         $log['change_note'] = $note;
@@ -186,7 +186,7 @@ END$$;";
                 $vo->save();
             }
             //设置报警设置状态为2  报废
-            $collector->warningSetting->update(['status' => 2]);
+            $collector->warningSetting()->update(['status' => 2]);
 
 
         }

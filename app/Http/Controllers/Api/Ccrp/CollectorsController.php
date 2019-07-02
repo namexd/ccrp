@@ -30,7 +30,8 @@ class CollectorsController extends Controller
     public function index()
     {
         $this->check();
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->with('company')
+        $status=request()->get('status')??1;
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status)->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate($this->pagesize);
 
         return $this->response->paginator($collectors, new CollectorDetailTransformer());
@@ -107,6 +108,10 @@ class CollectorsController extends Controller
         $request['company_id']=$this->company->id;
         $request['install_uid']=$this->user->id;
         $cooler = Cooler::where('cooler_id',$request->cooler_id)->first();
+        if ($cooler->status==Cooler::状态_报废)
+        {
+            return $this->response->errorBadRequest('该冰箱已报废');
+        }
         $request['category_id'] = $cooler['category_id'];
         $request['cooler_name'] = $cooler['cooler_name'];
         $product =Product::where('supplier_product_model',$request->supplier_product_model)->first();
@@ -114,17 +119,14 @@ class CollectorsController extends Controller
         if ($request['supplier_product_model'] == 'LWYL201') {
             $request['offline_check'] = 0;
         }
-        $result=  \DB::transaction(function () use($request) {
             $result = $this->collector->create($request->all());
             if ($result)
             {
                 $result->cooler->collector_num++;
                 $result->cooler->save();
-                (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
-            }
-            return $result;
-        });
 
+                $aa= (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
+            }
         return $this->response->item($result, new CollectorDetailTransformer())->setStatusCode(201);
 
     }
@@ -138,6 +140,7 @@ class CollectorsController extends Controller
         $collector->save();
         return $this->response->item($collector,new CollectorDetailTransformer());
     }
+
     public function coolerType()
     {
         return $this->response->collection(CoolerType::all(),new CoolerTypeTransformer());

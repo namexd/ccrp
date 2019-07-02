@@ -380,6 +380,7 @@ class Cooler extends Coldchain2Model
         $map['cooler_id']=$cooler_id;
         $map['status']=1;
         $count = Collector::where($map)->count();
-        $cooler->update(['collector_num'=>$count]);
+        $cooler->fill(['collector_num'=>$count]);
+        $cooler->save();
     }
 }

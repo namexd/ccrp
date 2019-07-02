@@ -30,7 +30,8 @@ class CoolersController extends Controller
     public function index()
     {
         $this->check();
-        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $status=request()->get('status')??1;
+        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('status', $status);
         if (request()->get('has_collector')) {
             $coolers = $coolers->where('collector_num', '>', 0);
         }
@@ -100,15 +101,18 @@ class CoolersController extends Controller
         $cooler = $this->cooler->find($id);
         $cooler->fill($request->all());
         $cooler->save();
+        $cooler->warningSetting()->update(['category_id'=>$request->category_id]);
         return $this->response->item($cooler, new CoolerTransformer());
     }
-
     //备用、维修、启用 关闭探头，关闭报警
     public function coolerStatus(CoolerStatusRequest $request, $id)
     {
         $this->check();
         $cooler = $this->cooler->find($id);
         $status = $request->status;
+        $offline_check=$status==1?1:0;
+        $temp_warning=$status==1?1:0;
+
         if ($cooler) {
             $post['cooler_id'] = $cooler['cooler_id'];
             $post['cooler_sn'] = $cooler['cooler_sn'];
@@ -134,10 +138,10 @@ class CoolersController extends Controller
                     }
                 } else {
                     $cooler->update($set);
-                    $cooler->collectors()->update(['offline_check' => $status]);
+                    $cooler->collectors()->update(['offline_check' => $offline_check]);
                     if ($cooler['collector_num'] > 0) {
                         foreach ($cooler->collectors as $vo) {
-                            $vo->warningSetting()->update(['temp_warning' => $status]);
+                            $vo->warningSetting()->update(['temp_warning' => $temp_warning]);
 
                         }
                     }
