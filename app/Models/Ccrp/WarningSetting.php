@@ -5,7 +5,6 @@ namespace App\Models\Ccrp;
 class WarningSetting extends Coldchain2Model
 {
     protected $table = 'warning_setting';
-    protected $primaryKey = 'warninger_id';
     public $timestamps = false;
     protected $fillable = [
         'collector_id',
@@ -47,7 +46,7 @@ class WarningSetting extends Coldchain2Model
         return $this->belongsTo(Warninger::class, 'warninger_id', 'warninger_id');
     }
 
-    public static $warning_time = [
+   const WARNING_TIME = [
         'WARNING_TIME_LAST' => array(
             '1' => 30,
             '2' => 60,
