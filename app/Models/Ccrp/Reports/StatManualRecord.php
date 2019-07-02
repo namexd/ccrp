@@ -118,7 +118,9 @@ class StatManualRecord extends Coldchain2Model
                 $data[$i] = $row;
             }
             foreach ($reports as $re) {
-                $re['sign_info']=$this->transform($re->sign_id);
+                if ($re->sign_id){
+                    $re['sign_info']=$this->transform($re->sign_id);
+                }
                 $data[$re->day][$re->sign_time_a] = $re;
             }
             $data = array_values($data);

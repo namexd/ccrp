@@ -3,47 +3,57 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\WarningEventRequest;
+use App\Models\Ccrp\Warninger;
 use App\Models\Ccrp\WarningEvent;
 use App\Models\Ccrp\WarningSenderEvent;
+use App\Models\Ccrp\WarningSetting;
 use App\Transformers\Ccrp\WarningAllEventTransformer;
 use App\Transformers\Ccrp\WarningEventTransformer;
 use App\Transformers\Ccrp\WarningSenderEventTransformer;
+use App\Transformers\Ccrp\WarningSettingTransformer;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Input;
 
-class WarningAllEventsController extends Controller
+class WarningSettingsController extends Controller
 {
-    public function categories($handled='unhandled')
-    {
-        $this->check($this->user());
+    private $model;
 
-        $count['overtemp']['name'] = '超温预警';
-        $count['overtemp']['key'] = 'overtemp';
-        $count['overtemp']['route'] = 'warning_events/overtemp/';
-        $count['poweroff']['name'] = '断电预警';
-        $count['poweroff']['key'] = 'poweroff';
-        $count['poweroff']['route'] = 'warning_events/poweroff/';
-        switch ($handled) {
-            case 'unhandled':
-                $count['overtemp']['count'] = WarningEvent::whereIn('company_id', $this->company_ids)->where('handled',0)->count();
-                $count['poweroff']['count'] = WarningSenderEvent::whereIn('company_id', $this->company_ids)->where('handled',0)->count();
-                break;
-            case 'handled':
-                $count['overtemp']['count'] = WarningEvent::whereIn('company_id', $this->company_ids)->where('handled',1)->count(); $count['poweroff']['count'] = WarningSenderEvent::whereIn('company_id', $this->company_ids)->where('handled',1)->count();
-                break;
-            default  :
-                $count['overtemp']['count'] = WarningEvent::whereIn('company_id', $this->company_ids)->count();
-                $count['poweroff']['count'] = WarningSenderEvent::whereIn('company_id', $this->company_ids)->count();
-        }
-        foreach ($count as $item)
+    public function __construct(WarningSetting $warningSetting)
+    {
+        $this->model = $warningSetting;
+    }
+
+    public function index()
+    {
+        $this->check();
+        if ($keyword=request()->get('keywaord'))
         {
-            $categories['data'][] = $item;
-}
-        return $this->response->array($categories);
+            $this->model=$this->model->whereHas('collector',function ($query) use ($keyword){
+               $query->where('collector_name',$keyword)->whereOr('supplier_collector_id',$keyword);
+            });
+        }
+        $warnings=$this->model->whereIn('company_id',$this->company_ids)->where('status',1)->paginate($this->pagesize);
+        return $this->response->paginator($warnings,new WarningSettingTransformer());
+    }
+
+    public function show($id)
+    {
+        $this->check();
 
     }
 
+    public function update($id)
+    {
+        $this->check();
+
+    }
+
+    public function store()
+    {
+        $this->check();
+
+    }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Transformers\Ccrp;
 
+use App\Models\Ccrp\Warninger;
 use App\Models\Ccrp\WarningSetting;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
@@ -9,7 +10,7 @@ use League\Fractal\TransformerAbstract;
 class WarningSettingTransformer extends TransformerAbstract
 {
 
-    protected $availableIncludes = ['warninger'];
+    protected $availableIncludes = ['warninger','collector'];
     public function transform(WarningSetting $setting)
     {
         return [
@@ -28,11 +29,10 @@ class WarningSettingTransformer extends TransformerAbstract
 
     public function includeWarninger(WarningSetting $setting)
     {
-        if($setting->warninger_id)
-        {
-            return $this->item($setting->warninger, new WarningerTransformer());
-        }else{
-            return null;
-        }
+        return $this->item($setting->warninger, new WarningerTransformer());
+    }
+    public function includeCollector(WarningSetting $setting)
+    {
+        return $this->item($setting->collector,new CollectorTransformer());
     }
 }
