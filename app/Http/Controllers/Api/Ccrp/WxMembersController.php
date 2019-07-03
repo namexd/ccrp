@@ -8,6 +8,7 @@ use App\Models\Ccrp\Warninger;
 use App\Models\Ccrp\WarningEvent;
 use App\Models\Ccrp\WarningSenderEvent;
 use App\Models\Ccrp\WarningSetting;
+use App\Models\Ccrp\WxMemberModel;
 use App\Transformers\Ccrp\WarningAllEventTransformer;
 use App\Transformers\Ccrp\WarningEventTransformer;
 use App\Transformers\Ccrp\WarningSenderEventTransformer;
@@ -17,13 +18,13 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Input;
 
-class WarningSettingsController extends Controller
+class WxMembersController extends Controller
 {
     private $model;
 
-    public function __construct(WarningSetting $warningSetting)
+    public function __construct(WxMemberModel $wxMemberModel)
     {
-        $this->model = $warningSetting;
+        $this->model = $wxMemberModel;
     }
 
     public function index()

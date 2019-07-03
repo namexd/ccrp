@@ -31,7 +31,12 @@ class CollectorsController extends Controller
     {
         $this->check();
         $status=request()->get('status')??1;
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status)->with('company')
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status);
+        if ($keyword=request()->get('keyword'))
+        {
+            $collectors = $collectors->where('collector_name','like','%'.$keyword.'%')->whereOr('supplier_collector_id','like','%'.$keyword.'%');
+        }
+        $collectors = $collectors->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate($this->pagesize);
 
         return $this->response->paginator($collectors, new CollectorDetailTransformer());

@@ -35,6 +35,10 @@ class CoolersController extends Controller
         if (request()->get('has_collector')) {
             $coolers = $coolers->where('collector_num', '>', 0);
         }
+        if ($keyword=request()->get('keyword'))
+        {
+            $coolers = $coolers->where('cooler_name','like','%'.$keyword.'%')->whereOr('cooler_sn','like','%'.$keyword.'%');
+        }
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate($this->pagesize);
         return $this->response->paginator($coolers, new CoolerTransformer());
@@ -108,6 +112,8 @@ class CoolersController extends Controller
     public function coolerStatus(CoolerStatusRequest $request, $id)
     {
         $this->check();
+        $this->authorize('unit_operate', $this->company);
+
         $cooler = $this->cooler->find($id);
         $status = $request->status;
         $offline_check=$status==1?1:0;

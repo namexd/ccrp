@@ -9,7 +9,7 @@ $api->version('v1', [
 ], function ($api) {
     // 版本
     $api->get('version', function () {
-         return \App\Models\Ccrp\Collectorguanxi::first();
+        return '1.0.19.4.25';
     });
     $api->get('coolers/test', function (){
 //        $table_name = '"sensor"."454678752"';
