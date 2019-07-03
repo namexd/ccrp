@@ -13,8 +13,8 @@ class CollectorHistoryTransformer extends TransformerAbstract
     {
         return [
             'data_id' => $history->data_id,
-            'temp' => format_value($history->temp),
-            'humi' => format_value($history->humi),
+            'temp' => format_value($history->temp,'-'),
+            'humi' => format_value($history->humi,'-'),
             'collect_time' => Carbon::createFromTimestamp($history->collect_time)->toDateTimeString(),
             'system_time' => Carbon::createFromTimestamp($history->system_time)->toDateTimeString(),
         ];

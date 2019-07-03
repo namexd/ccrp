@@ -20,10 +20,14 @@ function array_trim($arr, $trim = true)
     return $arr;
 }
 
-function format_value($value, $suffix = '')
+function format_value($value, $none = null, $decimal = 1, $suffix = '')
 {
-    if ($value !== '' and $value !== NULL and $value <> -999) return sprintf("%.1f", round($value, 3)) . $suffix;
-    else return '-';
+    if ($value !== '' and $value !== NULL and $value <> -999){
+        return sprintf("%.".$decimal."f", round($value, 3)) . $suffix;
+    }
+    else{
+        return $none;
+    }
 }
 
 /*
