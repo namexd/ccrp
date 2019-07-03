@@ -42,6 +42,6 @@ class WarningSenderEventTransformer extends TransformerAbstract
     }
     public function includeCompany(WarningSenderEvent $event)
     {
-        return $this->item($event->company, new CompanyTransformer());
+        return $this->item($event->company, new CompanyListTransformer());
     }
 }
