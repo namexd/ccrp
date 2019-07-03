@@ -10,7 +10,7 @@ use League\Fractal\TransformerAbstract;
 
 class WarningSenderEventTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['options'];
+    protected $availableIncludes = ['options','company'];
 
     public function transform(WarningSenderEvent $event)
     {
@@ -39,5 +39,9 @@ class WarningSenderEventTransformer extends TransformerAbstract
     public function includeOptions(WarningSenderEvent $event)
     {
         return $this->collection($event->options(), new WarningEventOptionTransformer());
+    }
+    public function includeCompany(WarningSenderEvent $event)
+    {
+        return $this->item($event->company, new CompanyListTransformer());
     }
 }

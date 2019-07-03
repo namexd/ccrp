@@ -16,6 +16,7 @@ class LoginLog extends Coldchain2pgModel
         '2'=>'手机',
         '3'=>'微信',
         '4'=>'APP',
+        '5'=>'小程序'
     ];
     public function company()
     {

@@ -3,6 +3,7 @@
 namespace App\Models\Ccrp;
 
 
+use function App\Utils\abs2;
 use function App\Utils\format_value;
 
 /**
@@ -14,9 +15,9 @@ class Collector extends Coldchain2Model
     protected $table = 'collector';
     protected $primaryKey = 'collector_id';
 
-    protected $fillable = ['collector_id', 'collector_name', 'cooler_id', 'cooler_name', 'supplier_product_model', 'supplier_collector_id', 'category_id', 'company_id', 'temp_warning', 'humi_warning', 'volt_warning', 'temp', 'humi', 'volt', 'rssi', 'update_time', 'install_time', 'uninstall_time', 'status'];
+    protected $fillable = ['collector_id', 'supplier_id', 'collector_name', 'cooler_id', 'cooler_name', 'supplier_product_model', 'supplier_collector_id', 'category_id', 'company_id', 'temp_warning', 'install_uid', 'humi_warning', 'volt_warning', 'temp', 'humi', 'volt', 'rssi', 'update_time', 'install_time', 'uninstall_time', 'status'];
 
-
+    public $timestamps = false;
     //探头监测类型：
     const 离线时间 = 3600;
     //探头监测类型：
@@ -93,11 +94,11 @@ class Collector extends Coldchain2Model
 
     public function getUnnormalStatusAttribute()
     {
-        if ($this->warning_status ==3 ) {
+        if ($this->warning_status == 3) {
             $rs = '离线';
         } elseif ($this->warning_type == 1) {
             $rs = '超温';
-        }  elseif ($this->warning_type == 2) {
+        } elseif ($this->warning_type == 2) {
             $rs = '超温';
         } else {
             $rs = '';
@@ -108,12 +109,11 @@ class Collector extends Coldchain2Model
     public function getWarningSettingTempRangeAttribute()
     {
         if ($setting = $this->warningSetting) {
-            if($this->warningSetting->status == 1 and $this->warningSetting->temp_warning == 1)
-            {
+            if ($this->warningSetting->status == 1 and $this->warningSetting->temp_warning == 1) {
                 return [$setting->temp_low, $setting->temp_height];
             }
         }
-        return [-999,999];
+        return [-999, 999];
     }
 
     /**
@@ -148,6 +148,49 @@ END$$;";
          }
 
         return $history->setTable('sensor.' . $sn . '')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
+    }
+
+    public function uninstall($collector_id, $note = '')
+
+    {
+        $collector = $this->find($collector_id);
+
+        if (!$collector) return false;
+
+        //添加LOG
+        $log = $collector->toArray();
+        $log['change_time'] = time();
+        $log['change_option'] = 1;
+        $log['change_note'] = $note;
+        CollectorChangeLog::create($log);
+
+        $set['supplier_collector_id'] = '-'.abs2($collector['supplier_collector_id']);
+        $set['status'] = 2;
+        $set['uninstall_time'] = time();
+        $id = $collector->update($set);
+        if ($id) {
+           (new Cooler)->flush_collector_num($collector['cooler_id']);
+            //更新报警器，自动解除已绑定的探头
+            $where = 'FIND_IN_SET("'.$collector_id.'", collector_id)';
+            $model_ledspeaker = new Ledspeaker();
+            $ledspeakers = $model_ledspeaker->whereRaw($where)->get();
+            foreach ($ledspeakers as $vo) {
+                $collector = $vo['collector_id'];
+                $collector = explode(',', $collector);
+                $key = array_search($collector_id, $collector);
+                if ($key !== false)
+                    array_splice($collector, $key, 1);
+                $vo['collector_num'] = count($collector);
+                $collector = implode(',', $collector);
+                $vo['collector_id'] = $collector;
+                $vo->save();
+            }
+            //设置报警设置状态为2  报废
+            $collector->warningSetting()->update(['status' => 2]);
+
+
+        }
+        return $id;
     }
 
 }

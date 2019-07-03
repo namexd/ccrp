@@ -11,6 +11,13 @@ $api->version('v1', [
     $api->get('version', function () {
         return '1.0.19.4.25';
     });
+    $api->get('coolers/test', function (){
+//        $table_name = '"sensor"."454678752"';
+//        $sql2="select create_sensortable('454678752') as result;";
+//        $rs2=\DB::connection('dbhistory')->select($sql2);
+//        dd($rs2);
+        dd(\App\Models\Ccrp\Collectorguanxi::first());
+    });
     //测试：生成access发送请求
     $api->get('test/send', 'HelloController@send');
 
@@ -45,6 +52,7 @@ $api->version('v1', [
             //冰箱单位分类
             $api->resource('cooler_categories', CoolerCategoryController::class);
             // 所有冰箱
+
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
             $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');
@@ -53,12 +61,15 @@ $api->version('v1', [
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
             $api->get('sys/coolers', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
-
+            $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
             $api->get('collectors/realtime', 'CollectorsController@realtime')->name('api.ccrp.collectors.realtime');
             $api->get('collectors/{collector}/history', 'CollectorsController@history')->name('api.ccrp.collectors.history');
             $api->get('collectors/{collector}', 'CollectorsController@show')->name('api.ccrp.collectors.show');
+            $api->post('collectors', 'CollectorsController@store')->name('api.ccrp.collectors.store');
+            $api->put('collectors/{id}', 'CollectorsController@update')->name('api.ccrp.collectors.update');
+            $api->post('collector/uninstall/{id}', 'CollectorsController@uninstall')->name('api.ccrp.collectors.uninstall');
             // 所有联系人
             $api->get('contacts', 'ConcatsController@index')->name('api.ccrp.contacts.index');
             // 是否包含手机号的联系人
@@ -77,10 +88,14 @@ $api->version('v1', [
             $api->get('warning_sendlogs/list/{type?}', 'WarningSendlogsController@index')->name('api.ccrp.warning_sendlogs.list');
             $api->get('warning_sendlogs/{sendlog}', 'WarningSendlogsController@show')->name('api.ccrp.warning_sendlogs.show');
             //人工测温记录,查看或者签名
+            $api->get('stat_manual_record/index/{cooler_id?}/{month?}', 'StatManualRecordsController@list')->name('api.ccrp.stat_manual_records.list');
             $api->get('stat_manual_records', 'StatManualRecordsController@create')->name('api.ccrp.stat_manual_records.create');
             $api->post('stat_manual_records', 'StatManualRecordsController@store')->name('api.ccrp.stat_manual_records.store');
             $api->get('stat_manual_records/list/{month?}', 'StatManualRecordsController@index')->name('api.ccrp.stat_manual_records.index');
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
+           //报警设置
+           $api->resource('warning_settings', WarningSettingsController::class);
+
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
             $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');

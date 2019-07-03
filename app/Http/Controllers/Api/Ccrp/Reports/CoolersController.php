@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp\Reports;
 
 use App\Http\Requests\Api\Ccrp\Report\DateRangeRequest;
+use App\Http\Requests\Api\Ccrp\Report\MonthRequest;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Reports\CoolerLog;
