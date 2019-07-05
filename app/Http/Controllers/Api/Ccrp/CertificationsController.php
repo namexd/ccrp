@@ -12,7 +12,6 @@ class CertificationsController extends Controller
 
     public function __construct(Certification $certification)
     {
-        parent::__construct();
         $this->model = $certification;
     }
 

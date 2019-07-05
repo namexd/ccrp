@@ -5,6 +5,7 @@ namespace App\Models\Ccrp\Reports;
 use App\Models\Ccrp\Coldchain2Model;
 use App\Models\Ccrp\Company;
 use App\Traits\ModelFields;
+use Carbon\Carbon;
 
 class StatMange extends Coldchain2Model
 {
@@ -32,5 +33,15 @@ class StatMange extends Coldchain2Model
             'unlogintimes' => '未按规定登录平台次数',
             'grade' => '冷链管理评估值'
         ];
+    }
+
+    public function getListByMonths($company_ids,$start,$end)
+    {
+        $start=Carbon::createFromTimestamp(strtotime($start));
+        $end=Carbon::createFromTimestamp(strtotime($end));
+        $start_month=$start->firstOfMonth()->timestamp;
+        $end_month=$end->endOfMonth()->timestamp;
+        $result=$this->selectRaw('*,ROUND(avg(grade),2) as grade')->whereRaw('(CONVERT((UNIX_TIMESTAMP(concat(year,"-",if(length(month)=1,concat(0,month),month),"-01"))),SIGNED) between '.$start_month.' and '.$end_month.')')->whereIn('company_id',$company_ids)->groupBy('company_id');
+        return $result;
     }
 }

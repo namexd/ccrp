@@ -36,9 +36,10 @@ class WarningSendlogsController extends Controller
         return $this->response->paginator($logs, new WarningSendlogTransformer())->addMeta('date_range',$this->get_dates('datetime',true));
     }
 
-    public function show(WarningSendlog $sendlog)
+    public function show($id)
     {
         $this->check();
+        $sendlog=WarningSendlog::find($id);
         return in_array($sendlog->company_id,$this->company_ids)?$this->response->item($sendlog, new WarningSendlogTransformer()):$this->response->noContent();
     }
 

@@ -51,6 +51,8 @@ $api->version('v1', [
             $api->get('companies/stat/warnings/{id?}/{month?}', 'CompaniesController@statWarnings')->name('api.ccrp.companies.stat_warnings');
             //冰箱单位分类
             $api->resource('cooler_categories', CoolerCategoryController::class);
+            //报警通道
+            $api->resource('warningers', WarningersController::class);
             // 所有冰箱
 
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
@@ -120,7 +122,7 @@ $api->version('v1', [
                 return json_decode($resp,true);
             });
             $api->get('menus','MenusController@index');
-            $api->post('export_data', 'ExportsController@exportData')->name('api.ccrp.export_data');
+            $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
 
             //CCrp数据报表
             $api->group([
