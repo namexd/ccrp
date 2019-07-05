@@ -8,6 +8,7 @@ use App\Models\Ccrp\Contact;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Warninger;
 use App\Models\User;
+use App\Transformers\Ccrp\ContactHidePhoneTransformer;
 use App\Transformers\Ccrp\ContactTransformer;
 use App\Transformers\Ccrp\Reports\CompanySettingsTransformer;
 use App\Transformers\Ccrp\Sys\SettingTransformer;
@@ -82,7 +83,7 @@ class CompaniesController extends Controller
             case 'concats':
                 $this->setCrudModel(Contact::class);
                 $users =Contact::where('company_id', $this->company->id)->get();
-                return $this->display($this->response->collection($users,new ContactTransformer()),'columns');
+                return $this->display($this->response->collection($users,new ContactHidePhoneTransformer()),'columns');
                 break;
             case 'users':
                 $this->setCrudModel(User::class);
