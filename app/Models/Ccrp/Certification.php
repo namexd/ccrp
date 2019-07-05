@@ -30,7 +30,7 @@ class Certification extends Coldchain2Model
     public function files()
     {
         $ids = explode(',', $this->file_ids);
-        return File::whereIn('id', $ids)->get();
+        return File::whereIn('id',$ids)->get();
     }
 
     function company()

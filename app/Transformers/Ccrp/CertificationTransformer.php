@@ -3,6 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Certification;
+use App\Models\Ccrp\File;
 use League\Fractal\TransformerAbstract;
 
 class CertificationTransformer extends TransformerAbstract
@@ -26,7 +27,8 @@ class CertificationTransformer extends TransformerAbstract
             'file_id' => $certification->file_id,
             'file_ids' => $certification->file_ids,
             'pay_company_id' => $certification->pay_company_id,
-            'company_id' => $certification->company_id
+            'company_id' => $certification->company_id,
+            'files'=>$certification->files()??[]
         ];
         return $arr;
     }
@@ -46,7 +48,11 @@ class CertificationTransformer extends TransformerAbstract
     }
     public function includeFiles(Certification $certification)
     {
+        if ($certification->files())
         return $this->collection($certification->files(), new FileTransformer());
+        else
+         return $this->item(new File(), new FileTransformer());
+
     }
 
 }

@@ -10,6 +10,7 @@ use App\Models\Ccrp\WarningSenderEvent;
 use App\Models\Ccrp\WarningSetting;
 use App\Models\Ccrp\WxMemberModel;
 use App\Transformers\Ccrp\WarningAllEventTransformer;
+use App\Transformers\Ccrp\WarningerTransformer;
 use App\Transformers\Ccrp\WarningEventTransformer;
 use App\Transformers\Ccrp\WarningSenderEventTransformer;
 use App\Transformers\Ccrp\WarningSettingTransformer;
@@ -18,27 +19,25 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Input;
 
-class WxMembersController extends Controller
+class WarningersController extends Controller
 {
     private $model;
 
-    public function __construct(WxMemberModel $wxMemberModel)
+    public function __construct(Warninger $warninger)
     {
-        $this->model = $wxMemberModel;
+        $this->model = $warninger;
     }
 
     public function index()
     {
         $this->check();
-        $warnings=$this->model->whereIn('company_id',$this->company_ids)->where('status',1);
+        $warninger=$this->model->whereIn('company_id',$this->company_ids);
         if ($keyword=request()->get('keyword'))
         {
-            $warnings=$warnings->whereHas('collector',function ($query) use ($keyword){
-               $query->where('collector_name','like','%'.$keyword.'%')->whereOr('supplier_collector_id','like','%'.$keyword.'%');
-            });
+            $warninger=$warninger->where('warninger_name','like','%'.$keyword.'%');
         }
-        $warnings=$warnings->orderBy('id','desc')->paginate($this->pagesize);
-        return $this->response->paginator($warnings,new WarningSettingTransformer());
+        $warninger=$warninger->orderBy('warninger_id','desc')->paginate($this->pagesize);
+        return $this->response->paginator($warninger,new WarningerTransformer());
     }
 
     public function show($id)
@@ -91,7 +90,7 @@ class WxMembersController extends Controller
 
     }
 
-    public function store(WarningSettingRequest $request)
+    public function store(WarninerRequest $request)
     {
         $this->check();
         if ($this->model->where('collector_id',$request['collector_id'])->first())

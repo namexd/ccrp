@@ -35,6 +35,12 @@ class WarningEventsController extends Controller
         }
         $this->set_default_datas($this->default_date);
         $model = $model->whereBetween(WarningEvent::TIME_FIELD, $this->get_dates());
+        if ($cooler_id=request()->get('cooler_id'))
+        {
+            $model=$model->whereHas('collector',function ($query) use ($cooler_id){
+                $query->where('cooler_id',$cooler_id);
+            });
+        }
         $evnets = $model->orderBy('id', 'desc')->paginate($this->pagesize);
         return $this->response->paginator($evnets, new WarningEventTransformer())->addMeta('date_range', $this->get_dates('datetime', true));
     }
