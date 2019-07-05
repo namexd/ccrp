@@ -26,7 +26,7 @@ class CheckTasksController extends Controller
     {
         $this->check();
         $company_ids = $this->company_ids;
-        $data = $this->model->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
+        $data = $this->model->where('status',1)->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
         return $this->response->paginator($data, new CheckTaskTransformer());
     }
 

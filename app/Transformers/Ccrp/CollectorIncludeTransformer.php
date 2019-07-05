@@ -3,6 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Collector;
+use function App\Utils\format_value;
 use Carbon\Carbon;
 use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
@@ -16,8 +17,8 @@ class CollectorIncludeTransformer extends TransformerAbstract
             'id' => $collector->collector_id,
             'sn' => $collector->supplier_collector_id,
             'name' => $collector->collector_name,
-            'temp' =>$collector->temp,
-            'humi' =>$collector->humi,
+            'temp' => format_value($collector->temp,'-'),
+            'humi' => format_value($collector->humi,'-'),
             'refresh_time' => Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString(),
         ];
     }

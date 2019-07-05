@@ -3,6 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Collector;
+use function App\Utils\format_value;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
@@ -18,8 +19,8 @@ class CollectorRealtimeTransformer extends TransformerAbstract
             'cooler_name' => $collector->cooler_name,
             'company_id' => $collector->company_id,
             'company' => $collector->company->title,
-            'temp' => round($collector->temp, 1),
-            'humi' => round($collector->humi, 1),
+            'temp' => format_value($collector->temp,'-'),
+            'humi' => format_value($collector->humi,'-'),
             'refresh_time' =>$collector->refresh_time?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():'',
         ];
         $rs['unnormal_status'] = $collector->unnormal_status;
