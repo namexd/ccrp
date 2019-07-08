@@ -72,10 +72,12 @@ $api->version('v1', [
             $api->post('collectors', 'CollectorsController@store')->name('api.ccrp.collectors.store');
             $api->put('collectors/{id}', 'CollectorsController@update')->name('api.ccrp.collectors.update');
             $api->post('collector/uninstall/{id}', 'CollectorsController@uninstall')->name('api.ccrp.collectors.uninstall');
-            // 所有联系人
-            $api->get('contacts', 'ConcatsController@index')->name('api.ccrp.contacts.index');
             // 是否包含手机号的联系人
             $api->get('contacts/{company_id}/has_phone/{phone}', 'ConcatsController@hasPhone')->name('api.ccrp.contacts.has_phone');
+//             所有联系人
+            $api->get('contacts/destroy/{id}', 'ConcatsController@destroy');
+            $api->resource('contacts', ConcatsController::class);
+
             // 报警统计
             $api->get('warning_events/categories/{handled?}', 'WarningAllEventsController@categories')->name('api.ccrp.warning_all_events.categories');
             // 超温报警
@@ -97,6 +99,7 @@ $api->version('v1', [
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
            //报警设置
            $api->resource('warning_settings', WarningSettingsController::class);
+           $api->resource('warningers', WarningersController::class);
 
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
