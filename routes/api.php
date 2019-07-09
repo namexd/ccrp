@@ -98,9 +98,7 @@ $api->version('v1', [
             $api->get('stat_manual_records/list/{month?}', 'StatManualRecordsController@index')->name('api.ccrp.stat_manual_records.index');
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
            //报警设置
-           $api->resource('warning_settings', WarningSettingsController::class);
-           $api->resource('warningers', WarningersController::class);
-
+            $api->resource('warning_settings', WarningSettingsController::class);
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
             $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');

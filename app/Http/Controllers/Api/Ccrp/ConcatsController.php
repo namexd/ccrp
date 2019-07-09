@@ -12,7 +12,7 @@ class ConcatsController extends Controller
     {
         $this->check();
         $concats = Contact::whereIn('company_id',$this->company_ids)->where('status',1)->with('company')
-            ->orderBy('company_id','asc')->paginate($this->pagesize);
+            ->orderBy('company_id','asc')->paginate(request()->get('pagesize')??$this->pagesize);
 
         return $this->response->paginator($concats, new ContactTransformer());
     }
@@ -51,6 +51,10 @@ class ConcatsController extends Controller
     public function destroy($id)
     {
         $concat=Contact::find($id);
+        if (!$concat)
+        {
+            return $this->response->errorBadRequest('该联系人不存在');
+        }
         $phone = $concat['phone'];
         if($phone !='')
         {

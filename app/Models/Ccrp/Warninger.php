@@ -53,7 +53,7 @@ class Warninger extends Coldchain2Model
     ];
     protected $table = 'warninger';
     protected $primaryKey = 'warninger_id';
-    protected $fillable = ['warninger_id', 'warninger_name', 'warninger_type', 'warninger_type_level2', 'warninger_type_level3', 'warninger_body', 'warninger_body_pluswx', 'warninger_body_level2', 'warninger_body_level2_pluswx', 'warninger_body_level3', 'warninger_body_level3_pluswx', 'using_sensor_num', 'set_time', 'set_uid', 'bind_times', 'category_id', 'company_id'];
+    protected $fillable = ['warninger_id', 'warninger_name', 'warninger_type', 'warninger_type_level2', 'warninger_type_level3', 'warninger_body', 'warninger_body_pluswx', 'warninger_body_level2', 'warninger_body_level2_pluswx', 'warninger_body_level3', 'warninger_body_level3_pluswx', 'using_sensor_num', 'set_time', 'set_uid', 'bind_times', 'category_id', 'company_id','ctime','utime'];
 
     function company()
     {
@@ -215,6 +215,14 @@ class Warninger extends Coldchain2Model
     }
 
     public function getWarningerTypeAttribute($value)
+    {
+        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
+    }
+    public function getWarningerTypeLevel2Attribute($value)
+    {
+        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
+    }
+    public function getWarningerTypeLevel3Attribute($value)
     {
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }

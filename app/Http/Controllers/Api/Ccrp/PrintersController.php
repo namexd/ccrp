@@ -24,7 +24,7 @@ class PrintersController extends Controller
     {
         $this->check();
         $vehicles = $this->printer->whereIn('company_id', $this->company_ids)->where('status', 1)
-            ->paginate($this->pagesize);
+            ->paginate(request()->get('pagesize')??$this->pagesize);
         $transform = new PrinterTransformer();
         return $this->response->paginator($vehicles, $transform);
     }

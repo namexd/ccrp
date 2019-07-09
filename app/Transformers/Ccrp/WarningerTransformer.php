@@ -16,6 +16,11 @@ class WarningerTransformer extends TransformerAbstract
             'id' => $setting->warninger_id,
             'warninger_name' => $setting->warninger_name,
             'warninger_type' => $setting->warninger_type,
+//            'warninger_body_pluswx' => $setting->warninger_body_pluswx?$this->formatPluswx($setting->warninger_body_pluswx):'',
+//            'warninger_body_level2_pluswx' => $setting->warninger_body_level2_pluswx?$this->formatPluswx($setting->warninger_body_level2_pluswx):'',
+//            'warninger_body_level3_pluswx' => $setting->warninger_body_level3_pluswx?$this->formatPluswx($setting->warninger_body_level3_pluswx):'',
+            'warninger_type_level2' => $setting->warninger_type_level2,
+            'warninger_type_level3' => $setting->warninger_type_level3,
             'warninger_body' => $setting->warninger_body,
             'warninger_body_level2' => $setting->warninger_body_level2,
             'warninger_body_level3' =>  $setting->warninger_body_level3,
@@ -49,6 +54,25 @@ class WarningerTransformer extends TransformerAbstract
             }
         }else{
             $rs = isset($contacts[$phones_str])? $contacts[$phones_str]."(".hidePhone($phones_str).")":hidePhone($phones_str);
+        }
+        return $rs;
+    }
+    public function formatPluswx($id_Str)
+    {
+        if($id_Str=="")return "";
+        $rs = "";
+        if(strpos($id_Str,','))
+        {
+            $ids = explode(',',$id_Str);
+            foreach($ids as $id)
+            {
+                $contact=Contact::find($id);
+                $rs .= $contact['name']."(".hidePhone($contact['phone'])."),";
+            }
+        }else{
+
+            $contact=Contact::find($id_Str);
+            $rs= $contact['name']."(".hidePhone($contact['phone'])."),";
         }
         return $rs;
     }

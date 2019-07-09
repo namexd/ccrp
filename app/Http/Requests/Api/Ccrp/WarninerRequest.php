@@ -10,6 +10,8 @@ class WarninerRequest extends Request
     {
         return [
             'warninger_name' => 'required',
+            'warninger_type' => 'required',
+            'warninger_body' => 'required',
         ];
     }
 

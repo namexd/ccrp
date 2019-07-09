@@ -45,7 +45,7 @@ class TemperatureController extends Controller
         $month_last = date('Y-m-d H:i:s', strtotime(date('Y-m-01', strtotime($month_first)) . ' +1 month') - 1);;
         $month_start = strtotime($month_first);
         $month_end = strtotime($month_last);
-        $coolers = (new Cooler())->getListByCompanyIdsAndMonth($this->company_ids, $month_start, $month_end)->paginate($this->pagesize);
+        $coolers = (new Cooler())->getListByCompanyIdsAndMonth($this->company_ids, $month_start, $month_end)->paginate(request()->get('pagesize')??$this->pagesize);
         $lists=(new  TemperatuesCoolerHistory())->getExportUrl($coolers,$this->user()->id,$date);
         return $this->response->paginator($lists,new CoolerTransformer());
     }

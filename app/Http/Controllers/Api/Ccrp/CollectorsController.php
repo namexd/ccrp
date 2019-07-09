@@ -37,7 +37,7 @@ class CollectorsController extends Controller
             $collectors = $collectors->where('collector_name','like','%'.$keyword.'%')->whereOr('supplier_collector_id','like','%'.$keyword.'%');
         }
         $collectors = $collectors->with('company')
-            ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate($this->pagesize);
+            ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate(request()->get('pagesize')??$this->pagesize);
 
         return $this->response->paginator($collectors, new CollectorDetailTransformer());
     }

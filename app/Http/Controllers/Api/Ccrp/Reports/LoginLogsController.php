@@ -51,7 +51,7 @@ class LoginLogsController extends Controller
         $this->check($this->company_id);
         $start = strtotime(Input::get('start'));
         $end = strtotime(Input::get('end'));
-        $lists=$loginLog->getDetailByDate($this->company_ids,$start,$end)->paginate($this->pagesize);
+        $lists=$loginLog->getDetailByDate($this->company_ids,$start,$end)->paginate(request()->get('pagesize')??$this->pagesize);
         $transformer=new LoginLogTransformer();
         return $this->response->paginator($lists,$transformer)->addMeta('colums',$transformer->columns());
     }
