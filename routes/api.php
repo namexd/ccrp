@@ -52,13 +52,16 @@ $api->version('v1', [
             //冰箱单位分类
             $api->resource('cooler_categories', CoolerCategoryController::class);
             //报警通道
+            $api->get('warningers/get_warninger_types', 'WarningersController@getWarningerTypes');
             $api->resource('warningers', WarningersController::class);
             //报警器
             $api->get('ledspeakers/products', 'LedspeakersController@products');
             $api->get('ledspeakers/bind/{id}', 'LedspeakersController@bind');
             $api->resource('ledspeakers', LedspeakersController::class);
+            //中继器
+            $api->post('senders/warning_setting/{id}', 'SendersController@warningSetting');
+            $api->resource('senders', SendersController::class);
             // 所有冰箱
-
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
             $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');

@@ -5,6 +5,7 @@ namespace App\Transformers\Ccrp;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\EquipmentChangeApply;
 use App\Models\Ccrp\EquipmentChangeDetail;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 
@@ -32,7 +33,9 @@ class EquipmentChangeDetailTransformer extends TransformerAbstract
             return $this->item(new Cooler, new CoolerTransformer());
         }else
         {
-            return $this->item($detail->cooler, new CoolerTransformer());
+            return new Item(null,function (){
+                return [];
+            });
         }
 
     }

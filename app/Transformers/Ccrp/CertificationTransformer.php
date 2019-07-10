@@ -4,6 +4,7 @@ namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Certification;
 use App\Models\Ccrp\File;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class CertificationTransformer extends TransformerAbstract
@@ -51,7 +52,9 @@ class CertificationTransformer extends TransformerAbstract
         if ($certification->files())
         return $this->collection($certification->files(), new FileTransformer());
         else
-         return $this->item(new File(), new FileTransformer());
+            return new Item(null,function (){
+                return [];
+            });
 
     }
 

@@ -7,6 +7,7 @@ use App\Models\Ccrp\GatewaybindingdataModel;
 use App\Models\Ccrp\Ledspeaker;
 use App\Models\Ccrp\LedspeakerLog;
 use App\Transformers\Ccrp\LedspeakerTransformer;
+use Illuminate\Support\Facades\Input;
 
 class LedspeakersController extends Controller
 {
@@ -32,7 +33,7 @@ class LedspeakersController extends Controller
     {
         $this->check();
         $warning = $this->model->find($id);
-        return $this->response->item($warning, new LedspeakerTransformer())->addMeta('products', $this->model->get_products());
+        return $this->response->item($warning, new LedspeakerTransformer());
     }
 
     public function update($id)
@@ -71,11 +72,11 @@ class LedspeakersController extends Controller
 
     public function destroy($id)
     {
-        if (request()->get('change_note') == '')
+        if(Input::get('change_note') == '')
             return $this->response->errorBadRequest('备注不能为空');
         $ledspeaker = $this->model->find($id);
-        if (!$ledspeaker) {
-            return $this->response->errorBadRequest('该报警器不存在');
+        if ($ledspeaker->status ==2) {
+            return $this->response->errorBadRequest('该报警器已经报废');
         }
         $attribute['change_time'] = time();
         $attribute['change_option'] = 1;
