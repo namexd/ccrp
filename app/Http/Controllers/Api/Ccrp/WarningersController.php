@@ -76,4 +76,8 @@ class WarningersController extends Controller
         return $this->response->noContent();
     }
 
+    public function getWarningerTypes()
+    {
+        return $this->response->array($this->model->getWarningTypes());
+    }
 }

@@ -226,4 +226,17 @@ class Warninger extends Coldchain2Model
     {
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
+
+    public function getWarningTypes()
+    {
+        $arr=[];
+        foreach (self::WARNINGER_TYPES as $k=> $type)
+        {
+            $arr[]=[
+                'value'=>$k,
+                'label'=>$type,
+            ];
+        }
+        return $arr;
+    }
 }
