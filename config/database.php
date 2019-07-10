@@ -147,7 +147,17 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-
+        'DB_LX01CMD' => array(
+            'driver' =>  env('DB_LX01CMD_CONNECTION','mysql'),
+            'host' => env('DB_LX01CMD_HOST', '127.0.0.1'),
+            'port' => env('DB_LX01CMD_PORT', '3306'),
+            'database' => env('DB_LX01CMD_DATABASE', 'forge'),
+            'username' => env('DB_LX01CMD_USERNAME', 'forge'),
+            'password' => env('DB_LX01CMD_PASSWORD', ''),
+            'prefix' => env('DB_LX01CMD_PREFIX', ''),
+            'strict' => true,
+            'engine' => null,
+        ),
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'host' => env('DB_HOST', 'localhost'),

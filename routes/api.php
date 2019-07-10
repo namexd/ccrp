@@ -53,6 +53,10 @@ $api->version('v1', [
             $api->resource('cooler_categories', CoolerCategoryController::class);
             //报警通道
             $api->resource('warningers', WarningersController::class);
+            //报警器
+            $api->get('ledspeakers/products', 'LedspeakersController@products');
+            $api->get('ledspeakers/bind/{id}', 'LedspeakersController@bind');
+            $api->resource('ledspeakers', LedspeakersController::class);
             // 所有冰箱
 
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');

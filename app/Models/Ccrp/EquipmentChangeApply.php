@@ -79,7 +79,7 @@ class EquipmentChangeApply extends Model
                     if (is_array($details) && !is_null($details)) {
                         $apply->details()->createMany($details);
                     }
-                    if (is_array($news) && !is_null($news)) {
+                    if (is_array($news) && !is_null($news) && array_get(array_first($news),'cooler_name')) {
                         $apply->news()->createMany($news);
                     }
                     return $apply;

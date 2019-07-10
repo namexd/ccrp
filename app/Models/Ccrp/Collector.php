@@ -17,7 +17,6 @@ class Collector extends Coldchain2Model
 
     protected $fillable = ['collector_id', 'supplier_id', 'collector_name', 'cooler_id', 'cooler_name', 'supplier_product_model', 'supplier_collector_id', 'category_id', 'company_id', 'temp_warning', 'install_uid', 'humi_warning', 'volt_warning', 'temp', 'humi', 'volt', 'rssi', 'update_time', 'install_time', 'uninstall_time', 'status'];
 
-    public $timestamps = false;
     //探头监测类型：
     const 离线时间 = 3600;
     //探头监测类型：
@@ -191,6 +190,36 @@ END$$;";
 
         }
         return $id;
+    }
+
+    public function create(array $attributes = [], array $options = [])
+    {
+        if(array_get($attributes,'supplier_product_model')=='LWTG310S' or array_get($attributes,'supplier_product_model')=='LWTGD310S'){
+            $attributes['supplier_id'] = 1001;
+        }
+        $rs = parent::create($attributes);
+        return $rs;
+    }
+    public function update(array $attributes = [], array $options = [])
+    {
+        $collector_id = $this->collector_id;
+        $save = parent::update($attributes,$options) ;
+        $self = $this->find($collector_id);
+        if($self['supplier_product_model']=='LWTG310S' or $self['supplier_product_model']=='LWTGD310S'){
+            $gateway = new GatewaybindingdataModel();
+            $gateway->set_collector($collector_id);
+            if($collector_id){
+                if($self['status']==1)   //status==2，报废，解除不添加
+                {
+                    $gateway->do_mod_collector(array('DisplayName'=>$self['collector_name']));
+
+                }else{
+                    $gateway->do_del_collector();
+                }
+
+            }
+        }
+        return $save;
     }
 
 }
