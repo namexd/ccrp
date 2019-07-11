@@ -3,25 +3,31 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Printer;
+use App\Models\Ccrp\PrinterLog;
 use League\Fractal\TransformerAbstract;
 
-class PrinterTransformer extends TransformerAbstract
+class PrinterLogTransformer extends TransformerAbstract
 {
     private $columns = [
-        'printer_id' ,
-        'printer_sn' ,
-        'printer_name',
-        'vehicle' ,
-        'printer_simcard',
+        'title',
+        'subtitle',
+        'content',
+        'print_time',
         'company_id',
-        'install_uid',
-        'install_time',
-        'update_time',
-        'refresh_time',
-        'server_status',
-        'job_done',
-        'job_waiting',
-        'status',
+        'uid',
+        'orderindex',
+        'server_state',
+        'order_state',
+        'order_status',
+        'pages',
+        'pagei',
+        'from_type',
+        'from_device',
+        'from_order_id',
+        'from_time_begin',
+        'from_time_end',
+        'sign_id',
+        'sign_time',
     ];
 
     public function columns()
@@ -29,12 +35,11 @@ class PrinterTransformer extends TransformerAbstract
 
     }
 
-    public function transform(Printer $printer)
+    public function transform(PrinterLog $printer_log)
     {
-        $result=[];
-        foreach ($this->columns as $column)
-        {
-            $result[$column]=$printer->{$column}??'';
+        $result = [];
+        foreach ($this->columns as $column) {
+            $result[$column] = $printer_log->{$column} ?? '';
         }
         return $result;
     }

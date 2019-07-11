@@ -39,5 +39,4 @@ class PrinterTransformer extends TransformerAbstract
         return $result;
     }
 
-
 }
