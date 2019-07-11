@@ -218,15 +218,15 @@ class Warninger extends Coldchain2Model
         return self::getFieldsTitles(self::REPOERT_COLUMS[$type]);
     }
 
-    public function getWarningerTypeAttribute($value)
+    public function getWarningerTypeNameAttribute($value)
     {
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
-    public function getWarningerTypeLevel2Attribute($value)
+    public function getWarningerTypeLevel2NameAttribute($value)
     {
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
-    public function getWarningerTypeLevel3Attribute($value)
+    public function getWarningerTypeLevel3NameAttribute($value)
     {
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
@@ -242,5 +242,10 @@ class Warninger extends Coldchain2Model
             ];
         }
         return $arr;
+    }
+
+    public function contacts(array $phones)
+    {
+        return Contact::whereIn('phone',$phones)->where('status',1)->where('company_id',$this->company_id)->get();
     }
 }
