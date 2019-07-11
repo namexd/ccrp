@@ -68,6 +68,7 @@ class Printer extends Coldchain2Model
                 $data['server_state'] = $rs['msg'];
                 $data['orderindex'] = $rs['orderindex'];
             }
+            PrinterLog::create($data);
             return $rs;
         }
     }
