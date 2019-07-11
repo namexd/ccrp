@@ -51,6 +51,10 @@ class Warninger extends Coldchain2Model
         self::发送类型_电话 => '电话',
         self::发送类型_短信2 => '短信',
     ];
+    const WARNINGER_TYPES2 = [
+        self::发送类型_短信 => '短信',
+        self::发送类型_电话 => '电话',
+    ];
     protected $table = 'warninger';
     protected $primaryKey = 'warninger_id';
     protected $fillable = ['warninger_id', 'warninger_name', 'warninger_type', 'warninger_type_level2', 'warninger_type_level3', 'warninger_body', 'warninger_body_pluswx', 'warninger_body_level2', 'warninger_body_level2_pluswx', 'warninger_body_level3', 'warninger_body_level3_pluswx', 'using_sensor_num', 'set_time', 'set_uid', 'bind_times', 'category_id', 'company_id','ctime','utime'];
@@ -230,7 +234,7 @@ class Warninger extends Coldchain2Model
     public function getWarningTypes()
     {
         $arr=[];
-        foreach (self::WARNINGER_TYPES as $k=> $type)
+        foreach (self::WARNINGER_TYPES2 as $k=> $type)
         {
             $arr[]=[
                 'value'=>$k,

@@ -11,7 +11,6 @@ class Sender extends Coldchain2Model
     public $timestamps=false;
 
     protected $fillable = [
-        'senderid',
         'sender_id',
         'supplier_model',
         'supplier_id',
@@ -38,9 +37,9 @@ class Sender extends Coldchain2Model
    {
        return $this->belongsTo(CoolerCategory::class,'category_id','id');
    }
-   public function dccharging()
+   public function sender_status()
    {
-       return $this->hasOne(Dccharging::class,'sender_id','sender_id');
+       return $this->hasOne(SenderStatus::class,'supplier_sender_id','sender_id');
    }
 
    public function warning_setting()

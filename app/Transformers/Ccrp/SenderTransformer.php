@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class SenderTransformer extends TransformerAbstract
 {
-    protected $availableIncludes=['cooler_category','dccharging','warning_setting'];
+    protected $availableIncludes=['cooler_category','sender_status','warning_setting'];
     public function transform(Sender $sender)
     {
         return [
@@ -27,11 +27,21 @@ class SenderTransformer extends TransformerAbstract
     }
     public function includeCoolerCategory(Sender $sender)
     {
+        if ($sender->cooler_category)
         return $this->item($sender->cooler_category,new CoolerCategoryTransformer());
+        else
+            return new Item(null,function (){
+                return [];
+            });
     }
-    public function includeDccharging(Sender $sender)
+    public function includeSenderStatus(Sender $sender)
     {
-        return $this->item($sender->dccharging,new DcchargingTransformer());
+        if ($sender->sender_status)
+        return $this->item($sender->sender_status,new SenderStatusTransform());
+        else
+            return new Item(null,function (){
+                return [];
+            });
     }
     public function includeWarningSetting(Sender $sender)
     {
