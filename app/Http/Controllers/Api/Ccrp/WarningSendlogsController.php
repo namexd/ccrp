@@ -32,7 +32,7 @@ class WarningSendlogsController extends Controller
         }
         $this->set_default_datas(request()->date_name?? $this->default_date);
         $model= $model->whereBetween(WarningSendlog::TIME_FIELD,$this->get_dates());
-        $logs = $model->orderBy('id', 'desc')->paginate($this->pagesize);
+        $logs = $model->orderBy('id', 'desc')->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($logs, new WarningSendlogTransformer())->addMeta('date_range',$this->get_dates('datetime',true));
     }
 

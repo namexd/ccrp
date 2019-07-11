@@ -28,8 +28,8 @@ class CollectorDetailTransformer extends TransformerAbstract
             'company_id' => $collector->company_id,
             'company' => $collector->company->title,
             'refresh_time' => $collector->refresh_time>0?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():0,
-            'created_at' => $collector->install_time>0?Carbon::createFromTimestamp($collector->install_time)->toDateTimeString():0,
-            'updated_at' => $collector->update_time>0?Carbon::createFromTimestamp($collector->update_time)->toDateTimeString():0,
+            'created_at' => $collector->created_at->toDateTimeString(),
+            'updated_at' => $collector->updated_at->toDateTimeString(),
         ];
     }
 

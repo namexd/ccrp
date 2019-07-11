@@ -4,14 +4,13 @@
 namespace App\Http\Requests\Api\Ccrp;
 
 
-class WarninerRequest extends Request
+class SenderRequest extends Request
 {
     public function rules()
     {
         return [
-            'warninger_name' => 'required',
-            'warninger_type' => 'required',
-            'warninger_body' => 'required',
+            'sender_id' => 'required',
+            'note' => 'required',
         ];
     }
 

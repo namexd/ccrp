@@ -36,7 +36,7 @@ class WarningSettingsController extends Controller
                $query->where('collector_name','like','%'.$keyword.'%')->whereOr('supplier_collector_id','like','%'.$keyword.'%');
             });
         }
-        $warnings=$warnings->orderBy('id','desc')->paginate($this->pagesize);
+        $warnings=$warnings->orderBy('id','desc')->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($warnings,new WarningSettingTransformer());
     }
 

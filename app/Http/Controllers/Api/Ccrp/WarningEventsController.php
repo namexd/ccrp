@@ -41,7 +41,7 @@ class WarningEventsController extends Controller
                 $query->where('cooler_id',$cooler_id);
             });
         }
-        $evnets = $model->orderBy('id', 'desc')->paginate($this->pagesize);
+        $evnets = $model->orderBy('id', 'desc')->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($evnets, new WarningEventTransformer())->addMeta('date_range', $this->get_dates('datetime', true));
     }
 

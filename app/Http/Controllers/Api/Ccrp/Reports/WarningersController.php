@@ -44,7 +44,7 @@ class WarningersController extends Controller
             $end = $todayTime;
 
         $this->check($this->company_id);
-        $result = $warninger->getHistoryList($this->company_ids, $start, $end, $type)->paginate($this->pagesize);
+        $result = $warninger->getHistoryList($this->company_ids, $start, $end, $type)->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($result, new CompanyTransformer())->addMeta('columns', $warninger->colums($type));
     }
 

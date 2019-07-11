@@ -40,7 +40,7 @@ class CoolersController extends Controller
             $coolers = $coolers->where('cooler_name','like','%'.$keyword.'%')->whereOr('cooler_sn','like','%'.$keyword.'%');
         }
         $coolers = $coolers->with('company')
-            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate($this->pagesize);
+            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($coolers, new CoolerTransformer());
     }
 

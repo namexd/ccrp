@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Http\Requests\Api\Ccrp\PrinterRequest;
+use App\Extensions\Feie\PrinterAPI;
+use App\Http\Requests\Api\Ccrp\Setting\PrinterRequest;
 use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Printer;
 use App\Models\Ccrp\Vehicle;
-
 use App\Models\Ccrp\PrinterTemplate;
 use App\Transformers\Ccrp\PrinterTransformer;
 
@@ -23,12 +23,63 @@ class PrintersController extends Controller
     public function index()
     {
         $this->check();
-        $vehicles = $this->printer->whereIn('company_id', $this->company_ids)->where('status', 1)
-            ->paginate($this->pagesize);
+        $printers = $this->printer->whereIn('company_id', $this->company_ids)->where('status', 1);
+        if ($keyword = request()->get('keyword')) {
+            $printers = $printers->where('printer_name', 'like', '%'.$keyword.'%')
+                ->whereOr('printer_sn', 'like', '%'.$keyword.'%');
+        }
+        if($this->user->userlevel == 2 ){
+            if($this->user->binding_printer<>'')
+            $printers=$printers->whereIn('printer_sn',explode(',',$this->user->binding_printer));
+        }
+        $printers = $printers->paginate(request()->get('pagesize')??$this->pagesize);
+        $printer=new PrinterAPI();
+        $printer->IP 			= $this->printer::CONFIG['PRINTER_IP'];
+        $printer->PORT			= $this->printer::CONFIG['PRINTER_PORT'];
+        $printer->HOSTNAME		= $this->printer::CONFIG['PRINTER_HOSTNAME'];
+        foreach($printers as &$vo)
+        {
+            $rs = $printer ->queryPrinterStatus($vo['printer_sn'],$vo['printer_key']);
+
+            $rs = json_decode($rs);
+
+            if($rs->responseCode == 0){
+                $vo['refresh_time'] =$data['refresh_time'] = time();
+
+                $vo['server_status'] =$data['server_status'] = $rs->msg;
+
+                $rs = $printer ->queryOrderInfoByDate($vo['printer_sn'],$vo['printer_key'],date('Y-m-d'));
+                $rs = json_decode($rs);
+                if($rs->responseCode == 0){
+                    $vo['job_done'] =$data['job_done'] = $rs->print;
+                    $vo['job_waiting'] =$data['job_waiting'] = $rs->waiting;
+                }
+
+                $this->printer->where('printer_id',$vo['printer_id'])->update($data);
+
+            }
+
+        }
         $transform = new PrinterTransformer();
-        return $this->response->paginator($vehicles, $transform);
+        return $this->response->paginator($printers, $transform);
     }
 
+    public function show($id)
+    {
+        $printer=$this->printer->find($id);
+        return $this->response->item($printer,new PrinterTransformer);
+    }
+
+    public function store(PrinterRequest $request)
+    {
+        $this->check();
+
+    }
+    public function update($id)
+    {
+        $this->check();
+
+    }
     public function printTemp(PrinterRequest $request, Vehicle $vehicleModel, Collector $collectorModel, PrinterTemplate $printTemplate)
     {
 

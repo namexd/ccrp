@@ -30,7 +30,7 @@ class DevicesController extends Controller
         $companies = Company::whereIn('id', $this->company_ids)
             ->where('status', 1)//状态开启
             ->where('cdc_admin', 0)//使用的单位，非管理单位
-            ->paginate($this->pagesize);
+            ->paginate(request()->get('pagesize')??$this->pagesize);
         $transfer = new DevicesStatisticTransformer();
         return $this->response->paginator($companies, $transfer)
             ->addMeta('columns', $transfer->columns());
@@ -53,7 +53,7 @@ class DevicesController extends Controller
         $stat_manages = StatMange::whereIn('company_id', $this->company_ids)
             ->where('year', $year)
             ->where('month', $month)
-            ->paginate($this->pagesize);
+            ->paginate(request()->get('pagesize')??$this->pagesize);
         $transfer = new StatManageTransformer();
         return $this->response->paginator($stat_manages, $transfer)
             ->addMeta('columns', $transfer->columns());
@@ -74,7 +74,7 @@ class DevicesController extends Controller
         $month_last = date('Y-m-d H:i:s', strtotime(date('Y-m-01', strtotime($month_first)) . ' +1 month') - 1);;
         $month_start = strtotime($month_first);
         $month_end = strtotime($month_last);
-        $stat_manages = (new Cooler())->getListByCompanyIdsAndMonth($this->company_ids, $month_start, $month_end)->paginate($this->pagesize);;
+        $stat_manages = (new Cooler())->getListByCompanyIdsAndMonth($this->company_ids, $month_start, $month_end)->paginate(request()->get('pagesize')??$this->pagesize);;
         return $this->response->paginator($stat_manages, new CoolerTransformer())
             ->addMeta('columns', (new StatCoolerTransformer)->columns());
     }

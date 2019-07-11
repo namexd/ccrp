@@ -33,7 +33,7 @@ class CoolersController extends Controller
         $this->check($this->company_id);
         $start = strtotime(Input::get('start'));
         $end = strtotime(Input::get('end'));
-        $result=$coolerLog->getListByDate($this->company_ids,$start,$end)->paginate($this->pagesize);
+        $result=$coolerLog->getListByDate($this->company_ids,$start,$end)->paginate(request()->get('pagesize')??$this->pagesize);
         $transformer=new CoolerLogTransformer();
         return $this->response->paginator($result,$transformer)->addMeta('colums',$transformer->columns());
     }

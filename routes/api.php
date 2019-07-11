@@ -52,9 +52,16 @@ $api->version('v1', [
             //冰箱单位分类
             $api->resource('cooler_categories', CoolerCategoryController::class);
             //报警通道
+            $api->get('warningers/get_warninger_types', 'WarningersController@getWarningerTypes');
             $api->resource('warningers', WarningersController::class);
+            //报警器
+            $api->get('ledspeakers/products', 'LedspeakersController@products');
+            $api->get('ledspeakers/bind/{id}', 'LedspeakersController@bind');
+            $api->resource('ledspeakers', LedspeakersController::class);
+            //中继器
+            $api->post('senders/warning_setting/{id}', 'SendersController@warningSetting');
+            $api->resource('senders', SendersController::class);
             // 所有冰箱
-
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
             $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');
@@ -72,10 +79,12 @@ $api->version('v1', [
             $api->post('collectors', 'CollectorsController@store')->name('api.ccrp.collectors.store');
             $api->put('collectors/{id}', 'CollectorsController@update')->name('api.ccrp.collectors.update');
             $api->post('collector/uninstall/{id}', 'CollectorsController@uninstall')->name('api.ccrp.collectors.uninstall');
-            // 所有联系人
-            $api->get('contacts', 'ConcatsController@index')->name('api.ccrp.contacts.index');
             // 是否包含手机号的联系人
             $api->get('contacts/{company_id}/has_phone/{phone}', 'ConcatsController@hasPhone')->name('api.ccrp.contacts.has_phone');
+//             所有联系人
+            $api->get('contacts/destroy/{id}', 'ConcatsController@destroy');
+            $api->resource('contacts', ConcatsController::class);
+
             // 报警统计
             $api->get('warning_events/categories/{handled?}', 'WarningAllEventsController@categories')->name('api.ccrp.warning_all_events.categories');
             // 超温报警
@@ -96,8 +105,7 @@ $api->version('v1', [
             $api->get('stat_manual_records/list/{month?}', 'StatManualRecordsController@index')->name('api.ccrp.stat_manual_records.index');
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
            //报警设置
-           $api->resource('warning_settings', WarningSettingsController::class);
-
+            $api->resource('warning_settings', WarningSettingsController::class);
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
             $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');
@@ -115,12 +123,13 @@ $api->version('v1', [
             $api->get('vehicles/current/{vehicle_id}','VehiclesController@current');
             $api->get('vehicles/vehicle_temp','VehiclesController@vehicle_temp');
             $api->get('vehicles/vehicle_map','VehiclesController@vehicle_map');
-            $api->get('printers','PrintersController@index');
             $api->get('printers/history_temp','PrintersController@printTemp');
             $api->get('printers/clear/{id}',function ($id){
                 $resp= file_get_contents('http://pr01.coldyun.com/WPServer/clearorder?sn='.$id);
                 return json_decode($resp,true);
             });
+            $api->resource('printers',PrintersController::class);
+
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
 

@@ -29,7 +29,7 @@ class WarningSenderEventsController extends Controller
         }
         $this->set_default_datas($this->default_date);
         $model = $model->whereBetween(WarningSenderEvent::TIME_FIELD, $this->get_dates());
-        $evnets = $model->orderBy('logid', 'desc')->paginate($this->pagesize);
+        $evnets = $model->orderBy('logid', 'desc')->paginate(request()->get('pagesize')??$this->pagesize);
         return $this->response->paginator($evnets, new WarningSenderEventTransformer())->addMeta('date_range', $this->get_dates('datetime', true));
 
     }

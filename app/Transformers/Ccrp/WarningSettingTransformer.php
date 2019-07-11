@@ -27,6 +27,7 @@ class WarningSettingTransformer extends TransformerAbstract
             'status' => $setting->status,
             'created_at' =>$setting->set_time?Carbon::createFromTimestamp($setting->set_time)->toDateTimeString():'',
             'warninger_id' => $setting->warninger_id,
+            'note' => $setting->note,
         ];
     }
 

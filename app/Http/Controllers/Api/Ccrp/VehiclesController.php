@@ -30,7 +30,7 @@ class VehiclesController extends Controller
     {
         $this->check();
         $vehicles = $this->vehicle->whereIn('company_id', $this->company_ids)->where('status', 1)
-            ->paginate($this->pagesize);
+            ->paginate(request()->get('pagesize')??$this->pagesize);
         $transform= new VehicleTransformer();
         return $this->response->paginator($vehicles,$transform)->addMeta('columns',$transform->columns());
     }
