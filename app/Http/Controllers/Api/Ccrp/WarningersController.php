@@ -54,6 +54,10 @@ class WarningersController extends Controller
         $request['ctime'] = time();
         $request['set_uid'] = $this->user->id;
         $request['company_id'] = $this->company->id;
+        if (count($request['warninger_body'])>3|| count($request['warninger_body_level2'])>3 || count($request['warninger_body_level3'])>3)
+            {
+                return $this->response->errorBadRequest('报警联系人设置不可超过三个');
+            }
         $result = $this->model->create($request->all());
         if ($result) {
             return $this->response->item($result, new WarningerTransformer());
