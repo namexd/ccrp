@@ -220,15 +220,15 @@ class Warninger extends Coldchain2Model
 
     public function getWarningerTypeNameAttribute($value)
     {
-        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
+        return isset(self::WARNINGER_TYPES[$this->warninger_type]) ? self::WARNINGER_TYPES[$this->warninger_type] : $value;
     }
     public function getWarningerTypeLevel2NameAttribute($value)
     {
-        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
+        return isset(self::WARNINGER_TYPES[$this->warninger_type_level2]) ? self::WARNINGER_TYPES[$this->warninger_type_level2] : $value;
     }
     public function getWarningerTypeLevel3NameAttribute($value)
     {
-        return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
+        return isset(self::WARNINGER_TYPES[$this->warninger_type_level3]) ? self::WARNINGER_TYPES[$this->warninger_type_level3] : $value;
     }
 
     public function setWarningerBodyAttribute($value)
