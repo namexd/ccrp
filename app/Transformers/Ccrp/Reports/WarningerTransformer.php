@@ -22,7 +22,7 @@ class WarningerTransformer extends TransformerAbstract
             'bind_times' => $setting->bind_times,
             'created_at' =>$setting->ctime?Carbon::createFromTimestamp($setting->ctime)->toDateTimeString():'',
         ];
-        if( in_array($rs['warninger_type'],[Warninger::发送类型_短信,Warninger::发送类型_电话]))
+        if( in_array($setting->warninger_type,[Warninger::发送类型_短信,Warninger::发送类型_电话]))
         {
             $contacts = Contact::where('company_id',$setting->company_id)->pluck('name','phone');
             $rs['warninger_body'] = $this->formatPhone($setting->warninger_body,$contacts);
