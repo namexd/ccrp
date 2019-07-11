@@ -19,6 +19,7 @@ class ContactTransformer extends TransformerAbstract
             'note' => $contact->note,
             'company_id' => $contact->company_id,
             'company' => $contact->company->title,
+            'status' => $contact->status,
             'created_at' => $contact->create_time>0?Carbon::createFromTimestamp($contact->create_time)->toDateTimeString():0,
         ];
         if(request()->get('with'))
