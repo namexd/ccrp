@@ -15,14 +15,14 @@ class WarningerTransformer extends TransformerAbstract
         $rs =  [
             'id' => $setting->warninger_id,
             'warninger_name' => $setting->warninger_name,
-            'warninger_type' => $setting->warninger_type,
+            'warninger_type' => Warninger::WARNINGER_TYPES[$setting->warninger_type],
             'warninger_body' => $setting->warninger_body,
             'warninger_body_level2' => $setting->warninger_body_level2,
             'warninger_body_level3' =>  $setting->warninger_body_level3,
             'bind_times' => $setting->bind_times,
             'created_at' =>$setting->ctime?Carbon::createFromTimestamp($setting->ctime)->toDateTimeString():'',
         ];
-        if( in_array($rs['warninger_type'],['短信','电话']))
+        if( in_array($rs['warninger_type'],[Warninger::发送类型_短信,Warninger::发送类型_电话]))
         {
             $contacts = Contact::where('company_id',$setting->company_id)->pluck('name','phone');
             $rs['warninger_body'] = $this->formatPhone($setting->warninger_body,$contacts);
