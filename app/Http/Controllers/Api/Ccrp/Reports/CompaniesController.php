@@ -9,10 +9,9 @@ use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Warninger;
 use App\Models\User;
 use App\Transformers\Ccrp\ContactHidePhoneTransformer;
-use App\Transformers\Ccrp\ContactTransformer;
 use App\Transformers\Ccrp\Reports\CompanySettingsTransformer;
+use App\Transformers\Ccrp\Reports\WarningerTransformer;
 use App\Transformers\Ccrp\Sys\SettingTransformer;
-use App\Transformers\Ccrp\WarningerTransformer;
 use App\Transformers\UserHidePhoneTransformer;
 
 class CompaniesController extends Controller
