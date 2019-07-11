@@ -69,12 +69,12 @@ public function wp_print($printer_sn,$key,$orderInfo='',$times=1){
 	    //"<W></W>"为字体变宽,"<QR></QR>"为二维码,"<CODE>"为条形码,后面接12个数字
 	    if($orderInfo==''){
 			$orderInfo = '<CB>测试打印</CB><BR>';
-			$orderInfo .= '时间|温度1|温度2|温度3|温度4<BR>';
-			$orderInfo .= '--------------------------------<BR>';
-			$orderInfo .= '04-22 17:51　25.4,25.0,24.8,- <BR>';
-			$orderInfo .= '04-22 17:52　25.4,25.0,24.8,- <BR>';
-			$orderInfo .= '04-22 17:53　25.4,25.0,24.8,- <BR>';
-			$orderInfo .= '--------------------------------<BR>';
+//			$orderInfo .= '时间|温度1|温度2|温度3|温度4<BR>';
+//			$orderInfo .= '--------------------------------<BR>';
+//			$orderInfo .= '04-22 17:51　25.4,25.0,24.8,- <BR>';
+//			$orderInfo .= '04-22 17:52　25.4,25.0,24.8,- <BR>';
+//			$orderInfo .= '04-22 17:53　25.4,25.0,24.8,- <BR>';
+//			$orderInfo .= '--------------------------------<BR>';
 			$orderInfo .= '打印时间：'.date('Y-m-d H:i:s').'<BR>';
 
 		//$orderInfo = '<CB>测试打印</CB><BR>';

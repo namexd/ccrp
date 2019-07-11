@@ -128,7 +128,9 @@ $api->version('v1', [
                 $resp= file_get_contents('http://pr01.coldyun.com/WPServer/clearorder?sn='.$id);
                 return json_decode($resp,true);
             });
+            $api->get('printers/test/{id}','PrintersController@test');
             $api->resource('printers',PrintersController::class);
+            $api->resource('printer_logs',PrinterLogsController::class);
 
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');

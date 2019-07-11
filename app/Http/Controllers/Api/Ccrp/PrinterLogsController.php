@@ -6,6 +6,7 @@ use App\Http\Requests\Api\Ccrp\PrintLogRequest;
 use App\Models\Ccrp\PrinterLog;
 
 use App\Models\Ccrp\PrintLogTemplate;
+use App\Transformers\Ccrp\PrinterLogDetailTransformer;
 use App\Transformers\Ccrp\PrinterLogTransformer;
 use App\Transformers\Ccrp\PrintLogTransformer;
 
@@ -31,8 +32,14 @@ class PrinterLogsController extends Controller
                 ->whereOr('subtitle', 'like', '%'.$keyword.'%')
                 ->whereOr('printer_id', 'like', '%'.$keyword.'%');
         }
-        $printer_logs = $printer_logs->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $printer_logs = $printer_logs->orderBy('id','desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($printer_logs, new PrinterLogTransformer);
+    }
+
+    public function show($id)
+    {
+        $printer_log=$this->model->find($id);
+        return $this->response->item($printer_log,new PrinterLogDetailTransformer());
     }
 
 }
