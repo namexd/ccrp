@@ -231,6 +231,19 @@ class Warninger extends Coldchain2Model
         return isset(self::WARNINGER_TYPES[$value]) ? self::WARNINGER_TYPES[$value] : $value;
     }
 
+    public function setWarningerBodyAttribute($value)
+    {
+        $this->attributes['warninger_body']=implode(',',$value);
+    }
+
+    public function setWarningerBodyLevel2Attribute($value)
+    {
+        $this->attributes['warninger_body_level2']=implode(',',$value);
+    }
+    public function setWarningerBodyLevel3Attribute($value)
+    {
+        $this->attributes['warninger_body_level3']=implode(',',$value);
+    }
     public function getWarningTypes()
     {
         $arr=[];

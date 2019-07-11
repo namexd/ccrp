@@ -65,8 +65,7 @@ class WarningersController extends Controller
     public function destroy($id)
     {
         $warninger = $this->model->find($id);
-        if (!$warninger)
-        {
+        if (!$warninger) {
             return $this->response->errorBadRequest('该报警通道不存在');
         }
         if ($warninger->bindtimes > 0) {
