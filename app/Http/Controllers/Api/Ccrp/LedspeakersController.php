@@ -47,6 +47,7 @@ class LedspeakersController extends Controller
             $request['collector_num'] = 0;
             $request['collector_id'] = '';
         }
+        $request['update_time'] = time();
         $ledspeaker = $this->model->find($id);
         $result = $ledspeaker->update($request);
         if ($result) {
@@ -61,6 +62,7 @@ class LedspeakersController extends Controller
         $this->check();
         $request['supplier_ledspeaker_id'] = str_replace('-', '', $request['supplier_ledspeaker_id']);
         $request['install_uid'] = $this->user->id;
+        $request['install_time'] = time();
         $request['company_id'] = $this->company->id;
         $result = $this->model->create($request->all());
         if ($result) {
