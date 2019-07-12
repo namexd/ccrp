@@ -16,6 +16,7 @@ class SenderNewTransformer extends TransformerAbstract
             'id' => $sender->id,
             'sender_id' => $sender->sender_id,
             'note' => $sender->note,
+            'supplier_model' => $sender->supplier_model,
             'simcard' => $sender->simcard,
             'ischarging' => $sender->ischarging,
             'ischarging_update_time' =>$sender->ischarging_update_time>0?Carbon::createFromTimestamp($sender->ischarging_update_time)->toDateTimeString():0,
