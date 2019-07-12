@@ -10,7 +10,7 @@ use function App\Utils\format_value;
  * Class Collector
  * @package App\Models
  */
-class Collector extends Coldchain2Model
+class Collector extends Coldchain2ModelWithTimestamp
 {
     protected $table = 'collector';
     protected $primaryKey = 'collector_id';
