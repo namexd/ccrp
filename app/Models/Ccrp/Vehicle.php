@@ -45,6 +45,10 @@ class Vehicle extends Coldchain2Model
         return $this->belongsTo(Company::class, 'company_id', 'id')->field('id,title,short_title');
     }
 
+    public function warning_event()
+    {
+        return $this->hasMany(VehicleWarningEvent::class,'vehicle_id','vehicle_id');
+    }
     public function refresh_address()
     {
         $vehicle = $this;

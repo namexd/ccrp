@@ -146,4 +146,13 @@ class Ledspeaker extends Coldchain2Model
         }
         return $result;
     }
+
+    public function setCollectorIdAttribute($value)
+    {
+            $this->attributes['collector_id']=is_array($value)?implode(',',$value):$value;
+    }
+    public function setSenderIdAttribute($value)
+    {
+        $this->attributes['sender_id']=is_array($value)?implode(',',$value):$value;
+    }
 }

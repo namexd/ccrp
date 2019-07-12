@@ -123,6 +123,7 @@ $api->version('v1', [
             $api->get('vehicles/vehicle_temp','VehiclesController@vehicle_temp');
             $api->get('vehicles/vehicle_map','VehiclesController@vehicle_map');
             $api->resource('vehicles',VehiclesController::class);
+            $api->resource('vehicle_warning_events',VehicleWarningEventsController::class);
 
             $api->get('printers/history_temp','PrintersController@printTemp');
             $api->get('printers/clear/{id}',function ($id){
