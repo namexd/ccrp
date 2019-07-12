@@ -45,7 +45,7 @@ class Ledspeaker extends Coldchain2Model
 
     public function senders()
     {
-        return Sender::whereIn('id', explode(',', $this->sender_id))->select('sender_id','note')->get() ??[];
+        return Sender::whereIn('sender_id', explode(',', $this->sender_id))->select('sender_id','note')->get() ??[];
     }
 
     public function get_products()

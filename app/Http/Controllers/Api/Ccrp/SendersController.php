@@ -8,7 +8,7 @@ use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\GatewaybindingdataModel;
 use App\Models\Ccrp\LedspeakerLog;
 use App\Models\Ccrp\Sender;
-use App\Transformers\Ccrp\SenderTransformer;
+use App\Transformers\Ccrp\SenderNewTransformer;
 use App\Transformers\Ccrp\SenderWarningSettingTransformer;
 use Illuminate\Support\Facades\Input;
 
@@ -26,14 +26,14 @@ class SendersController extends Controller
         $this->check();
         $sender = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
         $sender = $sender->paginate(request()->get('pagesize') ?? $this->pagesize);
-        return $this->response->paginator($sender, new SenderTransformer());
+        return $this->response->paginator($sender, new SenderNewTransformer());
     }
 
     public function show($id)
     {
         $this->check();
         $warning = $this->model->find($id);
-        return $this->response->item($warning, new SenderTransformer());
+        return $this->response->item($warning, new SenderNewTransformer());
     }
 
     public function update($id)
@@ -44,7 +44,7 @@ class SendersController extends Controller
         $sender = $this->model->find($id);
         $result = $sender->update($request);
         if ($result) {
-            return $this->response->item($sender, new SenderTransformer());
+            return $this->response->item($sender, new SenderNewTransformer());
         } else {
             return $this->response->errorInternal('修改失败');
         }
@@ -58,7 +58,7 @@ class SendersController extends Controller
         $request['company_id'] = $this->company->id;
         $result = $this->model->create($request->all());
         if ($result) {
-            return $this->response->item($result, new SenderTransformer())->setStatusCode(201);
+            return $this->response->item($result, new SenderNewTransformer())->setStatusCode(201);
         } else {
             return $this->response->errorInternal('添加失败');
         }
