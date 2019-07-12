@@ -83,13 +83,20 @@ class SendersController extends Controller
         $this->check();
         $request=request()->all();
         $sender = $this->model->find($id);
-        $request['company_id']=$this->company->id;
-        $request['set_time']=time();
-        $request['set_uid']=$this->user->id;
-        if ($sender->warning_setting)
-        $sender->warning_setting()->update($request);
-        else
-        $sender->warning_setting()->create($request);
+        if ($sender)
+        {
+            $request['company_id']=$this->company->id;
+            $request['set_time']=time();
+            $request['set_uid']=$this->user->id;
+            if ($sender->warning_setting)
+                $sender->warning_setting()->update($request);
+            else
+                $sender->warning_setting()->create($request);
+        }else
+        {
+            return $this->response->errorBadRequest('中继器不存在');
+        }
+
 
         return $this->response->item($sender->warning_setting,new SenderWarningSettingTransformer());
     }
