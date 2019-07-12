@@ -26,14 +26,14 @@ class LedspeakersController extends Controller
             $ledspeaker = $ledspeaker->where('ledspeaker_name', 'like', '%'.$keyword.'%')->whereOr('supplier_ledspeaker_id', 'like', '%'.$keyword.'%');
         }
         $ledspeaker = $ledspeaker->orderBy('ledspeaker_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
-        return $this->response->paginator($ledspeaker, new LedspeakerTransformer())->addMeta('ledspeaker_module',$this->model->getLedspeaker_module());
+        return $this->response->paginator($ledspeaker, new LedspeakerTransformer())->addMeta('ledspeaker_module', $this->model->getLedspeaker_module());
     }
 
     public function show($id)
     {
         $this->check();
         $warning = $this->model->find($id);
-        return $this->response->item($warning, new LedspeakerTransformer())->addMeta('ledspeaker_module',$this->model->getLedspeaker_module());
+        return $this->response->item($warning, new LedspeakerTransformer())->addMeta('ledspeaker_module', $this->model->getLedspeaker_module());
     }
 
     public function update($id)
@@ -72,17 +72,18 @@ class LedspeakersController extends Controller
 
     public function destroy($id)
     {
-        if(Input::get('change_note') == '')
+        if (Input::get('change_note') == '')
             return $this->response->errorBadRequest('备注不能为空');
         $ledspeaker = $this->model->find($id);
-        if ($ledspeaker->status ==2) {
+        if ($ledspeaker->status == 2) {
             return $this->response->errorBadRequest('该报警器已经报废');
         }
         $attribute['change_time'] = time();
         $attribute['change_option'] = 1;
         $logmodel = LedspeakerLog::create($attribute);
+        $supplier_ledspeaker_id = is_numeric($ledspeaker->supplier_ledspeaker_id) ? $ledspeaker->supplier_ledspeaker_id : 0;
         if ($logmodel) {
-            $ledspeaker->supplier_ledspeaker_id = -1 * $ledspeaker->supplier_ledspeaker_id;
+            $ledspeaker->supplier_ledspeaker_id = -1 * $supplier_ledspeaker_id;
             $ledspeaker->status = 2;
             $ledspeaker->uninstall_time = time();
             $ledspeaker->save();

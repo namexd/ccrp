@@ -36,7 +36,11 @@ class Vehicle extends Coldchain2Model
 
     ];
 
-    function company()
+    public function has_warninger()
+    {
+        return $this->belongsTo(Warninger::class,'warninger','warninger_id');
+    }
+   public function company()
     {
         return $this->belongsTo(Company::class, 'company_id', 'id')->field('id,title,short_title');
     }
@@ -169,6 +173,10 @@ class Vehicle extends Coldchain2Model
             'vehicle' => '设备名',
             'gps_time' => 'GPS上传时间',
             'address' => '位置',
+            'temperature'=>'温度1' ,
+            'temperature2' =>'温度2',
+            'temperature3' =>'温度3',
+            'temperature_warning_open' =>'开启报警',
             'refresh_time' => '刷新时间',
             'install_time' => '安装时间'
         ];
@@ -176,12 +184,12 @@ class Vehicle extends Coldchain2Model
 
     public function getRefreshTimeAttribute($value)
     {
-        return Carbon::createFromTimestamp($value)->toDateTimeString();
+        return $value>0?Carbon::createFromTimestamp($value)->toDateTimeString():0;
     }
 
     public function getInstallTimeAttribute($value)
     {
-        return Carbon::createFromTimestamp($value)->toDateTimeString();
+        return $value>0?Carbon::createFromTimestamp($value)->toDateTimeString():0;
     }
 
 }

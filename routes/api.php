@@ -118,11 +118,12 @@ $api->version('v1', [
             $api->get('check_tasks','CheckTasksController@index');
             $api->get('check_tasks/{id}','CheckTasksController@show');
             //冷藏车
-            $api->get('vehicles','VehiclesController@index');
             $api->get('vehicles/refresh/{vehicle_id}','VehiclesController@refresh');
             $api->get('vehicles/current/{vehicle_id}','VehiclesController@current');
             $api->get('vehicles/vehicle_temp','VehiclesController@vehicle_temp');
             $api->get('vehicles/vehicle_map','VehiclesController@vehicle_map');
+            $api->resource('vehicles',VehiclesController::class);
+
             $api->get('printers/history_temp','PrintersController@printTemp');
             $api->get('printers/clear/{id}',function ($id){
                 $resp= file_get_contents('http://pr01.coldyun.com/WPServer/clearorder?sn='.$id);
