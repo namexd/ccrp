@@ -51,4 +51,14 @@ class Sender extends Coldchain2Model
         $result=parent::create($attribute);
         return $result;
    }
+    public function get_products()
+    {
+        $products = Product::where('status',1)->whereIn('product_type',[2, 3])->orderBy('sort','desc')->get();
+        $data = array();
+        foreach ($products as $item) {
+            $data[]=['value'=>$item['supplier_product_model'],'title'=> ($item['product_type']==2?'一体机: ':'中继器: ').$item['product_ model']];
+        }
+        return $data;
+
+    }
 }
