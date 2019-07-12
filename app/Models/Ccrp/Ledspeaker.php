@@ -134,4 +134,16 @@ class Ledspeaker extends Coldchain2Model
         return $result;
     }
 
+    public function getLedspeaker_module()
+    {
+        $result=[];
+        foreach (self::LEDSPEAKER_MODULE as $k=> $value)
+        {
+            $result[]=[
+                'value'=>$k,
+                'label'=>$value
+            ];
+        }
+        return $result;
+    }
 }

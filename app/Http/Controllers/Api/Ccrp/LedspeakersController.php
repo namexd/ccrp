@@ -26,14 +26,14 @@ class LedspeakersController extends Controller
             $ledspeaker = $ledspeaker->where('ledspeaker_name', 'like', '%'.$keyword.'%')->whereOr('supplier_ledspeaker_id', 'like', '%'.$keyword.'%');
         }
         $ledspeaker = $ledspeaker->orderBy('ledspeaker_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
-        return $this->response->paginator($ledspeaker, new LedspeakerTransformer());
+        return $this->response->paginator($ledspeaker, new LedspeakerTransformer())->addMeta('ledspeaker_module',$this->model->getLedspeaker_module());
     }
 
     public function show($id)
     {
         $this->check();
         $warning = $this->model->find($id);
-        return $this->response->item($warning, new LedspeakerTransformer());
+        return $this->response->item($warning, new LedspeakerTransformer())->addMeta('ledspeaker_module',$this->model->getLedspeaker_module());
     }
 
     public function update($id)
