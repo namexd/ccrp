@@ -63,7 +63,7 @@ class VehiclesController extends Controller
         $vehicle = $this->vehicle->find($vehicle_id);
         $new_vehicle = $vehicle->refresh_address();
         $transform = new VehicleTransformer();
-        return $this->response->paginator($new_vehicle, $transform)->addMeta('columns', $transform->columns());
+        return $this->response->item($new_vehicle, $transform)->addMeta('columns', $transform->columns());
 
     }
 
