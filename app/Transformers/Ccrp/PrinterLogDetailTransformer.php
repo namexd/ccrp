@@ -14,6 +14,7 @@ class PrinterLogDetailTransformer extends TransformerAbstract
     public function transform(PrinterLog $printer_log)
     {
         $result = [
+            'id'=>$printer_log->id,
             'title'=>$printer_log->title,
             'subtitle'=>$printer_log->subtitle,
             'content'=>$printer_log->content,
