@@ -63,7 +63,7 @@ class Printer extends Coldchain2Model
                 $data['subtitle'] = $subtitle;
                 $data['content'] = $content;
                 $data['print_time'] = time();
-                $data['company_id'] = $this->company_id;
+                $data['company_id'] = $dayinji['company_id'];
                 $data['uid'] = $user_id;
                 $data['server_state'] = $rs['msg'];
                 $data['orderindex'] = $rs['orderindex'];
