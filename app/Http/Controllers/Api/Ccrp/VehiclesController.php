@@ -105,7 +105,7 @@ class VehiclesController extends Controller
             $fractal = new Manager();
             return $this->response->array($fractal->createData($resource)->toArray());
         }
-        return $this->response->errorInternal('没有数据');
+        return $this->response->errorNotFound('没有数据');
     }
 
     public function vehicle_map(VehicleMapRequest $request)
