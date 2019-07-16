@@ -28,7 +28,7 @@ $api->version('v1', [
         return $access;
     });
     //导出报表回调地址
-    $api->get('temperatures/coolers_history_30/{cooler_id}/{month}', 'TemperatureController@CoolerHistoryShow')->name('api.ccrp.reports.coolers_history_30.show');
+    $api->get('temperatures/coolers_history_30/{cooler_id}/{month}', 'Ccrp\Reports\TemperatureController@CoolerHistoryShow')->name('api.ccrp.reports.coolers_history_30.show');
 
     $api->version('v1', [
         'middleware' => ['serializer:array', 'microservice_auth']
