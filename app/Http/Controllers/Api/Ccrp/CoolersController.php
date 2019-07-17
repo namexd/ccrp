@@ -104,8 +104,16 @@ class CoolersController extends Controller
         $this->authorize('unit_operate', $this->company);
         $cooler = $this->cooler->find($id);
         $cooler->fill($request->all());
-        $cooler->save();
-        $cooler->warningSetting()->update(['category_id'=>$request->category_id]);
+        $result= $cooler->save();
+        if ($result)
+        {
+            $this->cooler->flush_collector_num($id);
+            if ($cooler['collector_num'] > 0) {
+                foreach ($cooler->collectors as $vo) {
+                    $vo->warningSetting()->update(['category_id'=>$request->category_id]);
+                }
+            }
+        }
         return $this->response->item($cooler, new CoolerTransformer());
     }
     //备用、维修、启用 关闭探头，关闭报警
