@@ -5,6 +5,7 @@ namespace App\Transformers\Ccrp;
 use App\Models\Ccrp\Cooler;
 use App\Transformers\Ccrp\Reports\StatCoolerTransformer;
 use Carbon\Carbon;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class CoolerTransformer extends TransformerAbstract
@@ -54,6 +55,11 @@ class CoolerTransformer extends TransformerAbstract
 
     public function includeCategory(Cooler $cooler)
     {
+        if ($cooler->cooler_category)
         return $this->item($cooler->cooler_category, new CoolerCategoryTransformer());
+        else
+            return new Item(null,function (){
+               return [];
+            });
     }
 }
