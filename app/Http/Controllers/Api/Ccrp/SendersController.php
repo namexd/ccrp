@@ -8,6 +8,8 @@ use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\GatewaybindingdataModel;
 use App\Models\Ccrp\LedspeakerLog;
 use App\Models\Ccrp\Sender;
+use App\Models\Ccrp\SenderWarningSetting;
+use App\Models\Ccrp\WarningSetting;
 use App\Transformers\Ccrp\SenderNewTransformer;
 use App\Transformers\Ccrp\SenderWarningSettingTransformer;
 use Illuminate\Support\Facades\Input;
@@ -83,15 +85,27 @@ class SendersController extends Controller
         $this->check();
         $request=request()->all();
         $sender = $this->model->find($id);
-        $request['company_id']=$this->company->id;
-        $request['set_time']=time();
-        $request['set_uid']=$this->user->id;
-        if ($sender->warning_setting)
-        $sender->warning_setting()->update($request);
-        else
-        $sender->warning_setting()->create($request);
+        if ($sender)
+        {
+            if ($sender->warning_setting)
+            {
+                $sender->warning_setting()->update($request);
+            }
+            else
+            {
+                $request['company_id']=$this->company->id;
+                $request['set_uid']=$this->user->id;
+                $request['set_time']=time();
+                $sender->warning_setting()->create($request);
 
-        return $this->response->item($sender->warning_setting,new SenderWarningSettingTransformer());
+            }
+        }else
+        {
+            return $this->response->errorBadRequest('中继器不存在');
+        }
+
+
+        return $this->response->item(SenderWarningSetting::where('sender_id',$sender->sender_id)->where('status',1)->first(),new SenderWarningSettingTransformer());
     }
 
     public function products()

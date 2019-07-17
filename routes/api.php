@@ -60,6 +60,7 @@ $api->version('v1', [
             $api->resource('ledspeakers', LedspeakersController::class);
             //中继器
             $api->post('senders/warning_setting/{id}', 'SendersController@warningSetting');
+            $api->get('senders/products', 'SendersController@products');
             $api->resource('senders', SendersController::class);
             // 所有冰箱
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');

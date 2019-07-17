@@ -45,7 +45,7 @@ class CollectorsController extends Controller
     public function show($collector)
     {
         $this->check();
-        $collector = $this->collector->whereIn('company_id', $this->company_ids)->find($collector);
+        $collector = $this->collector->find($collector);
         if ($collector) {
             return $this->response->item($collector, new CollectorDetailTransformer());
         } else {

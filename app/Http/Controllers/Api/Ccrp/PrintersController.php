@@ -114,8 +114,14 @@ class PrintersController extends Controller
     public function destroy($id)
     {
         $printer = $this->printer->find($id);
-        $printer->delete();
-        return $this->response->noContent();
+        if ($printer)
+        {
+            $printer->delete();
+            return $this->response->noContent();
+        }
+       else{
+           return $this->response->errorBadRequest('该打印机不存在');
+       }
     }
 
     public function printTemp(PrinterRequest $request, Vehicle $vehicleModel, Collector $collectorModel, PrinterTemplate $printTemplate)
