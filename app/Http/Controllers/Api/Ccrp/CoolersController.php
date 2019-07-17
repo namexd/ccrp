@@ -163,5 +163,17 @@ class CoolersController extends Controller
     {
         return $this->response->collection(CoolerType::all(), new CoolerTypeTransformer());
     }
+    public function getCoolerStatus()
+    {
+        $result=[];
+        foreach (Cooler::$status as $key=>$status)
+        {
+            $result[]=[
+                'value'=>$key,
+                'label'=>$status,
+            ];
+        }
+        return $this->response->array(Cooler::$status);
+    }
 
 }

@@ -72,7 +72,8 @@ $api->version('v1', [
             $api->get('coolers/{cooler}/history', 'CoolersController@history')->name('api.ccrp.coolers.history');
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
-            $api->get('sys/coolers', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
+            $api->get('sys/cooler_type', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
+            $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');
             $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
