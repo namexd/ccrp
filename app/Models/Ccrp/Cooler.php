@@ -25,6 +25,7 @@ class Cooler extends Coldchain2Model
     const 状态_报废 = 4;
     const 状态_盘苗 = 5;
     const 状态_除霜 = 6;
+    const IS_MEDICAL = ['0'=>'未知','1'=>'否','2'=>'是'];
 
     public static $status = [
         '1' => '正常',
