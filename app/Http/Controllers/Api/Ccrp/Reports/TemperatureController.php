@@ -46,7 +46,7 @@ class TemperatureController extends Controller
         $month_start = strtotime($month_first);
         $month_end = strtotime($month_last);
         $coolers = (new Cooler())->getListByCompanyIdsAndMonth($this->company_ids, $month_start, $month_end)->paginate(request()->get('pagesize')??$this->pagesize);
-        $lists=(new  TemperatuesCoolerHistory())->getExportUrl($coolers,$this->user()->id,$date);
+        $lists=(new  TemperatuesCoolerHistory())->getExportUrl($coolers,$this->user->id,$date);
         return $this->response->paginator($lists,new CoolerTransformer());
     }
 

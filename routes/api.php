@@ -27,6 +27,8 @@ $api->version('v1', [
         $access = \App\Utils\microservice_access_encode($app->appkey, $app->appsecret, ['test' => 'hello word']);
         return $access;
     });
+    //导出报表回调地址
+    $api->get('temperatures/coolers_history_30/{cooler_id}/{month}', 'Ccrp\Reports\TemperatureController@CoolerHistoryShow')->name('api.ccrp.reports.coolers_history_30.show');
 
     $api->version('v1', [
         'middleware' => ['serializer:array', 'microservice_auth']
@@ -121,7 +123,7 @@ $api->version('v1', [
             //冷藏车
             $api->get('vehicles/refresh/{vehicle_id}','VehiclesController@refresh');
             $api->get('vehicles/current/{vehicle_id}','VehiclesController@current');
-            $api->get('vehicles/vehicle_temp','VehiclesController@vehicle_temp');
+            $api->post('vehicles/vehicle_temp','VehiclesController@vehicle_temp');
             $api->get('vehicles/vehicle_map','VehiclesController@vehicle_map');
             $api->resource('vehicles',VehiclesController::class);
             $api->resource('vehicle_warning_events',VehicleWarningEventsController::class);

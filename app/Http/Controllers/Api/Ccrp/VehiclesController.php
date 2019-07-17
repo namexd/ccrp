@@ -63,7 +63,7 @@ class VehiclesController extends Controller
         $vehicle = $this->vehicle->find($vehicle_id);
         $new_vehicle = $vehicle->refresh_address();
         $transform = new VehicleTransformer();
-        return $this->response->paginator($new_vehicle, $transform)->addMeta('columns', $transform->columns());
+        return $this->response->item($new_vehicle, $transform)->addMeta('columns', $transform->columns());
 
     }
 
@@ -105,7 +105,7 @@ class VehiclesController extends Controller
             $fractal = new Manager();
             return $this->response->array($fractal->createData($resource)->toArray());
         }
-        return $this->response->errorInternal('没有数据');
+        return $this->response->errorNotFound('没有数据');
     }
 
     public function vehicle_map(VehicleMapRequest $request)
