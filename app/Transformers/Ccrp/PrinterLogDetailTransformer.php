@@ -10,7 +10,6 @@ use League\Fractal\TransformerAbstract;
 class PrinterLogDetailTransformer extends TransformerAbstract
 {
     protected $availableIncludes = ['printer'];
-
     public function transform(PrinterLog $printer_log)
     {
         $result = [
