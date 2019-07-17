@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['collectors', 'statCooler','category'];
+    protected $availableIncludes = ['collectors', 'statCooler','category','company'];
 
     public function transform(Cooler $cooler)
     {
@@ -21,6 +21,8 @@ class CoolerTransformer extends TransformerAbstract
             'model' => $cooler->cooler_model,
             'size' => $cooler->cooler_size,
             'size2' => $cooler->cooler_size2,
+            'is_medical' => $cooler->is_medical,
+            'cooler_type'=>$cooler->cooler_type!=0?Cooler::COOLER_TYPE[$cooler->cooler_type]:'未知',
             'company_id' => $cooler->company_id,
             'company' => $cooler->company->title??'',
             'created_at' => $cooler->install_time > 0 ? Carbon::createFromTimestamp($cooler->install_time)->toDateTimeString() : 0,
@@ -34,6 +36,10 @@ class CoolerTransformer extends TransformerAbstract
         return $arr;
     }
 
+    public function includeCompany(Cooler $cooler)
+    {
+        return $this->item($cooler->company,new CompanyListTransformer());
+    }
     public function includeCollectors(Cooler $cooler)
     {
         return $this->collection($cooler->collectorsOnline, new CollectorIncludeTransformer());
