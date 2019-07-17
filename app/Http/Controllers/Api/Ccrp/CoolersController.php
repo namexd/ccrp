@@ -173,7 +173,7 @@ class CoolersController extends Controller
                 'label'=>$status,
             ];
         }
-        return $this->response->array(Cooler::$status);
+        return $this->response->array($result);
     }
 
 }
