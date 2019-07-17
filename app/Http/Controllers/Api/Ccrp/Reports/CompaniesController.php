@@ -23,6 +23,7 @@ class CompaniesController extends Controller
             'meta' => [
                 "header" => '单位信息',
                 "detail_data" => '/api/ccrp/reports/companies/infomation/company?with=columns',
+                "detail_template"=>'detail'
             ]
         ];
         $info['data'][] = [
