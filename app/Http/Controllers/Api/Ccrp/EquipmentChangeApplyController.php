@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
+use App\Events\AutoHandleApply;
 use App\Models\Ccrp\EquipmentChangeApply;
-use App\Models\Message;
 use App\Transformers\Ccrp\EquipmentChangeApplyTransformer;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -27,11 +28,14 @@ class EquipmentChangeApplyController extends Controller
     {
         $this->check();
         $company_ids = $this->company_ids;
-        if ($request->has('status')) {
-            $this->model = $this->model->where('status', $request->status);
+        if ($status = $request->get('status')) {
+            if (!is_array($status)) {
+                $status = [$status];
+            }
+            $this->model = $this->model->whereIn('status', $status);
         }
         if ($request->start_time && $request->end_time) {
-            $this->model = $this->model->whereBetween('apply_time', [$request->start_time,$request->end_time]);
+            $this->model = $this->model->whereBetween('apply_time', [$request->start_time, $request->end_time]);
         }
         $data = $this->model->with(['company', 'details', 'news'])->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
         return $this->response->paginator($data, new EquipmentChangeApplyTransformer());
@@ -53,28 +57,45 @@ class EquipmentChangeApplyController extends Controller
     public function store(Request $request)
     {
         $this->check();
+        if ($this->company->hasUseSettings(16, 1)) {
+            $request['status'] = EquipmentChangeApply::状态_待审核;
+        } else {
+            $request['status'] = EquipmentChangeApply::状态_未处理;
+        }
         $result = $this->model->add($request->all());
         if ($result instanceof Model) {
-
-            $message = [
-                'subject' => '【'.$result->company->title.'】有新的冷链变更单申请',
-                'content' => '有新的冷链变更单申请,请登录CCSC后台处理',
-                'message_type' => '5',
-                'content_detail' => [
-                    'number' => $result->id,
-                    'status' => '未处理',
-                    'handler' => '客服',
-                    'remark' => '申请单位：'.$result->company->title
-                ],
-                'from_type' => '3',
-                'send_time' => time(),
-                'app_id' => 3,
-                'app_user_id' => '2,3,9'
-            ];
-            (new Message())->asyncSend($message);
+            if ($result->status==EquipmentChangeApply::状态_未处理)
+            {
+                event(new AutoHandleApply($result));
+            }
             return $this->response->item($result, new EquipmentChangeApplyTransformer())->statusCode(201);
         } else
-            $this->response->errorInternal($result);
+            $this->response->errorInternal('提交失败');
+    }
+
+    public function checkApply($id, $status)
+    {
+        $this->check();
+        if ($this->company->cdc_admin == 0) {
+            return $this->response->errorUnauthorized('非疾控用户');
+        }
+        $apply = $this->model->find($id);
+        $check['status'] = $status;
+
+        $check['check_unit'] = $this->company->id;
+        $check['check_user'] = $this->user->id;
+        $check['check_commnet'] = request()->get('comment');
+        $check['check_time'] = Carbon::now()->toDateTimeString();
+        $result = $apply->update($check);
+        if ($result) {
+            if ($status == EquipmentChangeApply::状态_未处理) {
+                event(new AutoHandleApply($apply));
+            }
+            return $this->response->item($apply,new EquipmentChangeApplyTransformer);
+        } else {
+            return $this->response->errorInternal('系统错误，审核失败');
+        }
+
     }
 
     /**

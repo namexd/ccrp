@@ -23,29 +23,48 @@ class EquipmentChangeApply extends Model
         'end_time',
         'comment',
         'status',
+        'is_auto'
     ];
+    const 冷链设备关闭报警=1;
+    const 冷链设备开通报警=2;
+    const 冰箱参数修改=3;
+    const 冰箱备用=4;
+    const 冰箱报废=5;
+    const 报警联系人变更=6;
+    const 冰箱更换_报废_备用=7;
+    const 冰箱启用=8;
+    const 改温度区间=9;
+    const 取消探头=10;
+    const 新增冰箱=11;
+    const 门诊注销_停止监测=12;
+    const 报警延迟时间修改=13;
+
     const CHANGE_TYPE = [
-        1 => '短信报警关闭',
-        2 => '短信报警重新开通',
-        3 => '冰箱参数修改',
-        4 => '冰箱备用',
-        5 => '冰箱报废',
-        6 => '报警联系人变更',
-        7 => '冰箱更换(报废 / 备用)',
-        8 => '冰箱启用',
-        9 => '改温度区间',
-        10 => '取消探头',
-        11 => '新增冰箱',
-        12 => '门诊注销，停止监测',
-        13 => '报警延迟时间修改'
+       self::冷链设备关闭报警 => '冷链设备关闭报警',
+        self::冷链设备开通报警 => '冷链设备开通报警',
+        self::冰箱参数修改 => '冰箱参数修改',
+        self::冰箱备用 => '冰箱备用',
+        self::冰箱报废 => '冰箱报废',
+        self::报警联系人变更 => '报警联系人变更',
+        self::冰箱更换_报废_备用 => '冰箱更换(报废 / 备用)',
+        self::冰箱启用 => '冰箱启用',
+        self::改温度区间 => '改温度区间',
+        self::取消探头 => '取消探头',
+        self::新增冰箱 => '新增冰箱',
+        self::门诊注销_停止监测 => '门诊注销，停止监测',
+        self::报警延迟时间修改 => '报警延迟时间修改'
 
     ];
-    const STATUS = [
-        '未处理',
-        '处理中',
-        '处理完成'
+    const 状态_待审核=0;
+    const 状态_未处理=1;
+    const 状态_处理完成=2;
+    const 状态_审核未通过=3;
+    const STATUS=[
+        self::状态_待审核=>'待审核',
+        self::状态_未处理=>'未处理',
+        self::状态_处理完成=>'处理完成',
+        self::状态_审核未通过=>'审核未通过',
     ];
-
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');
@@ -72,7 +91,7 @@ class EquipmentChangeApply extends Model
         try {
             $apply = DB::transaction(function () use ($data) {
                 $attributes = array_only($data, $this->fillable);
-                $attributes['apply_time'] = Carbon::now();
+                $attributes['apply_time'] = Carbon::now()->toDateTimeString();
                 if ($apply = self::create($attributes)) {
                     $details = json_decode($data['details'], true);
                     $news = json_decode($data['news'], true);
@@ -129,5 +148,15 @@ class EquipmentChangeApply extends Model
         ')->whereDate('apply_time',$now_date)
             ->whereIn('company_id',$company_ids)->first();
         return compact('total','today','month_counter');
+    }
+    public function markAsCheckedSuccess()
+    {
+        $this->status = 1;
+        $this->save();
+    }
+    public function markAsCheckedFailed()
+    {
+        $this->status = 3;
+        $this->save();
     }
 }

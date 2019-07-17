@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\AutoHandleApply;
+use App\Listeners\HandleChangeApply;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -19,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // add your listeners (aka providers) here
             'SocialiteProviders\Weixin\WeixinExtendSocialite@handle'
+        ],
+        AutoHandleApply::class=>[
+            HandleChangeApply::class,
         ],
     ];
 

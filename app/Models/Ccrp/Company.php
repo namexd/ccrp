@@ -727,6 +727,10 @@ class Company extends Coldchain2Model
     {
         return $this->hasMany(CompanyUseSetting::class);
     }
+    public function hasUseSettings($settings_id,$value)
+    {
+        return $this->useSettings()->where('setting_id',$settings_id)->where('value',$value)->first();
+    }
 
     public function defaultSetting($category = 'all')
     {

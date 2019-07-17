@@ -4,7 +4,19 @@
 namespace App\Models\Ccrp\Sys;
 
 
-class CoolerPhoto
-{
+use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
 
+class CoolerPhoto extends Coldchain2ModelWithTimestamp
+{
+   protected $table='sys_cooler_photos';
+
+    protected $fillable =[
+        'id',
+        'name',
+        'category',
+        'value',
+        'slug',
+        'description',
+        'note'
+    ];
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class EquipmentChangeDetail extends Model
 {
     protected $fillable=[
+        'apply_id',
         'cooler_id',
         'change_type',
         'reason'
@@ -15,5 +16,9 @@ class EquipmentChangeDetail extends Model
     public function cooler()
     {
         return $this->belongsTo(Cooler::class,'cooler_id','cooler_id');
+    }
+    public function apply()
+    {
+        return $this->belongsTo(EquipmentChangeApply::class,'apply_id','id');
     }
 }

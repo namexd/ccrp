@@ -113,6 +113,7 @@ $api->version('v1', [
             //冷链变更
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
             $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');
+            $api->post('check_apply/{id}/status/{status}', 'EquipmentChangeApplyController@checkApply');
 
             $api->get('equipment_change_types', 'EquipmentChangeApplyController@getChangeType');
             //第三方校准证书
