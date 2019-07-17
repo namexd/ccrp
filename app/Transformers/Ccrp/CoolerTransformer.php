@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['collectors', 'statCooler','category','company'];
+    protected $availableIncludes = ['collectors', 'statCooler', 'category', 'company'];
 
     public function transform(Cooler $cooler)
     {
@@ -22,24 +22,25 @@ class CoolerTransformer extends TransformerAbstract
             'size' => $cooler->cooler_size,
             'size2' => $cooler->cooler_size2,
             'is_medical' => $cooler->is_medical,
-            'cooler_type'=>$cooler->cooler_type!=0?Cooler::COOLER_TYPE[$cooler->cooler_type]:'未知',
+            'cooler_type' => $cooler->cooler_type != 0 ? Cooler::COOLER_TYPE[$cooler->cooler_type] : '未知',
             'company_id' => $cooler->company_id,
-            'company' => $cooler->company->title??'',
+            'status' => $cooler->status != 0 ? Cooler::$status[$cooler->status] : '未知',
+            'company' => $cooler->company->title ?? '',
             'created_at' => $cooler->install_time > 0 ? Carbon::createFromTimestamp($cooler->install_time)->toDateTimeString() : 0,
             'updated_at' => $cooler->update_time > 0 ? Carbon::createFromTimestamp($cooler->update_time)->toDateTimeString() : 0,
         ];
-        if ($cooler->url)
-        {
+        if ($cooler->url) {
             $arr['url'] = $cooler->url;
         }
-        $arr['image'] = $cooler->cooler_image??'';
+        $arr['image'] = $cooler->cooler_image ?? '';
         return $arr;
     }
 
     public function includeCompany(Cooler $cooler)
     {
-        return $this->item($cooler->company,new CompanyListTransformer());
+        return $this->item($cooler->company, new CompanyListTransformer());
     }
+
     public function includeCollectors(Cooler $cooler)
     {
         return $this->collection($cooler->collectorsOnline, new CollectorIncludeTransformer());
@@ -47,12 +48,12 @@ class CoolerTransformer extends TransformerAbstract
 
     public function includeStatCooler(Cooler $cooler)
     {
-        $date = request()->get('date')??date('Y-m', strtotime('-1 Month'));
+        $date = request()->get('date') ?? date('Y-m', strtotime('-1 Month'));
         return $this->collection($cooler->statCooler->where('month', $date), new StatCoolerTransformer());
     }
 
     public function includeCategory(Cooler $cooler)
     {
-        return $this->item($cooler->cooler_category,new CoolerCategoryTransformer());
+        return $this->item($cooler->cooler_category, new CoolerCategoryTransformer());
     }
 }
