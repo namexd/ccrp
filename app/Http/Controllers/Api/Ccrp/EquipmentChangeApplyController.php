@@ -47,7 +47,7 @@ class EquipmentChangeApplyController extends Controller
         $this->set_default_datas($this->default_date);
         $this->model = $this->model->whereBetween('apply_time', $this->get_dates('datetime'));
         $data = $this->model->with(['company', 'details', 'news'])->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
-        return $this->response->paginator($data, new EquipmentChangeApplyTransformer());
+        return $this->response->paginator($data, new EquipmentChangeApplyTransformer())->addMeta('date_range', $this->get_dates('datetime', true));;
     }
 
     public function getChangeType()
@@ -85,7 +85,7 @@ class EquipmentChangeApplyController extends Controller
     {
         $this->check();
         if ($this->company->cdc_admin == 0) {
-            return $this->response->errorUnauthorized('非疾控用户');
+            return $this->response->errorMethodNotAllowed('非疾控用户');
         }
         $apply = $this->model->find($id);
         $check['status'] = $status;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\CompanyRequest;
+use App\Models\Ccrp\Area;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\WarningEvent;
 use App\Models\Ccrp\WarningSenderEvent;
@@ -19,24 +20,28 @@ use Illuminate\Http\Request;
 
 class CompaniesController extends Controller
 {
+    public $model;
+    public function __construct(Company $company)
+    {
+        $this->model=$company;
+    }
 
     public function index(CompanyRequest $request, $id = null)
     {
         $this->check($id);
 
-        if($this->company->isProvinceCdc())
-        {
-            $ids = (new Company())->getSonCompanyIds($id??$this->company->id);
-        }else{
+        if ($this->company->isProvinceCdc()) {
+            $ids = (new Company())->getSonCompanyIds($id ?? $this->company->id);
+        } else {
             $ids = $this->company_ids;
         }
 
 
-        $companies = Company::whereIn('id',$ids)->where('status', 1);
+        $companies = Company::whereIn('id', $ids)->where('status', 1);
 
         if (!$this->company->isProvinceCdc() and isset($request->hidden) and $request->hidden == 'admin') {
             $companies->where('cdc_admin', 0);
-        }elseif($this->company->isProvinceCdc()){
+        } elseif ($this->company->isProvinceCdc()) {
             $companies->where('cdc_admin', 1);
         }
 
@@ -69,7 +74,7 @@ class CompaniesController extends Controller
     {
         $this->check($id);
 //        Cache::forget('companies.'.$this->company->id.'.current');
-        $company = Cache::remember('companies.' . $this->company->id . '.current', 10, function () use ($id) {
+        $company = Cache::remember('companies.'.$this->company->id.'.current', 10, function () use ($id) {
             return $this->refresh($id);
         });
         return $this->response->item($company, new CompanyInfoTransformer());
@@ -97,7 +102,7 @@ class CompaniesController extends Controller
     {
         $this->check($id);
         //cdc_admin desc,region_code asc,company_group asc, cdc_level asc,pid asc,sort desc,company_type asc,username asc,id asc
-        $company = Company::cdcListWithOrders($this->company_ids, $this->company->id,['id', 'pid', 'title', 'short_title','leaves_count']);
+        $company = Company::cdcListWithOrders($this->company_ids, $this->company->id, ['id', 'pid', 'title', 'short_title', 'leaves_count']);
         $company_array = $company->toArray();
         $company_top = Company::where('id', $this->company->id)->select('id', 'title', 'short_title', 'leaves_count')->first();
         $company_top_array = $company_top->toArray();
@@ -107,15 +112,15 @@ class CompaniesController extends Controller
         $data['data'] = $menus == [] ? $company : $menus;
         return $this->response->array($data);
     }
+
     public function branch($id = null)
     {
         $this->check($id);
-        $company = Company::branchListWithOrders($this->company->id, null,['id', 'pid', 'title', 'short_title','leaves_count']);
+        $company = Company::branchListWithOrders($this->company->id, null, ['id', 'pid', 'title', 'short_title', 'leaves_count']);
         $company_array = $company->toArray();
-        $company_top = Company::where('id', $this->company->id)->select('id', 'pid','title', 'short_title', 'leaves_count')->first();
+        $company_top = Company::where('id', $this->company->id)->select('id', 'pid', 'title', 'short_title', 'leaves_count')->first();
         $company_top_array = $company_top->toArray();
-        if($id==null)
-        {
+        if ($id == null) {
             $company_top_array['pid'] = 0;
         }
         array_push($company_array, $company_top_array);
@@ -147,7 +152,7 @@ class CompaniesController extends Controller
             $month = $month - 1;
         }
 //        Cache::forget('stat_manage_'.$id.'_'.$year.'_'.$month);
-        $value = Cache::remember('stat_manage_' . $id . '_' . $year . '_' . $month, 60 * 24 * 30, function () use ($year, $month) {
+        $value = Cache::remember('stat_manage_'.$id.'_'.$year.'_'.$month, 60 * 24 * 30, function () use ($year, $month) {
             $companies = $this->company->children();
             if (count($companies)) {
                 foreach ($companies as $company) {
@@ -185,7 +190,7 @@ class CompaniesController extends Controller
             $id = $this->company->id;
         }
 //        Cache::forget('stat_warnings_'. $id . '_' . $month . '_'. $this_month);
-        $value = Cache::remember('stat_warnings_' . $id . '_' . $month . '_' . $this_month, 60 * 24 * 30, function () use ($months, $this_month) {
+        $value = Cache::remember('stat_warnings_'.$id.'_'.$month.'_'.$this_month, 60 * 24 * 30, function () use ($months, $this_month) {
             for ($i = 0; $i < count($months); $i++) {
                 $start = $months[$i];
                 if ($i < count($months) - 1) {
@@ -205,5 +210,15 @@ class CompaniesController extends Controller
         $data['data'] = $value;
         return $this->response->array($data);
 
+    }
+
+    public function subAdminCompanies()
+    {
+        $this->check();
+        $company=$this->company;
+        $ids = $company->ids(1);
+        $companies=$this->model->whereIn('id',$ids)->get();
+        return $this->response->collection($companies,new CompanyListTransformer())
+            ->addMeta('area_level' . ($company['cdc_level'] + 1) . '_id',Area::getListByConditions(['parent_id' => $company['area_level' . $company['cdc_level'] . '_id']]));
     }
 }

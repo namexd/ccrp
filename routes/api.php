@@ -40,6 +40,8 @@ $api->version('v1', [
             'namespace' => 'Ccrp',
             'prefix' => 'ccrp',
         ], function ($api) {
+            //下级管理单位
+            $api->get('companies/sub_admin', 'CompaniesController@subAdminCompanies')->name('api.ccrp.companies.sub_admin');
             //单位树
             $api->get('companies/tree/{id?}', 'CompaniesController@tree')->name('api.ccrp.companies.tree');
             //单位下级单位
