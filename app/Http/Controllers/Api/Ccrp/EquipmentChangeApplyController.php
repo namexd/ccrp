@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Events\AutoHandleApply;
+use App\Models\App;
 use App\Models\Ccrp\EquipmentChangeApply;
 use App\Transformers\Ccrp\EquipmentChangeApplyTransformer;
 use Carbon\Carbon;
@@ -64,8 +65,7 @@ class EquipmentChangeApplyController extends Controller
         }
         $result = $this->model->add($request->all());
         if ($result instanceof Model) {
-            if ($result->status==EquipmentChangeApply::状态_未处理)
-            {
+            if ($result->status == EquipmentChangeApply::状态_未处理) {
                 event(new AutoHandleApply($result));
             }
             return $this->response->item($result, new EquipmentChangeApplyTransformer())->statusCode(201);
@@ -91,7 +91,7 @@ class EquipmentChangeApplyController extends Controller
             if ($status == EquipmentChangeApply::状态_未处理) {
                 event(new AutoHandleApply($apply));
             }
-            return $this->response->item($apply,new EquipmentChangeApplyTransformer);
+            return $this->response->item($apply, new EquipmentChangeApplyTransformer);
         } else {
             return $this->response->errorInternal('系统错误，审核失败');
         }
@@ -108,7 +108,9 @@ class EquipmentChangeApplyController extends Controller
     {
         $this->check();
         $equipment_change_apply = $this->model->findOrFail($id);
-        return $this->response->item($equipment_change_apply, new EquipmentChangeApplyTransformer());
+        $app = App::where('program', 'microservice_file')->first();
+        $url = $equipment_change_apply->user_sign ? $app->api_url.'upload/'.$equipment_change_apply->user_sign : '';
+        return $this->response->item($equipment_change_apply, new EquipmentChangeApplyTransformer())->addMeta('sign_url', $url);
     }
 
     public function statistics()

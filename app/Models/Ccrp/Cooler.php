@@ -383,4 +383,15 @@ class Cooler extends Coldchain2Model
         $count = Collector::where($map)->count();
         $cooler->update(['collector_num'=>$count]);
     }
+    //开关报警
+    public function setWarningByStatus($status)
+    {
+        $cooler=$this;
+        $cooler->collectors()->update(['offline_check' => $status]);
+        if ($cooler['collector_num'] > 0) {
+            foreach ($cooler->collectors as $vo) {
+                $vo->warningSetting()->update(['temp_warning' => $status]);
+            }
+        }
+    }
 }

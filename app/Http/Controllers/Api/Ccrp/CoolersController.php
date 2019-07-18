@@ -124,8 +124,7 @@ class CoolersController extends Controller
 
         $cooler = $this->cooler->find($id);
         $status = $request->status;
-        $offline_check=$status==1?1:0;
-        $temp_warning=$status==1?1:0;
+        $warning_set=$status==1?1:0;
 
         if ($cooler) {
             $post['cooler_id'] = $cooler['cooler_id'];
@@ -152,13 +151,14 @@ class CoolersController extends Controller
                     }
                 } else {
                     $cooler->update($set);
-                    $cooler->collectors()->update(['offline_check' => $offline_check]);
-                    if ($cooler['collector_num'] > 0) {
-                        foreach ($cooler->collectors as $vo) {
-                            $vo->warningSetting()->update(['temp_warning' => $temp_warning]);
-
-                        }
-                    }
+                    $cooler->setWarningByStatus($warning_set);
+//                    $cooler->collectors()->update(['offline_check' => $warning_set]);
+//                    if ($cooler['collector_num'] > 0) {
+//                        foreach ($cooler->collectors as $vo) {
+//                            $vo->warningSetting()->update(['temp_warning' => $warning_set]);
+//
+//                        }
+//                    }
                 }
 
                 return $this->response->item($cooler, new CoolerType100Transformer());

@@ -14,20 +14,18 @@ class HandleChangeApply implements ShouldQueue
 
     public function handle(AutoHandleApply $event)
     {
+        \Log::info('队列测试'.date('Y-m-d H:i:s'));
         $apply=$event->getApply();
         $apply->load('details');
         foreach ($apply->details as $detail)
         {
             if (in_array($detail->change_type,[EquipmentChangeApply::冷链设备关闭报警,EquipmentChangeApply::冷链设备开通报警])){//自动处理
+                $status=$detail->change_type==EquipmentChangeApply::冷链设备关闭报警?0:1;
                 $cooler=Cooler::find($detail->cooler_id);
-                \DB::transaction(function () use ($cooler,$detail) {
-                    $cooler->collectors()->update(['offline_check' => 0]);
-                    if ($cooler['collector_num'] > 0) {
-                        foreach ($cooler->collectors as $vo) {
-                            $vo->warningSetting()->update(['temp_warning' => 0]);
-                        }
-                    }
+                \DB::transaction(function () use ($cooler,$detail,$status) {
+                    $cooler->setWarningByStatus($status);
                     $auto['is_auto'] = 1;
+                    $auto['comment'] = '系统自动处理';
                     $auto['status'] = EquipmentChangeApply::状态_处理完成;
                     $detail->apply()->update($auto);
                 },5);
