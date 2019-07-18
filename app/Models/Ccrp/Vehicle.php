@@ -20,7 +20,7 @@ class Vehicle extends Coldchain2Model
         'install_time'];
     const VECHICLE_CONFIG = [
         'VEHICLE_WEBSERIVES' => 'http://www.chinacoldchain.com:8178/WebService.asmx?wsdl',
-        'VEHICLE_WEBSERIVES_LW' => 'http://www.chinacoldchain.com:9998/ServiceLw.asmx?wsdl', //chinacoldchain车载用户名
+//        'VEHICLE_WEBSERIVES_LW' => 'http://www.chinacoldchain.com:9998/ServiceLw.asmx?wsdl', //chinacoldchain车载用户名
         'VEHICLE_USERNAME' => 'shlw', //chinacoldchain车载用户名
         'VEHICLE_PASSWORD' => '098765',//chinacoldchain车载密码
         'BAIDU_MAP_API_KEY' => 'GzGStHdTgf1Z774pqvWPITMR',//浏览器端KEY

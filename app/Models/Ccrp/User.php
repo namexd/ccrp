@@ -8,7 +8,8 @@ class User extends Coldchain2Model
 {
     protected $table = 'user';
     protected $primaryKey = 'id';
-    protected $fillable = ['id', 'usertype', 'userlevel', 'username', 'company', 'company_id', 'company_type', 'email', 'mobile', 'password', 'sex', 'age', 'birthday', 'realname', 'login', 'last_login_time', 'last_login_ip', 'reg_ip', 'reg_type', 'ctime', 'utime', 'status', 'cooler_category', 'binding_vehicle', 'binding_printer', 'menu_setting'];
+    protected $fillable = ['id', 'usertype', 'userlevel', 'username', 'company', 'company_id', 'company_type', 'email', 'mobile', 'password', 'sex', 'age', 'birthday', 'realname', 'login', 'last_login_time', 'last_login_ip', 'reg_ip', 'reg_type', 'ctime', 'utime', 'status', 'cooler_category', 'binding_vehicle', 'binding_printer', 'menu_setting','sort','group','score','money','idcard_no'];
+
 
     const STATUSES = ['0' => '禁用', '1' => '正常'];
 
@@ -34,7 +35,7 @@ class User extends Coldchain2Model
        return $this->where('username', $username)->where('status', 1)->select('id', 'username',  DB::raw('company_id as unitid'))->first();
     }
 
-    private function user_md5($str, $auth_key = null)
+    public function user_md5($str, $auth_key = null)
     {
         if (!$auth_key) {
             $auth_key = 'PVHnDaiaS!wm>DopYhkMT:Mn^)UK]w#Kc}xr>vh-"z/#MMktgAf_NKx!%XPc*STF';
@@ -45,5 +46,9 @@ class User extends Coldchain2Model
     public function avatarImage()
     {
         return $this->hasOne(PublicUpload::class,'id','avatar');
+    }
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password']=$this->user_md5($value);
     }
 }

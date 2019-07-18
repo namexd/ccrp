@@ -2,6 +2,8 @@
 
 namespace App\Models\Ccrp;
 
+use App\Models\Upload;
+use App\Models\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -85,6 +87,14 @@ class EquipmentChangeApply extends Model
         return $this->belongsTo(User::class, 'handler');
     }
 
+    public function checkUnit()
+    {
+        return $this->belongsTo(Company::class,'check_unit');
+    }
+    public function checkUser()
+    {
+        return $this->belongsTo(User::class,'check_user');
+    }
     public function add($data)
     {
         $data['status'] = 0;

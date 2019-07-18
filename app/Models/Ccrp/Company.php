@@ -8,6 +8,7 @@ use App\Models\CoolerCategory;
 use App\Traits\ModelFields;
 use App\Traits\ModelTree;
 use Carbon\Carbon;
+use function EasyWeChat\Kernel\Support\get_client_ip;
 use Encore\Admin\Traits\AdminBuilder;
 
 class Company extends Coldchain2Model
@@ -443,11 +444,11 @@ class Company extends Coldchain2Model
      */
     public function subCompaniesAlarmTotalMonthCount()
     {
-        $where['warning_event_time'] = ['gt', strtotime(date('Y-m', time()) . '-01 00:00:00')];
+        $where['warning_event_time'] = ['gt', strtotime(date('Y-m', time()).'-01 00:00:00')];
         $where['company_id'] = $this->ids();
         $event = WarningEvent::where($where)->count();
         $where = [];
-        $where['sensor_event_time'] = ['gt', strtotime(date('Y-m', time()) . '-01 00:00:00')];
+        $where['sensor_event_time'] = ['gt', strtotime(date('Y-m', time()).'-01 00:00:00')];
         $where['company_id'] = $this->ids();
         $where['warning_type'] = 0;
         $sender_event = WarningSenderEvent::where($where)->count();
@@ -514,7 +515,7 @@ class Company extends Coldchain2Model
         $combie = [];
 
         for ($i = 0; $i < 12; $i++) {
-            $key = date('Ym', strtotime('last year + ' . $i . ' month'));
+            $key = date('Ym', strtotime('last year + '.$i.' month'));
             $sensor_high[] = ['name' => $key, 'value' => ($event_arr[$key] ?? 0)];
             $sensor_low[] = ['name' => $key, 'value' => ($event2_arr[$key] ?? 0)];
             $sender[] = ['name' => $key, 'value' => ($sender_event_arr[$key] ?? 0)];
@@ -550,7 +551,7 @@ class Company extends Coldchain2Model
 
         $combie = $weixin = [];
         for ($i = 0; $i < 12; $i++) {
-            $key = date('Ym', strtotime('last year + ' . $i . ' month'));
+            $key = date('Ym', strtotime('last year + '.$i.' month'));
             $weixin[] = ['name' => $key, 'value' => ($wx_event_arr[$key] ?? 0)];
             $combie[] = ['name' => $key, 'value' => ($event_arr[$key] ?? 0)];
         }
@@ -569,15 +570,15 @@ class Company extends Coldchain2Model
         $where['company_id'] = $this->ids();
         $combie = [];
         for ($i = 0; $i < 12; $i++) {
-            $key = date('Ym', strtotime('last year + ' . $i . ' month'));
-            $start = strtotime(date('Y-m-01', strtotime('last year + ' . $i . ' month')));
-            $end = strtotime(date('Y-m-01', strtotime('last year + ' . ($i + 1) . ' month')));
+            $key = date('Ym', strtotime('last year + '.$i.' month'));
+            $start = strtotime(date('Y-m-01', strtotime('last year + '.$i.' month')));
+            $end = strtotime(date('Y-m-01', strtotime('last year + '.($i + 1).' month')));
 
             $where['uninstall_time'] = [['eq', 0], ['gt', $start], 'or'];
             $where['install_time'] = [['eq', 0], ['lt', $end], ['exp', ' is NULL'], 'or'];
 
 //        $map['_string'] = '(uninstall_time = 0 or uninstall_time >' . $start . ') and (install_time is NULL or install_time=0 or  install_time <' . $end . ')';
-            $combie[] = Cooler::where($where)->field('' . $key . ' name, count(1) as total,sum(if( is_medical="2","1","0")) as medical ')->find()->toArray();
+            $combie[] = Cooler::where($where)->field(''.$key.' name, count(1) as total,sum(if( is_medical="2","1","0")) as medical ')->find()->toArray();
         }
         return $combie;
     }
@@ -727,9 +728,10 @@ class Company extends Coldchain2Model
     {
         return $this->hasMany(CompanyUseSetting::class);
     }
-    public function hasUseSettings($settings_id,$value)
+
+    public function hasUseSettings($settings_id, $value)
     {
-        return $this->useSettings()->where('setting_id',$settings_id)->where('value',$value)->first();
+        return $this->useSettings()->where('setting_id', $settings_id)->where('value', $value)->first();
     }
 
     public function defaultSetting($category = 'all')
@@ -763,5 +765,82 @@ class Company extends Coldchain2Model
         }
         return $default;
 
+    }
+
+    public function create(array $attributes = [], array $options = [])
+    {
+        $data['title'] = trim($attributes['title']);
+
+        $data['short_title'] = trim($attributes['short_title']);
+        $data['office_title'] = trim($attributes['office_title']);
+        $data['nipis'] = trim($attributes['nipis']);
+
+        $data['tel'] = $attributes['tel'];
+
+        $data['phone'] = $attributes['mobile'];
+
+        $data['email'] = $attributes['email'];
+
+        $data['address'] = $attributes['address'];
+
+        $data['company_type'] = $attributes['company_type'] ? $attributes['company_type'] : 0;
+
+        $data['manager'] = $attributes['manager'];
+
+        $data['username'] = $attributes['username'];
+
+        $data['password'] = $attributes['password'];
+
+        $data['cdc_level'] = $attributes['cdc_level'];
+
+        $data['cdc_admin'] = $attributes['cdc_admin'];
+
+        $data['area_level1_id'] = $attributes['area_level1_id'];
+
+        $data['area_level2_id'] = $attributes['area_level2_id'];
+
+        $data['area_level3_id'] = $attributes['area_level3_id'];
+
+        $data['area_level4_id'] = $attributes['area_level4_id'];
+
+        $data['region_code'] = $attributes['region_code'] ? $attributes['region_code'] : ($attributes['area_level3_id'] ? $attributes['area_level3_id'] : 0);
+
+        $data['area_fixed'] = 1;
+
+        $data['pid'] = $attributes['pid'];
+
+        $data['ctime'] = time();
+
+        $data['status'] = 1;
+
+        $data['company_group'] = $attributes['company_group'];
+        $result = \DB::transaction(function () use ($data,$attributes) {
+            $result = parent::create($data);
+            $result->users()->create($data);
+            $odata['username'] = $attributes['username'];
+            $odata['password'] =(new User())->user_md5($attributes['password']);
+            $odata['mobile'] = $attributes['mobile'];
+            $odata['reg_time'] = time();
+            $odata['reg_ip'] = get_client_ip();;
+            $odata['status'] = 1;
+            $odata['type'] = 1;
+            $ocenter = M('ucenter_member', 'ocenter_', 'DB_UCENTER')->data($odata)->add();
+
+            $udata['nickname'] = I('post.username');
+            $udata['sex'] = 0;
+            $udata['status'] = 1;
+            $udata['reg_time'] = NOW_TIME;
+            $udata['app_id'] = 2;
+            $ocenter = M('member', 'ocenter_', 'DB_UCENTER')->data($udata)->add();
+            return $result;
+        });
+
+        return $result;
+
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        return parent::update($attributes, $options); // TODO: Change the autogenerated stub
     }
 }

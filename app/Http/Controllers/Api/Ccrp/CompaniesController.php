@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\CompanyRequest;
+use App\Http\Requests\Api\Ccrp\Setting\CompanySettingRequest;
 use App\Models\Ccrp\Area;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\WarningEvent;
@@ -21,9 +22,10 @@ use Illuminate\Http\Request;
 class CompaniesController extends Controller
 {
     public $model;
+
     public function __construct(Company $company)
     {
-        $this->model=$company;
+        $this->model = $company;
     }
 
     public function index(CompanyRequest $request, $id = null)
@@ -212,13 +214,36 @@ class CompaniesController extends Controller
 
     }
 
+    public function store(CompanySettingRequest $request)
+    {
+        $this->check();
+        if ($pid = $request->pid)
+            $company = $this->model->find($pid);
+        else
+            $company = $this->company;
+        $request['reg_type'] = 'username';
+        $request['binding_domain'] = domain_fix();
+        $request['cdc_level'] = $company['cdc_level'] + 1;
+        if ($company['cdc_level'] >= 1)
+            $request['area_level1_id'] = $company['area_level1_id'];
+        if ($company['cdc_level'] >= 2)
+            $request['area_level2_id'] = $company['area_level2_id'];
+        if ($company['cdc_level'] >= 3)
+            $request['area_level3_id'] = $company['area_level3_id'];
+
+        $request['company_group'] = $company['company_group'];
+
+        $result = $this->model->create($request->all());
+    }
+
     public function subAdminCompanies()
     {
         $this->check();
-        $company=$this->company;
+        $company = $this->company;
         $ids = $company->ids(1);
-        $companies=$this->model->whereIn('id',$ids)->get();
-        return $this->response->collection($companies,new CompanyListTransformer())
-            ->addMeta('area_level' . ($company['cdc_level'] + 1) . '_id',Area::getListByConditions(['parent_id' => $company['area_level' . $company['cdc_level'] . '_id']]));
+        $companies = $this->model->whereIn('id', $ids)->get();
+        return $this->response->collection($companies, new CompanyListTransformer())
+            ->addMeta('name', 'area_level'.($company['cdc_level'] + 1).'_id')->addMeta('list', Area::getListByConditions(['parent_id' => $company['area_level'.$company['cdc_level'].'_id']]));
     }
+
 }
