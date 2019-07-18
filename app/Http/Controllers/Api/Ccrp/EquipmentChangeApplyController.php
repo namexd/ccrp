@@ -84,9 +84,9 @@ class EquipmentChangeApplyController extends Controller
     public function checkApply($id, $status)
     {
         $this->check();
-//        if ($this->company->cdc_admin == 0) {
-//            return $this->response->errorMethodNotAllowed('非疾控用户');
-//        }
+        if ($this->company->cdc_admin == 0) {
+            return $this->response->errorMethodNotAllowed('非疾控用户');
+        }
         $apply = $this->model->find($id);
         $check['status'] = $status;
 
@@ -116,9 +116,7 @@ class EquipmentChangeApplyController extends Controller
     {
         $this->check();
         $equipment_change_apply = $this->model->findOrFail($id);
-        $app = App::where('program', 'microservice_file')->first();
-        $url = $equipment_change_apply->user_sign ? $app->api_url.'upload/'.$equipment_change_apply->user_sign : '';
-        return $this->response->item($equipment_change_apply, new EquipmentChangeApplyTransformer())->addMeta('sign_url', $url);
+        return $this->response->item($equipment_change_apply, new EquipmentChangeApplyTransformer());
     }
 
     public function statistics()
