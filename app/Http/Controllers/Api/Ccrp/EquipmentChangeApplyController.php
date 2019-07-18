@@ -120,6 +120,19 @@ class EquipmentChangeApplyController extends Controller
         return $this->response->array($result);
     }
 
+    public function getApplyStatus()
+    {
+        $result=[];
+        foreach(EquipmentChangeApply::STATUS as $key=> $status)
+        {
+            $result[]=[
+                'value'=>$key,
+                'lable'=>$status,
+            ];
+        }
+        return $this->response->array($result);
+    }
+
     /**
      * Update the specified resource in storage.
      *

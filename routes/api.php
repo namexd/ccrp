@@ -113,6 +113,7 @@ $api->version('v1', [
             //0,探头,1,报警器,2一体机，3中继器
             $api->resource('products', ProductsController::class);
             //冷链变更
+            $api->get('equipment_change_applies/get_apply_status', 'EquipmentChangeApplyController@getApplyStatus');
             $api->resource('equipment_change_applies', EquipmentChangeApplyController::class);
             $api->get('equipment_change_apply/statistics', 'EquipmentChangeApplyController@statistics');
             $api->post('check_apply/{id}/status/{status}', 'EquipmentChangeApplyController@checkApply');
