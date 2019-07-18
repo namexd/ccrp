@@ -84,9 +84,9 @@ class EquipmentChangeApplyController extends Controller
     public function checkApply($id, $status)
     {
         $this->check();
-        if ($this->company->cdc_admin == 0) {
-            return $this->response->errorMethodNotAllowed('非疾控用户');
-        }
+//        if ($this->company->cdc_admin == 0) {
+//            return $this->response->errorMethodNotAllowed('非疾控用户');
+//        }
         $apply = $this->model->find($id);
         $check['status'] = $status;
 
