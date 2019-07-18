@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Ccrp;
 use App\Events\AutoHandleApply;
 use App\Models\App;
 use App\Models\Ccrp\EquipmentChangeApply;
+use App\Traits\ControllerDataRange;
 use App\Transformers\Ccrp\EquipmentChangeApplyTransformer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -12,8 +13,9 @@ use Illuminate\Http\Request;
 
 class EquipmentChangeApplyController extends Controller
 {
+    use ControllerDataRange;
     protected $model;
-
+    public $default_date='全部';
     public function __construct(EquipmentChangeApply $equipmentChangeApply)
     {
         $this->model = $equipmentChangeApply;
@@ -29,7 +31,8 @@ class EquipmentChangeApplyController extends Controller
     {
         $this->check();
         $company_ids = $this->company_ids;
-        if ($status = $request->get('status')) {
+        if ( $request->has('status')) {
+            $status=$request->status;
             if (!is_array($status)) {
                 $status = [$status];
             }
@@ -38,6 +41,8 @@ class EquipmentChangeApplyController extends Controller
         if ($request->start_time && $request->end_time) {
             $this->model = $this->model->whereBetween('apply_time', [$request->start_time, $request->end_time]);
         }
+        $this->set_default_datas($this->default_date);
+        $this->model = $this->model->whereBetween('apply_time', $this->get_dates('datetime'));
         $data = $this->model->with(['company', 'details', 'news'])->whereIn('company_id', $company_ids)->orderBy('id', 'desc')->paginate($request->pagesize ?? $this->pagesize);
         return $this->response->paginator($data, new EquipmentChangeApplyTransformer());
     }
@@ -127,7 +132,7 @@ class EquipmentChangeApplyController extends Controller
         {
             $result[]=[
                 'value'=>$key,
-                'lable'=>$status,
+                'label'=>$status,
             ];
         }
         return $this->response->array($result);
