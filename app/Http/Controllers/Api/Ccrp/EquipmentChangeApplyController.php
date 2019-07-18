@@ -38,8 +38,11 @@ class EquipmentChangeApplyController extends Controller
             }
             $this->model = $this->model->whereIn('status', $status);
         }
-        if ($request->start_time && $request->end_time) {
-            $this->model = $this->model->whereBetween('apply_time', [$request->start_time, $request->end_time]);
+        if ($request->has('change_type')) {
+        $change_type=$request->change_type;
+            $this->model = $this->model->whereHas('details',function ($query) use ($change_type){
+               $query->where('change_type',$change_type);
+            });
         }
         $this->set_default_datas($this->default_date);
         $this->model = $this->model->whereBetween('apply_time', $this->get_dates('datetime'));
