@@ -234,6 +234,7 @@ class CompaniesController extends Controller
         $request['company_group'] = $company['company_group'];
 
         $result = $this->model->create($request->all());
+        return $this->response->item($result,new CompanyListTransformer())->setStatusCode(201);
     }
 
     public function subAdminCompanies()

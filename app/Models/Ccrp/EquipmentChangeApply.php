@@ -93,7 +93,7 @@ class EquipmentChangeApply extends Model
     }
     public function checkUser()
     {
-        return $this->belongsTo(User::class,'check_user');
+        return $this->belongsTo(\App\Models\Ccrp\User::class,'check_user');
     }
     public function add($data)
     {

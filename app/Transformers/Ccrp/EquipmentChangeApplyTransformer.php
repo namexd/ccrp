@@ -3,6 +3,8 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\EquipmentChangeApply;
+use App\Models\User;
+use App\Models\UserHasApp;
 use League\Fractal\TransformerAbstract;
 
 class EquipmentChangeApplyTransformer extends TransformerAbstract
@@ -27,7 +29,7 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
             'check_user' => $apply->checkUser ? $apply->checkUser->name : '',
             'check_commnet' => $apply->check_commnet,
             'check_time' => $apply->check_time,
-            'handler' => $apply->user?$apply->user->name:'',
+            'handler' => $this->getHandler($apply->handler),
             'end_time' => $apply->end_time,
             'comment' => $apply->comment,
             'is_auto' => $apply->is_auto
@@ -38,5 +40,14 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
     public function includeDetails(EquipmentChangeApply $apply)
     {
         return $this->collection($apply->details, new EquipmentChangeDetailTransformer());
+    }
+    public function getHandler($handler)
+    {
+       $userhasapp= UserHasApp::where('app_id',1)->where('app_userid',$handler)->first();
+       if ($userhasapp)
+       {
+           return User::find($userhasapp->user_id)->realname;
+       }else
+           return '';
     }
 }

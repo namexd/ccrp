@@ -42,6 +42,8 @@ $api->version('v1', [
         ], function ($api) {
             //下级管理单位
             $api->get('companies/sub_admin', 'CompaniesController@subAdminCompanies')->name('api.ccrp.companies.sub_admin');
+            //添加单位
+            $api->post('companies', 'CompaniesController@store')->name('api.ccrp.companies.store');
             //单位树
             $api->get('companies/tree/{id?}', 'CompaniesController@tree')->name('api.ccrp.companies.tree');
             //单位下级单位
