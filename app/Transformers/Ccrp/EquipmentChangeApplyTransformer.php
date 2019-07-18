@@ -27,15 +27,11 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
             'check_user' => $apply->checkUser ? $apply->checkUser->name : '',
             'check_commnet' => $apply->check_commnet,
             'check_time' => $apply->check_time,
-            'handler' => $apply->handler,
+            'handler' => $apply->user?$apply->user->name:'',
             'end_time' => $apply->end_time,
             'comment' => $apply->comment,
             'is_auto' => $apply->is_auto
         ];
-        if ($apply->handler) {
-            $rs['handler'] = $apply->user->name;
-            $rs['end_time'] = $apply->end_time;
-        }
         return $rs;
     }
 
