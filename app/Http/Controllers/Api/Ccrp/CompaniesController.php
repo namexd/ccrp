@@ -6,12 +6,16 @@ use App\Http\Requests\Api\Ccrp\CompanyRequest;
 use App\Http\Requests\Api\Ccrp\Setting\CompanySettingRequest;
 use App\Models\Ccrp\Area;
 use App\Models\Ccrp\Company;
+use App\Models\Ccrp\User;
 use App\Models\Ccrp\WarningEvent;
 use App\Models\Ccrp\WarningSenderEvent;
+use App\Models\Ocenter\UCenterMember;
+use App\Transformers\Ccrp\CompanyDetailTransformer;
 use App\Transformers\Ccrp\CompanyInfoTransformer;
 use App\Transformers\Ccrp\CompanyListTransformer;
 use App\Transformers\Ccrp\CompanyTransformer;
 use App\Transformers\Ccrp\CoolerCategoryTransformer;
+use function App\Utils\domain_fix;
 use function App\Utils\get_last_months;
 use function App\Utils\get_month_first;
 use function App\Utils\get_month_last;
@@ -214,6 +218,12 @@ class CompaniesController extends Controller
 
     }
 
+    public function show($id)
+    {
+        return $this->response->item($this->model->find($id),new CompanyDetailTransformer());
+
+    }
+
     public function store(CompanySettingRequest $request)
     {
         $this->check();
@@ -234,17 +244,112 @@ class CompaniesController extends Controller
         $request['company_group'] = $company['company_group'];
 
         $result = $this->model->create($request->all());
-        return $this->response->item($result,new CompanyListTransformer())->setStatusCode(201);
+        return $this->response->item($result, new CompanyListTransformer())->setStatusCode(201);
+    }
+    
+    public function update($id,CompanySettingRequest $request)
+    {
+        $this->check();
+        if (is_array($request['phone'])) {
+            $request['phone'] = implode(',', $request['phone']);
+        }
+        $company = $this->model->find($id);
+        $request['reg_type'] = 'username';
+        $request['binding_domain'] = domain_fix();
+
+        if ($company['pid'] != $request['pid']) {
+            $parent = $this->model->selectRaw('id,pid,cdc_admin,cdc_level,area_level1_id,area_level2_id,area_level3_id,area_level4_id')->find($request['pid']);
+            $request['cdc_level'] = $parent['cdc_level'] + 1;
+            if ($request['area_level4_id']) {
+                $request['area_level3_id'] = $parent['area_level3_id'];
+                $request['area_level2_id'] = $parent['area_level2_id'];
+                $request['area_level1_id'] = $parent['area_level1_id'];
+            } elseif ($request['area_level3_id']) {
+                $request['area_level4_id'] = 0;
+                $request['area_level2_id'] = $parent['area_level2_id'];
+                $request['area_level1_id'] = $parent['area_level1_id'];
+            } elseif ($request['area_level2_id']) {
+                $request['area_level4_id'] = 0;
+                $request['area_level3_id'] = 0;
+                $request['area_level1_id'] = $parent['area_level1_id'];
+            } elseif ($request['area_level1_id']) {
+                $request['area_level4_id'] = 0;
+                $request['area_level3_id'] = 0;
+                $request['area_level2_id'] = 0;
+            }
+        }
+        $result =$company->update($request->all());
+        if ($result) {
+            if ($company['title'] <> $result['title']) {
+                $data_user['company'] = $result['title'];
+                $company->users()->update($data_user);
+            }
+          return $this->response->item($company,new CompanyDetailTransformer());
+        } else {
+            $this->error('修改失败');
+        }
     }
 
+
+    public function resetPassword($id)
+    {
+        $company_id = $id;
+        $company = $this->model->find($company_id);
+        if ($company) {
+            $where['username'] = $company['username'];
+            $where['company_id'] = $company_id;
+            $result = User::where($where)->update(['password'=>(new User())->user_md5($company['password'])]); //重置密码
+            //更新UCENTER密码
+            $ocenter = UCenterMember::where('username',$company['username'])->update(['password'=>(new User())->user_md5($company['password'])]); //重置密码
+            if ($result) {
+             return $this->response->noContent();
+            } else {
+                return $this->response->errorMethodNotAllowed('密码没有任何修改');
+            }
+        }
+    }
     public function subAdminCompanies()
     {
         $this->check();
         $company = $this->company;
-        $ids = $company->ids(1);
-        $companies = $this->model->whereIn('id', $ids)->get();
-        return $this->response->collection($companies, new CompanyListTransformer())
-            ->addMeta('name', 'area_level'.($company['cdc_level'] + 1).'_id')->addMeta('list', Area::getListByConditions(['parent_id' => $company['area_level'.$company['cdc_level'].'_id']]));
+
+        if ($company->cdc_admin == 1) {
+            $ids = $company->ids(1);
+            $companies = $this->model->whereIn('id', $ids)->get();
+            $submap2['cdc_level'] = $company['cdc_level'] + 1;
+            $submap2['area_level'.$company['cdc_level'].'_id'] = $company['area_level'.$company['cdc_level'].'_id'];
+            $sub_company = $this->model->where($submap2)->count();
+            $default = array('sup_company' => $company['title'],
+                'sup_area' => $company['area_level'.$company['cdc_level'].'_id'],
+                'password' => str_replace("'", '', Area::get_area_pinyin($company['area_level'.$company['cdc_level'].'_id']).'123456'
+                ));
+            if ($company['cdc_level'] <= 3) {
+
+                $default['item_name'] = '行政区域';
+                $default['item_type'] = 'select';
+
+                $default['username'] = $company['area_level'.$company['cdc_level'].'_id'].sprintf("%02d", ($sub_company + 1));
+            } else {
+                $default['item_name'] = '行政单位';
+                $default['item_type'] = 'text';
+                $default['username'] = $company['area_level'.$company['cdc_level'].'_id'].sprintf("%02d", ($sub_company + 1));
+            }
+            if (request()->get('admin') == 1)
+                $default['cdc_admin'] = 1;
+            else
+                $default['cdc_admin'] = 0;
+            $default['pid'] = $company['id'];//默认上级单位
+            $default['company_type'] = 3;//默认上级单位
+            return $this->response->collection($companies, new CompanyListTransformer())
+                ->addMeta('name', 'area_level'.($company['cdc_level'] + 1).'_id')
+                ->addMeta('list', Area::getListByConditions(['parent_id' => $company['area_level'.$company['cdc_level'].'_id']]))
+                ->addMeta('sub_company_count', $sub_company)
+                ->addMeta('sup_area', $company['area_level'.$company['cdc_level'].'_id'])
+                ->addMeta('default', $default);
+        } else {
+            return $this->response->errorMethodNotAllowed('非疾控单位');
+        }
+
     }
 
 }

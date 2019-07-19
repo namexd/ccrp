@@ -15,7 +15,7 @@ class ProductTransformer extends TransformerAbstract
     {
         $result = [
             'product_id'=>$product->product_id,
-            'product_ model'=>$product->product_model,
+            'product_model'=>$product->product_model,
             'supplier_id'=>$product->supplier_id,
             'supplier_product_model'=>$product->supplier_product_model,
             'product_type'=>$product->product_type,

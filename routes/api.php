@@ -40,10 +40,16 @@ $api->version('v1', [
             'namespace' => 'Ccrp',
             'prefix' => 'ccrp',
         ], function ($api) {
+            //单位详情
+            $api->get('companies/detail/{id}', 'CompaniesController@show')->name('api.ccrp.companies.show');
             //下级管理单位
             $api->get('companies/sub_admin', 'CompaniesController@subAdminCompanies')->name('api.ccrp.companies.sub_admin');
+            //重置密码
+            $api->get('companies/reset_password/{id}', 'CompaniesController@resetPassword')->name('api.ccrp.companies.resetPassword');
             //添加单位
             $api->post('companies', 'CompaniesController@store')->name('api.ccrp.companies.store');
+            //编辑单位
+            $api->put('companies/{id}', 'CompaniesController@update')->name('api.ccrp.companies.update');
             //单位树
             $api->get('companies/tree/{id?}', 'CompaniesController@tree')->name('api.ccrp.companies.tree');
             //单位下级单位

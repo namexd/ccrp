@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use App\Models\Ccrp\Company;
+
 function array_trim($arr, $trim = true)
 {
     if (!is_array($arr)) return $arr;
@@ -295,6 +297,29 @@ function app_access_encode($appkey, $appsecret, $info)
     return encrypt(time() . '|||' . strtoupper($appkey) . '|||' . strtoupper($appsecret) . '|||' . json_encode($info), $appkey);
 }
 
+
+function domain_fix()
+
+{
+
+    //自定义网址
+
+    $domain = $_SERVER['HTTP_HOST'];
+
+    $cfg_domain = Company::ONLINE_DOMAIN;
+    $cfg_domain2 =Company::ONLINE_DOMAIN2;
+
+    if (in_array($domain, $cfg_domain)) {
+
+        return array_search($domain, $cfg_domain);
+
+    } elseif (in_array($domain, $cfg_domain2)) {
+
+        return array_search($domain, $cfg_domain2);
+
+    } else return '';
+
+}
 
 /**
  * 解密

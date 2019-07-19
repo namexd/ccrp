@@ -50,4 +50,12 @@ class Area extends Coldchain2Model
         return $result;
     }
 
+   public static function get_area_pinyin($id)
+    {
+        $result = self::find($id);
+        return strtolower($result['pinyin']);
+
+    }
+
+
 }

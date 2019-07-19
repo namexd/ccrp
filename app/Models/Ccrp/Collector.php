@@ -153,7 +153,6 @@ END$$;";
 
     {
         $collector = $this->find($collector_id);
-
         if (!$collector) return false;
 
         //添加LOG
