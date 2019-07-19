@@ -97,7 +97,6 @@ class EquipmentChangeApply extends Model
     }
     public function add($data)
     {
-        $data['status'] = 0;
         try {
             $apply = DB::transaction(function () use ($data) {
                 $attributes = array_only($data, $this->fillable);
