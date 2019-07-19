@@ -17,6 +17,7 @@ class CollectorDetailTransformer extends TransformerAbstract
             'id' => $collector->collector_id,
             'sn' => $collector->supplier_collector_id,
             'name' => $collector->collector_name,
+            'supplier_product_model' => $collector->supplier_product_model,
             'temp' => format_value($collector->temp,'-'),
             'humi' => format_value($collector->humi),
             'volt' => ($collector->volt > 0 ) ? round($collector->volt, 1):null,
