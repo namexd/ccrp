@@ -30,12 +30,12 @@ class EquipmentChangeDetailTransformer extends TransformerAbstract
     {
         if ($detail->cooler_id==0)
         {
-            return $this->item(new Cooler, new CoolerTransformer());
-        }else
-        {
             return new Item(null,function (){
                 return [];
             });
+        }else
+        {
+            return $this->item($detail->cooler, new CoolerTransformer());
         }
 
     }
