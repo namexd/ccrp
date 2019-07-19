@@ -170,7 +170,11 @@ class CollectorsController extends Controller
         $change_note = request()->get('change_note');
         if ($change_note == '') return $this->response->errorBadRequest('备注不能为空');
         if (strlen($change_note) < 4) return $this->response->errorBadRequest('“备注”中请填写清楚具体报废的原因');
-
+         $collector=$this->collector->find($id);
+         if ($collector->status==Collector::状态_报废)
+         {
+             return $this->response->errorMethodNotAllowed('该探头已经报废');
+         }
         $result = $this->collector->uninstall($id, $change_note);
         if ($result) {
             return $this->response->noContent();
