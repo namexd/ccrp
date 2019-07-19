@@ -7,7 +7,7 @@ use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
 
 class CoolerModel extends Coldchain2ModelWithTimestamp
 {
-protected $table=['sys_cooler_models'];
+protected $table='sys_cooler_models';
     protected $fillable =[
         'id',
         'name',

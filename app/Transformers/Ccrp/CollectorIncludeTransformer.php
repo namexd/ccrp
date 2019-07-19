@@ -19,7 +19,7 @@ class CollectorIncludeTransformer extends TransformerAbstract
             'name' => $collector->collector_name,
             'temp' => format_value($collector->temp,'-'),
             'humi' => format_value($collector->humi,'-'),
-            'refresh_time' => Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString(),
+            'refresh_time' => $collector->refresh_time?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():null,
         ];
     }
 

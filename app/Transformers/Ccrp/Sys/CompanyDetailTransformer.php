@@ -2,14 +2,13 @@
 
 namespace App\Transformers\Ccrp\Sys;
 
-use App\Models\Ccrp\Sys\CompanyDetail;
-use App\Models\Ccrp\Sys\CoolerPhoto;
+use App\Models\Ccrp\Sys\SysCompanyDetail;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
 class CompanyDetailTransformer extends TransformerAbstract
 {
-    public function transform(CompanyDetail $coolerPhoto)
+    public function transform(SysCompanyDetail $coolerPhoto)
     {
         $arr=[
             'id'=>$coolerPhoto->id,

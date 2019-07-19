@@ -3,7 +3,7 @@
 namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatMange;
-use App\Models\Ccrp\Sys\CompanyDetail;
+use App\Models\Ccrp\Sys\SysCompanyDetail;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\CoolerCategory;
 use App\Models\Ocenter\Member;
@@ -197,7 +197,7 @@ class Company extends Coldchain2Model
 
     public function details()
     {
-        return $this->belongsToMany(CompanyDetail::class,'company_details','company_id','sys_id');
+        return $this->belongsToMany(SysCompanyDetail::class,'company_details','company_id','sys_id');
     }
     /**
      * 联动下拉框数据
