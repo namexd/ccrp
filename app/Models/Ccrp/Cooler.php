@@ -25,7 +25,7 @@ class Cooler extends Coldchain2Model
     const 状态_报废 = 4;
     const 状态_盘苗 = 5;
     const 状态_除霜 = 6;
-    const IS_MEDICAL = ['0'=>'未知','1'=>'否','2'=>'是'];
+    const IS_MEDICAL = ['0' => '未知', '1' => '否', '2' => '是'];
 
     public static $status = [
         '1' => '正常',
@@ -85,16 +85,13 @@ class Cooler extends Coldchain2Model
     public function getCoolerImageAttribute()
     {
         $image = '';
-        switch ($this->cooler_type)
-        {
+        switch ($this->cooler_type) {
             case self::设备类型_冷藏冰箱:
                 $image = self::设备图片_冷藏冰箱_小型;
-                if($this->cooler_size > 900)
-                {
+                if ($this->cooler_size > 900) {
                     $image = self::设备图片_冷藏冰箱_大型;
                 }
-                if($this->cooler_size > 500)
-                {
+                if ($this->cooler_size > 500) {
                     $image = self::设备图片_冷藏冰箱_中型;
                 }
                 break;
@@ -113,6 +110,7 @@ class Cooler extends Coldchain2Model
         }
         return $image;
     }
+
     public function cooler_info()
     {
         return $this->hasOne(CoolerInfo::class, 'cooler_id', 'cooler_id');
@@ -137,9 +135,10 @@ class Cooler extends Coldchain2Model
     {
         return $this->hasMany(Collector::class, 'cooler_id', 'cooler_id')->where('status', Collector::状态_正常)->where('temp_type', Collector::温区_未知);
     }
+
     function cooler_category()
     {
-        return $this->belongsTo(CoolerCategory::class,'category_id','id');
+        return $this->belongsTo(CoolerCategory::class, 'category_id', 'id');
     }
 
     function history($start_time, $end_time)
@@ -250,17 +249,18 @@ class Cooler extends Coldchain2Model
 
     public function getCoolerTypes()
     {
-        $result=[];
+        $result = [];
         foreach (self::COOLER_TYPE as $key => $type) {
             $result['key'] = $key;
             $result['value'] = $type;
         }
         return $result;
     }
+
     static public function coolerType()
     {
         foreach (self::COOLER_TYPE as $key => $type) {
-            $result[] = ['value'=>'type_'.$key,'label'=>$type];
+            $result[] = ['value' => 'type_'.$key, 'label' => $type];
         }
         return $result;
     }
@@ -294,7 +294,7 @@ class Cooler extends Coldchain2Model
     {
         $coolerInfoModel = new CoolerInfo();
         $prifix = $coolerInfoModel->getConnection()->getConfig('prefix');
-        $coolerInfoTable=$prifix.$coolerInfoModel->getTable();
+        $coolerInfoTable = $prifix.$coolerInfoModel->getTable();
         $builder = $this->whereIn('company_id', $company_ids);
         if (isset($filter['cooler_type']) && $cooler_type = $filter['cooler_type']) {
             $builder = $builder->where('cooler_type', $cooler_type);
@@ -330,7 +330,7 @@ class Cooler extends Coldchain2Model
         $coolerInfoModel = new CoolerInfo();
         $prifix = $coolerInfoModel->getConnection()->getConfig('prefix');
         $builder = $this->whereIn('company_id', $company_ids);
-        $coolerInfoTable=$prifix.$coolerInfoModel->getTable();
+        $coolerInfoTable = $prifix.$coolerInfoModel->getTable();
         if (isset($filter['start_time']) && $start_time = $filter['start_time']) {
             $builder = $builder->whereRaw('left(cooler_starttime,4)>='.$start_time);
         }
@@ -365,44 +365,48 @@ class Cooler extends Coldchain2Model
     //新增冰箱
     public function addCooler($attributes)
     {
-        return $this->create(array_only($attributes,$this->fillable));
+        return $this->create(array_only($attributes, $this->fillable));
     }
 
     //编辑冰箱
     public function editCooler($attributes)
     {
-        return $this->update(array_only($attributes,$this->fillable));
+        return $this->update(array_only($attributes, $this->fillable));
     }
 
     //刷新探头数量
 
-    public function flush_collector_num($cooler_id){
-        $cooler=Cooler::find($cooler_id);
-        $map['cooler_id']=$cooler_id;
-        $map['status']=1;
+    public function flush_collector_num($cooler_id)
+    {
+        $cooler = Cooler::find($cooler_id);
+        $map['cooler_id'] = $cooler_id;
+        $map['status'] = 1;
         $count = Collector::where($map)->count();
-        $cooler->update(['collector_num'=>$count]);
+        $cooler->update(['collector_num' => $count]);
     }
+
     //开关报警
     public function setWarningByStatus($status)
     {
-        $cooler=$this;
-        try{
-            if ($cooler['collector_num'] > 0) {
-                $cooler->collectors()->update(['offline_check' => $status]);
-                foreach ($cooler->collectors as $vo) {
-                    if ($vo->warningSetting)
-                        $vo->warningSetting()->update(['temp_warning' => $status]);
-                    else
-                       throw new \Exception('探头未设置报警');
+        $count = 0;
+        $message = '';
+        $cooler = $this;
+        if ($cooler['collector_num'] > 0) {
+            $cooler->collectors()->update(['offline_check' => $status]);
+            foreach ($cooler->collectorsOnline as $vo) {
+                if ($vo->warningSetting) {
+                    $vo->warningSetting()->update(['temp_warning' => $status]);
+                    \Log::info($vo->warningSetting()->update(['temp_warning' => $status]));
+                } else {
+                    $count++;
+                    $message = $count.'个探头未设置报警';
                 }
-            }else
-            {
-                throw new \Exception('未绑定探头');
             }
-        }catch (\Exception $exception){
-            return ['message'=>$exception->getMessage(),'code'=>$exception->getCode()];
+        } else {
+            $count = -1;
+            $message = '未绑定探头';
         }
+        return ['count' => $count, 'message' => $message];
 
     }
 }

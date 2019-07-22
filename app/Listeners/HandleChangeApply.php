@@ -23,7 +23,7 @@ class HandleChangeApply implements ShouldQueue
                 $cooler = Cooler::find($detail->cooler_id);
                 DB::transaction(function () use ($detail,$cooler,$status) {
                 $result=$cooler->setWarningByStatus($status);
-                    if ($result['code'])
+                    if ($result['count']==0)
                     {
                         $auto['is_auto'] = 1;
                         $auto['comment'] = '系统自动处理';
