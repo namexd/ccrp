@@ -8,7 +8,7 @@ use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Product;
 use App\Models\Ccrp\Reports\CoolerLog;
-use App\Models\Ccrp\Sys\CoolerType;
+use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Transformers\Ccrp\CoolerHistoryTransformer;
 use App\Transformers\Ccrp\CoolerTransformer;
 use App\Transformers\Ccrp\CoolerType100Transformer;
@@ -169,7 +169,7 @@ class CoolersController extends Controller
     }
     public function coolerType()
     {
-        return $this->response->collection(CoolerType::all(), new CoolerTypeTransformer());
+        return $this->response->collection(SysCoolerType::all(), new CoolerTypeTransformer());
     }
     public function getCoolerStatus()
     {

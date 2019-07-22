@@ -1,17 +1,20 @@
 <?php
 namespace App\Models\Ccrp;
-use App\Traits\ModelFields;
 
-class CompanyDetail extends Coldchain2Model
+use App\Models\Ccrp\Sys\SysCompanyDetail;
+
+class CompanyDetail extends Coldchain2ModelWithTimestamp
 {
-    use ModelFields;
     protected $table = 'company_details';
 
     protected $fillable = ['company_id','sys_id','value'];
-
     function company()
     {
         return $this->belongsTo(Company::class,'company_id','id');
+    }
+    public function sys_detail()
+    {
+        return $this->belongsTo(SysCompanyDetail::class, 'sys_id', 'id');
     }
 
 }

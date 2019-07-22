@@ -2,13 +2,13 @@
 
 namespace App\Transformers\Ccrp\Sys;
 
-use App\Models\Ccrp\Sys\CoolerBrand;
+use App\Models\Ccrp\Sys\SysCoolerBrand;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
 class CoolerBrandTransformer extends TransformerAbstract
 {
-    public function transform(CoolerBrand $brand)
+    public function transform(SysCoolerBrand $brand)
     {
         $arr=[
             'id'=>$brand->id,

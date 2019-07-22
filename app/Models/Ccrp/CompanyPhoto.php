@@ -2,7 +2,7 @@
 namespace App\Models\Ccrp;
 use App\Traits\ModelFields;
 
-class CompanyPhoto extends Coldchain2Model
+class CompanyPhoto extends Coldchain2ModelWithTimestamp
 {
     use ModelFields;
     protected $table = 'company_photos';

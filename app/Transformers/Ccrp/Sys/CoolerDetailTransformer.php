@@ -6,9 +6,9 @@ use App\Models\Ccrp\Sys\SysCoolerType;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
-class CoolerTypeTransformer extends TransformerAbstract
+class CoolerDetailTransformer extends TransformerAbstract
 {
-    public function transform(SysCoolerType $coolerType)
+    public function transform(SysCoolerDetail $coolerType)
     {
         $arr=[
             'id'=>$coolerType->id,

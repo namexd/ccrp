@@ -5,7 +5,7 @@ namespace App\Models\Ccrp\Sys;
 use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
 
 
-class CoolerModel extends Coldchain2ModelWithTimestamp
+class SysCoolerModel extends Coldchain2ModelWithTimestamp
 {
 protected $table='sys_cooler_models';
     protected $fillable =[
@@ -21,10 +21,10 @@ protected $table='sys_cooler_models';
     ];
     public function brand()
     {
-        return $this->belongsTo(CoolerBrand::class,'brand_id');
+        return $this->belongsTo(SysCoolerBrand::class,'brand_id');
     }
     public function type()
     {
-        return $this->belongsTo(CoolerType::class,'type_id');
+        return $this->belongsTo(SysCoolerType::class,'type_id');
     }
 }

@@ -7,7 +7,7 @@ use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Collectorguanxi;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Product;
-use App\Models\Ccrp\Sys\CoolerType;
+use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Traits\ControllerDataRange;
 use App\Transformers\Ccrp\CollectorDetailTransformer;
 use App\Transformers\Ccrp\CollectorHistoryTransformer;
@@ -185,6 +185,6 @@ class CollectorsController extends Controller
 
     public function coolerType()
     {
-        return $this->response->collection(CoolerType::all(), new CoolerTypeTransformer());
+        return $this->response->collection(SysCoolerType::all(), new CoolerTypeTransformer());
     }
 }

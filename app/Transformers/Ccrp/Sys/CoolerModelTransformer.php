@@ -2,14 +2,14 @@
 
 namespace App\Transformers\Ccrp\Sys;
 
-use App\Models\Ccrp\Sys\CoolerModel;
+use App\Models\Ccrp\Sys\SysCoolerModel;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
 class CoolerModelTransformer extends TransformerAbstract
 {
     protected $availableIncludes=['brand','type'];
-    public function transform(CoolerModel $coolerModel)
+    public function transform(SysCoolerModel $coolerModel)
     {
         $arr=[
             'id'=>$coolerModel->id,
@@ -26,11 +26,11 @@ class CoolerModelTransformer extends TransformerAbstract
         return $arr;
     }
 
-    public function includeType(CoolerModel $coolerModel)
+    public function includeType(SysCoolerModel $coolerModel)
     {
         return $this->item($coolerModel->type,new CoolerTypeTransformer());
     }
-    public function includeBrand(CoolerModel $coolerModel)
+    public function includeBrand(SysCoolerModel $coolerModel)
     {
         return $this->item($coolerModel->brand,new CoolerBrandTransformer());
     }

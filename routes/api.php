@@ -42,6 +42,8 @@ $api->version('v1', [
         ], function ($api) {
             //单位基础资料
             $api->resource('company_details',CompanyDetailsController::class);
+            //单位图片
+            $api->resource('company_photos',CompanyPhotosController::class);
             //单位详情
             $api->get('companies/detail/{id}', 'CompaniesController@show')->name('api.ccrp.companies.show');
             //下级管理单位

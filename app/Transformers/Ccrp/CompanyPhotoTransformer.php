@@ -17,7 +17,7 @@ class CompanyPhotoTransformer extends TransformerAbstract
             'id' => $companyPhoto->id,
             'company_id' => $companyPhoto->company_id,
             'sys_id' => $companyPhoto->sys_id,
-            'value' => $companyPhoto->value,
+            'value' => $companyPhoto->value ? config('app.we_url').'/files/'.$companyPhoto->value : '',
             'created_at' => $companyPhoto->created_at->toDateTimeString(),
             'updated_at' => $companyPhoto->updated_at->toDateTimeString()
         ];
