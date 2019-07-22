@@ -30,9 +30,8 @@ class HandleChangeApply implements ShouldQueue
                         $auto['status'] = EquipmentChangeApply::状态_处理完成;
                     }else
                     {
-                        $auto['is_auto'] = 1;
                         $auto['comment']=$result['message'];
-                        $auto['status'] = EquipmentChangeApply::状态_未处理;
+                        $this->sendMessage($detail->apply);
                     }
                     $detail->apply()->update($auto);
                 });
