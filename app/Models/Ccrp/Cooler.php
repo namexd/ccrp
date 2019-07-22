@@ -387,11 +387,22 @@ class Cooler extends Coldchain2Model
     public function setWarningByStatus($status)
     {
         $cooler=$this;
-        $cooler->collectors()->update(['offline_check' => $status]);
-        if ($cooler['collector_num'] > 0) {
-            foreach ($cooler->collectors as $vo) {
-                $vo->warningSetting()->update(['temp_warning' => $status]);
+        try{
+            if ($cooler['collector_num'] > 0) {
+                $cooler->collectors()->update(['offline_check' => $status]);
+                foreach ($cooler->collectors as $vo) {
+                    if ($vo->warningSetting)
+                        $vo->warningSetting()->update(['temp_warning' => $status]);
+                    else
+                       throw new \Exception('探头未设置报警');
+                }
+            }else
+            {
+                throw new \Exception('未绑定探头');
             }
+        }catch (\Exception $exception){
+            return ['message'=>$exception->getMessage(),'code'=>$exception->getCode()];
         }
+
     }
 }

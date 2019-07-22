@@ -23,7 +23,7 @@ class CoolerTransformer extends TransformerAbstract
             'size' => $cooler->cooler_size,
             'size2' => $cooler->cooler_size2,
             'is_medical' =>$cooler->is_medical,
-            'is_medical_name' =>Cooler::IS_MEDICAL[$cooler->is_medical],
+            'is_medical_name' =>is_null($cooler->is_medical)?'未知':Cooler::IS_MEDICAL[$cooler->is_medical],
             'cooler_type' => $cooler->cooler_type != 0 ? Cooler::COOLER_TYPE[$cooler->cooler_type] : '未知',
             'company_id' => $cooler->company_id,
             'status' => $cooler->status != 0 ? Cooler::$status[$cooler->status] : '未知',
