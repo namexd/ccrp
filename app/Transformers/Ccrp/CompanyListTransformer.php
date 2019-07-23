@@ -35,6 +35,7 @@ class CompanyListTransformer extends TransformerAbstract
     public function includePhotos(Company $company)
     {
         return $this->collection($company->photos->toArray(),function ($arr){
+            $arr['pivot']['value']=$arr['pivot']['value']?config('app.we_url').'/files/'.$arr['pivot']['value'] : '';;
             return $arr;
         });
 

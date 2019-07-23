@@ -78,6 +78,7 @@ class CoolerTransformer extends TransformerAbstract
     public function includePhotos(Cooler $cooler)
     {
         return $this->collection($cooler->photos->toArray(),function ($arr){
+            $arr['pivot']['value']=$arr['pivot']['value']?config('app.we_url').'/files/'.$arr['pivot']['value'] : '';;
             return $arr;
         });
 

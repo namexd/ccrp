@@ -41,7 +41,16 @@ class CoolersController extends Controller
         }
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize')??$this->pagesize);
-        return $this->response->paginator($coolers, new CoolerTransformer());
+       $resp= $this->response->paginator($coolers, new CoolerTransformer());
+       if (request()->has('count'))
+       {
+           $count=[
+               'cooler_lk_count'=>$this->cooler->getCoolerCountByCoolerType($this->company_ids,[Cooler::设备类型_冷藏冷库,Cooler::设备类型_冷冻冷库]),
+               'cooler_bx_count'=>$this->cooler->getCoolerCountByCoolerType($this->company_ids,[Cooler::设备类型_台式小冰箱,Cooler::设备类型_普通冰箱,Cooler::设备类型_冷藏冰箱,Cooler::设备类型_冷冻冰箱]),
+           ];
+           $resp=$resp->addMeta('count',$count);
+       }
+       return $resp;
     }
 
     public function all()
