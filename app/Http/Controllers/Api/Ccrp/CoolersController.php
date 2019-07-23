@@ -68,11 +68,11 @@ class CoolersController extends Controller
     public function show($cooler)
     {
         $this->check();
-        $cooler = $this->cooler->whereIn('company_id', $this->company_ids)->find($cooler);
+        $cooler = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_id',$cooler)->whereOr('cooler_sn',$cooler);
         if ($cooler) {
             return $this->response->item($cooler, new CoolerTransformer());
         } else {
-            return $this->response->noContent();
+            return $this->response->errorMethodNotAllowed('冰箱不存在');
         }
     }
 
