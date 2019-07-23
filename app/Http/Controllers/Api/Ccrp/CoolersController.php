@@ -30,27 +30,31 @@ class CoolersController extends Controller
     public function index()
     {
         $this->check();
-        $status=request()->get('status')??1;
-        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('status', $status);
+        $coolers = $this->cooler->whereIn('company_id', $this->company_ids);
+        $status = request()->get('status')??'1';
+        if($status){
+            $coolers=$coolers->where('status', $status);
+        }else
+        {
+            $coolers=$coolers->where('status','<>',4);
+        }
         if (request()->get('has_collector')) {
             $coolers = $coolers->where('collector_num', '>', 0);
         }
-        if ($keyword=request()->get('keyword'))
-        {
-            $coolers = $coolers->where('cooler_name','like','%'.$keyword.'%')->whereOr('cooler_sn','like','%'.$keyword.'%');
+        if ($keyword = request()->get('keyword')) {
+            $coolers = $coolers->where('cooler_name', 'like', '%'.$keyword.'%')->whereOr('cooler_sn', 'like', '%'.$keyword.'%');
         }
         $coolers = $coolers->with('company')
-            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize')??$this->pagesize);
-       $resp= $this->response->paginator($coolers, new CoolerTransformer());
-       if (request()->has('count'))
-       {
-           $count=[
-               'cooler_lk_count'=>$this->cooler->getCoolerCountByCoolerType($this->company_ids,[Cooler::设备类型_冷藏冷库,Cooler::设备类型_冷冻冷库]),
-               'cooler_bx_count'=>$this->cooler->getCoolerCountByCoolerType($this->company_ids,[Cooler::设备类型_台式小冰箱,Cooler::设备类型_普通冰箱,Cooler::设备类型_冷藏冰箱,Cooler::设备类型_冷冻冰箱]),
-           ];
-           $resp=$resp->addMeta('count',$count);
-       }
-       return $resp;
+            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $resp = $this->response->paginator($coolers, new CoolerTransformer());
+        if (request()->has('count')) {
+            $count = [
+                'cooler_lk_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_冷藏冷库, Cooler::设备类型_冷冻冷库],$status),
+                'cooler_bx_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_台式小冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱],$status),
+            ];
+            $resp = $resp->addMeta('count', $count);
+        }
+        return $resp;
     }
 
     public function all()
@@ -113,18 +117,18 @@ class CoolersController extends Controller
         $this->authorize('unit_operate', $this->company);
         $cooler = $this->cooler->find($id);
         $cooler->fill($request->all());
-        $result= $cooler->save();
-        if ($result)
-        {
+        $result = $cooler->save();
+        if ($result) {
             $this->cooler->flush_collector_num($id);
             if ($cooler['collector_num'] > 0) {
                 foreach ($cooler->collectors as $vo) {
-                    $vo->warningSetting()->update(['category_id'=>$request->category_id]);
+                    $vo->warningSetting()->update(['category_id' => $request->category_id]);
                 }
             }
         }
         return $this->response->item($cooler, new CoolerTransformer());
     }
+
     //备用、维修、启用 关闭探头，关闭报警
     public function coolerStatus(CoolerStatusRequest $request, $id)
     {
@@ -133,7 +137,7 @@ class CoolersController extends Controller
 
         $cooler = $this->cooler->find($id);
         $status = $request->status;
-        $warning_set=$status==1?1:0;
+        $warning_set = $status == 1 ? 1 : 0;
 
         if ($cooler) {
             $post['cooler_id'] = $cooler['cooler_id'];
@@ -176,18 +180,19 @@ class CoolersController extends Controller
             }
         }
     }
+
     public function coolerType()
     {
         return $this->response->collection(SysCoolerType::all(), new CoolerTypeTransformer());
     }
+
     public function getCoolerStatus()
     {
-        $result=[];
-        foreach (Cooler::$status as $key=>$status)
-        {
-            $result[]=[
-                'value'=>$key,
-                'label'=>$status,
+        $result = [];
+        foreach (Cooler::$status as $key => $status) {
+            $result[] = [
+                'value' => $key,
+                'label' => $status,
             ];
         }
         return $this->response->array($result);
@@ -195,15 +200,12 @@ class CoolersController extends Controller
 
     public function addVaccineTags($id)
     {
-        $cooler=$this->cooler->find($id);
-        $tags=request()->get('tags');
-        if ($cooler->company->hasUseSettings(17, 1))
-        {
+        $cooler = $this->cooler->find($id);
+        $tags = request()->get('tags');
+        if ($cooler->company->hasUseSettings(17, 1)) {
             $cooler->vaccine_tags()->sync($tags);
             return $this->response->noContent();
-        }
-        else
-        {
+        } else {
             return $this->response->errorMethodNotAllowed('该单位没有权限');
         }
     }

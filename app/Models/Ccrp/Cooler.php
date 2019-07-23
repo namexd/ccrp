@@ -429,8 +429,12 @@ class Cooler extends Coldchain2Model
 
     }
     //冷库数量
-    public function getCoolerCountByCoolerType($company_id,$cooler_type)
+    public function getCoolerCountByCoolerType($company_id,$cooler_type,$status='')
     {
-        return $this->whereIn('company_id',$company_id)->whereIn('cooler_type', $cooler_type)->count();
+        if ($status)
+        return $this->where('status',$status)->whereIn('company_id',$company_id)->whereIn('cooler_type', $cooler_type)->count();
+        else
+            return $this->where('status','<>',4)->whereIn('company_id',$company_id)->whereIn('cooler_type', $cooler_type)->count();
+
     }
 }
