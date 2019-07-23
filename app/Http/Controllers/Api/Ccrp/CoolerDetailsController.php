@@ -2,15 +2,9 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Http\Requests\Api\Ccrp\Setting\CoolerAddRequest;
-use App\Models\Ccrp\CompanyDetail;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\CoolerDetail;
-use App\Models\Ccrp\Sys\SysCompanyDetail;
 use App\Models\Ccrp\Sys\SysCoolerDetail;
-use App\Transformers\Ccrp\CompanyDetailTableTransformer;
-use App\Transformers\Ccrp\CompanyListTransformer;
-use App\Transformers\Ccrp\Sys\CompanyDetailTransformer;
 use App\Transformers\Ccrp\Sys\CoolerDetailTransformer;
 use Illuminate\Http\Request;
 use League\Fractal\Resource\Collection;

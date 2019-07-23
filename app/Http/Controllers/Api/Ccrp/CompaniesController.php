@@ -45,6 +45,10 @@ class CompaniesController extends Controller
 
         $companies = Company::whereIn('id', $ids)->where('status', 1);
 
+        if ($keyword=$request->get('keyword'))
+        {
+            $companies=$companies->where('title','like','%'.$keyword.'%');
+        }
         if (!$this->company->isProvinceCdc() and isset($request->hidden) and $request->hidden == 'admin') {
             $companies->where('cdc_admin', 0);
         } elseif ($this->company->isProvinceCdc()) {
