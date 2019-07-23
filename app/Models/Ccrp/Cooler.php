@@ -57,6 +57,7 @@ class Cooler extends Coldchain2Model
     const 设备类型_培养箱 = 9;
     const 设备类型_阴凉库 = 10;
     const 设备类型_常温库 = 11;
+    const 设备类型_台式小冰箱 = 12;
     const 设备类型_保温箱 = 100;
     const 设备类型_冷藏车 = 101;
     const COOLER_TYPE = [

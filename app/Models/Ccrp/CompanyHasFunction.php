@@ -18,7 +18,8 @@ class CompanyHasFunction extends Coldchain2Model
             Cooler::设备类型_冷冻冰箱,
             Cooler::设备类型_普通冰箱,
             Cooler::设备类型_冷藏冷库,
-            Cooler::设备类型_冷冻冷库
+            Cooler::设备类型_冷冻冷库,
+            Cooler::设备类型_台式小冰箱
         ];
 
     public function company()
