@@ -39,7 +39,7 @@ class StatManualRecordsTransformer extends TransformerAbstract
         if ($row->signature) {
             return $this->item($row->signature, new SignatureTransformer());
         } else {
-            return null;
+            return  $this->null();
         }
     }
 

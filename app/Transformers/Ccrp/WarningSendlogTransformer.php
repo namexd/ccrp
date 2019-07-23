@@ -33,7 +33,7 @@ class WarningSendlogTransformer extends TransformerAbstract
         {
             return $this->item($log->sender, new SenderTransformer());
         }else{
-            return null;
+            return  $this->null();
         }
     }
 }
