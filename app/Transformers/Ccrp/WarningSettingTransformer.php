@@ -5,6 +5,7 @@ namespace App\Transformers\Ccrp;
 use App\Models\Ccrp\Warninger;
 use App\Models\Ccrp\WarningSetting;
 use Carbon\Carbon;
+use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class WarningSettingTransformer extends TransformerAbstract
@@ -33,7 +34,13 @@ class WarningSettingTransformer extends TransformerAbstract
 
     public function includeWarninger(WarningSetting $setting)
     {
-        return $this->item($setting->warninger, new WarningerTransformer());
+        if ($setting->warninger)
+        {
+            return $this->item($setting->warninger, new WarningerTransformer());
+        }else
+        {
+            return  $this->null();
+        }
     }
     public function includeCollector(WarningSetting $setting)
     {
