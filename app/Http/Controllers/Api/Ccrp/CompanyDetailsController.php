@@ -24,13 +24,13 @@ class CompanyDetailsController extends Controller
     public function index(Request $request)
     {
         $this->check();
-        $details=$this->model->whereIn('company_id',$this->company_ids)->paginate($request->pagesize??$this->pagesize);
+        $details=$this->model->whereIn('company_id',$this->company_ids)->get();
         $fractal = new Manager();
         $sys_details=new Collection(SysCompanyDetail::all(),new CompanyDetailTransformer());
         $array = $fractal->createData($sys_details)->toArray();
         $company=new Item($this->company,new CompanyListTransformer());
         $array2= $fractal->createData($company)->toArray();
-        return $this->response->paginator($details,new CompanyDetailTableTransformer())
+        return $this->response->collection($details,new CompanyDetailTableTransformer())
             ->addMeta('sys_details',$array)
             ->addMeta('company',$array2);
     }

@@ -23,11 +23,11 @@ class CoolerDetailsController extends Controller
     {
         $this->check();
         $cooler_ids=Cooler::whereIn('company_id',$this->company_ids)->pluck('cooler_id');
-        $details=$this->model->whereIn('cooler_id',$cooler_ids)->paginate($request->pagesize??$this->pagesize);
+        $details=$this->model->whereIn('cooler_id',$cooler_ids)->get();
         $fractal = new Manager();
         $sys_details=new Collection(SysCoolerDetail::all(),new CoolerDetailTransformer());
         $array = $fractal->createData($sys_details)->toArray();
-        return $this->response->paginator($details,new \App\Transformers\Ccrp\CoolerDetailTransformer())
+        return $this->response->collection($details,new \App\Transformers\Ccrp\CoolerDetailTransformer())
             ->addMeta('sys_details',$array);
     }
 

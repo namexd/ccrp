@@ -32,11 +32,11 @@ class CoolerPhotosController extends Controller
     {
         $this->check();
         $cooler_ids=Cooler::whereIn('company_id',$this->company_ids)->pluck('cooler_id');
-        $photos=$this->model->whereIn('cooler_id',$cooler_ids)->paginate($request->pagesize??$this->pagesize);
+        $photos=$this->model->whereIn('cooler_id',$cooler_ids)->get();
         $fractal = new Manager();
         $sys_photos=new Collection(SysCoolerPhoto::all(),new CoolerPhotoTransformer());
         $array = $fractal->createData($sys_photos)->toArray();
-        return $this->response->paginator($photos,new \App\Transformers\Ccrp\CoolerPhotoTransformer())
+        return $this->response->collection($photos,new \App\Transformers\Ccrp\CoolerPhotoTransformer())
             ->addMeta('sys_photos',$array);
     }
 

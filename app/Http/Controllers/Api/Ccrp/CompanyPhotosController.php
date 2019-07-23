@@ -24,13 +24,13 @@ class CompanyPhotosController extends Controller
     public function index(Request $request)
     {
         $this->check();
-        $photos=$this->model->where('company_id',$this->company->id)->paginate($request->pagesize??$this->pagesize);
+        $photos=$this->model->where('company_id',$this->company->id)->get();
         $fractal = new Manager();
         $sys_photos=new Collection(SysCompanyPhoto::all(),new SysCompanyPhotoTransformer());
         $array = $fractal->createData($sys_photos)->toArray();
         $company=new Item($this->company,new CompanyListTransformer());
         $array2= $fractal->createData($company)->toArray();
-        return $this->response->paginator($photos,new CompanyPhotoTransformer())
+        return $this->response->collection($photos,new CompanyPhotoTransformer())
             ->addMeta('sys_photos',$array)
             ->addMeta('company',$array2);
 
