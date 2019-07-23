@@ -10,7 +10,7 @@ class CoolerDetail extends Coldchain2ModelWithTimestamp
     protected $fillable = ['cooler_id','sys_id','value'];
     function cooler()
     {
-        return $this->belongsTo(Cooler::class,'company_id','id');
+        return $this->belongsTo(Cooler::class,'cooler_id','cooler_id');
     }
     public function sys_detail()
     {

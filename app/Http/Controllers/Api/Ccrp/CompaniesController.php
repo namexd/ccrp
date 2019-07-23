@@ -61,7 +61,7 @@ class CompaniesController extends Controller
             $current = $this->company;
         } else {
             $ids = (new Company())->getSubCompanyIds($id);
-            if (in_array($ids, $ids)) {
+            if (in_array($id, $ids)) {
                 $current = Company::find($id);
             } else {
                 $current = $this->company;
