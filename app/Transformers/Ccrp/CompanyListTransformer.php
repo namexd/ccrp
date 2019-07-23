@@ -8,10 +8,11 @@ use League\Fractal\TransformerAbstract;
 
 class CompanyListTransformer extends TransformerAbstract
 {
-    public $availableIncludes=['cooler'];
+    public $availableIncludes = ['details', 'photos'];
+
     public function transform(Company $company)
     {
-        $arr=[
+        $arr = [
             'id' => $company->id,
             'pid' => $company->pid,
             'title' => $company->title,
@@ -19,8 +20,23 @@ class CompanyListTransformer extends TransformerAbstract
             'address' => $company->address,
             'address_lat' => $company->address_lat,
             'address_lon' => $company->address_lon,
-            'category' => $company->categories
+            'category' => $company->categories,
         ];
         return $arr;
+    }
+
+    public function includeDetails(Company $company)
+    {
+        return $this->collection($company->details->toArray(),function ($arr){
+            return $arr;
+        });
+    }
+
+    public function includePhotos(Company $company)
+    {
+        return $this->collection($company->photos->toArray(),function ($arr){
+            return $arr;
+        });
+
     }
 }

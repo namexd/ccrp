@@ -40,10 +40,15 @@ $api->version('v1', [
             'namespace' => 'Ccrp',
             'prefix' => 'ccrp',
         ], function ($api) {
+            //疫苗分类
+            $api->get('vaccine/category','VaccineTagsController@getCategory');
+            $api->resource('vaccines',VaccineTagsController::class);
             //单位基础资料
             $api->resource('company_details',CompanyDetailsController::class);
             //单位图片
             $api->resource('company_photos',CompanyPhotosController::class);
+            $api->resource('cooler_details',CoolerDetailsController::class);
+            $api->resource('cooler_photos',CoolerPhotosController::class);
             //单位详情
             $api->get('companies/detail/{id}', 'CompaniesController@show')->name('api.ccrp.companies.show');
             //下级管理单位

@@ -5,6 +5,7 @@ namespace App\Models\Ccrp;
 use App\Models\Ccrp\Reports\StatMange;
 use App\Models\Ccrp\Sys\SysCompanyDetail;
 use App\Models\Ccrp\Sys\Setting;
+use App\Models\Ccrp\Sys\SysCompanyPhoto;
 use App\Models\CoolerCategory;
 use App\Models\Ocenter\Member;
 use App\Models\Ocenter\UCenterMember;
@@ -197,7 +198,11 @@ class Company extends Coldchain2Model
 
     public function details()
     {
-        return $this->belongsToMany(SysCompanyDetail::class,'company_details','company_id','sys_id');
+        return $this->belongsToMany(SysCompanyDetail::class,'company_details','company_id','sys_id')->withPivot('value');;
+    }
+    public function photos()
+    {
+        return $this->belongsToMany(SysCompanyPhoto::class,'company_photos','company_id','sys_id')->withPivot('value');;
     }
     /**
      * 联动下拉框数据

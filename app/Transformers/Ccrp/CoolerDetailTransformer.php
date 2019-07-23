@@ -11,13 +11,13 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerDetailTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['sys_detail'];
+    protected $availableIncludes = ['sys_detail','cooler'];
 
     public function transform(CoolerDetail $cooler)
     {
        return [
            'id' => $cooler->id,
-           'company_id' => $cooler->company_id,
+           'cooler_id' => $cooler->cooler_id,
            'sys_id' => $cooler->sys_id,
            'value' => $cooler->value,
            'created_at' => $cooler->created_at->toDateTimeString(),
@@ -27,5 +27,10 @@ class CoolerDetailTransformer extends TransformerAbstract
     public function includeSysDetail(CoolerDetail $detail)
     {
         return $this->item($detail->sys_detail,new \App\Transformers\Ccrp\Sys\CoolerDetailTransformer());
+    }
+
+    public function includeCooler(CoolerDetail $coolerDetail)
+    {
+        return $this->item($coolerDetail->cooler,new CoolerTransformer());
     }
 }

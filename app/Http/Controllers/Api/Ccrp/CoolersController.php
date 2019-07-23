@@ -184,4 +184,18 @@ class CoolersController extends Controller
         return $this->response->array($result);
     }
 
+    public function addVaccineTags($id)
+    {
+        $cooler=$this->cooler->find($id);
+        $tags=request()->get('tags');
+        if ($cooler->company->hasUseSettings(17, 1))
+        {
+            $cooler->vaccine_tags()->sync($tags);
+            return $this->response->noContent();
+        }
+        else
+        {
+            return $this->response->errorMethodNotAllowed('该单位没有权限');
+        }
+    }
 }

@@ -10,7 +10,7 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['collectors', 'statCooler', 'category', 'company'];
+    protected $availableIncludes = ['collectors', 'statCooler', 'category', 'company','vaccine_tags','details','photos'];
 
     public function transform(Cooler $cooler)
     {
@@ -62,5 +62,24 @@ class CoolerTransformer extends TransformerAbstract
             return new Item(null,function (){
                return [];
             });
+    }
+
+    public function includeVaccineTags(Cooler $cooler)
+    {
+        return $this->collection($cooler->vaccine_tags,new VaccineTagTransformer());
+    }
+    public function includeDetails(Cooler $cooler)
+    {
+        return $this->collection($cooler->details->toArray(),function ($arr){
+            return $arr;
+        });
+    }
+
+    public function includePhotos(Cooler $cooler)
+    {
+        return $this->collection($cooler->photos->toArray(),function ($arr){
+            return $arr;
+        });
+
     }
 }

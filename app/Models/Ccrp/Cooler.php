@@ -3,6 +3,8 @@
 namespace App\Models\Ccrp;
 
 use App\Models\Ccrp\Reports\StatCooler;
+use App\Models\Ccrp\Sys\SysCoolerDetail;
+use App\Models\Ccrp\Sys\SysCoolerPhoto;
 use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
@@ -139,6 +141,22 @@ class Cooler extends Coldchain2Model
     function cooler_category()
     {
         return $this->belongsTo(CoolerCategory::class, 'category_id', 'id');
+    }
+    //疫苗标签
+    public function vaccine_tags()
+    {
+        return $this->belongsToMany(VaccineTags::class,'cooler_has_vaccine_tags','cooler_id','tag_id');
+    }
+    public function details()
+    {
+        return $this->belongsToMany(SysCoolerDetail::class,'cooler_details','cooler_id','sys_id')->withPivot('value');
+
+    }
+
+    public function photos()
+    {
+        return $this->belongsToMany(SysCoolerPhoto::class,'cooler_photos','cooler_id','sys_id')->withPivot('value');
+
     }
 
     function history($start_time, $end_time)

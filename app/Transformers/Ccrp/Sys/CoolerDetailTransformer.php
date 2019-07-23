@@ -2,7 +2,7 @@
 
 namespace App\Transformers\Ccrp\Sys;
 
-use App\Models\Ccrp\Sys\SysCoolerType;
+use App\Models\Ccrp\Sys\SysCoolerDetail;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 

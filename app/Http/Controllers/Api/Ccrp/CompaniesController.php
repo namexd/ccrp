@@ -51,7 +51,7 @@ class CompaniesController extends Controller
             $companies->where('cdc_admin', 1);
         }
 
-        $companies = $companies->orderBy('pid', 'asc')->orderBy('title', 'asc')->get();
+        $companies = $companies->orderBy('pid', 'asc')->orderBy('title', 'asc')->paginate($request->pagesize??$this->pagesize);
 
         if ($id == null) {
             $current = $this->company;
@@ -73,7 +73,7 @@ class CompaniesController extends Controller
             'map_level' => $current->map_level,
         ];
 
-        return $this->response->collection($companies, new CompanyListTransformer())->addMeta('current', $current_company);
+        return $this->response->paginator($companies, new CompanyListTransformer())->addMeta('current', $current_company);
     }
 
     public function current($id = null)

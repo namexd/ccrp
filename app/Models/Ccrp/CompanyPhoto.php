@@ -13,4 +13,10 @@ class CompanyPhoto extends Coldchain2ModelWithTimestamp
     {
         return $this->belongsTo(Company::class,'company_id','id');
     }
+
+    public function getValueAttribute($value)
+    {
+        return $value ? config('app.we_url').'/files/'.$value : '';
+
+    }
 }
