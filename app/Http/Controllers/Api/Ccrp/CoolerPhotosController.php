@@ -65,7 +65,7 @@ class CoolerPhotosController extends Controller
 
     public function show($id)
     {
-        $cooler=Cooler::where('cooler_id',$id)->whereOr('cooler_sn',$id)->first();
+        $cooler=Cooler::where('cooler_id',$id)->orWhere('cooler_sn',$id)->first();
         $photos=$this->model->where('cooler_id',$cooler->cooler_id)->get();
         $fractal = new Manager();
         $sys_photos=new Collection(SysCoolerPhoto::all(),new CoolerPhotoTransformer());
