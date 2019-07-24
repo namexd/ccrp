@@ -31,51 +31,58 @@ class CoolerPhotosController extends Controller
     public function index(Request $request)
     {
         $this->check();
-        $cooler_ids=Cooler::whereIn('company_id',$this->company_ids)->pluck('cooler_id');
-        $photos=$this->model->whereIn('cooler_id',$cooler_ids)->get();
+        $cooler_ids = Cooler::whereIn('company_id', $this->company_ids)->pluck('cooler_id');
+        $photos = $this->model->whereIn('cooler_id', $cooler_ids)->get();
         $fractal = new Manager();
-        $sys_photos=new Collection(SysCoolerPhoto::all(),new CoolerPhotoTransformer());
+        $sys_photos = new Collection(SysCoolerPhoto::all(), new CoolerPhotoTransformer());
         $array = $fractal->createData($sys_photos)->toArray();
-        return $this->response->collection($photos,new \App\Transformers\Ccrp\CoolerPhotoTransformer())
-            ->addMeta('sys_photos',$array);
+        return $this->response->collection($photos, new \App\Transformers\Ccrp\CoolerPhotoTransformer())
+            ->addMeta('sys_photos', $array);
     }
 
     public function store()
     {
         $this->check();
-        $result=[];
-        $cooler_id=request()->get('cooler_id');
-        if (!$cooler_id)
-        {
-            return $this->response->errorMethodNotAllowed('cooler_id不能为空');
+        $result = [];
+        $cooler_id = request()->get('cooler_id')??0;
+        $cooler_sn = request()->get('cooler_sn')??0;
+        if (!($cooler_id||$cooler_sn)){
+            return $this->response->errorMethodNotAllowed('cooler_id或者cooler_sn不能为空');
         }
-        $photos=request()->get('photos');
-        $photos=is_array($photos)?$photos:json_decode($photos,true);
-        foreach ($photos as $photo)
+        if ($cooler_sn)
         {
-            $search=[
-                'cooler_id'=>$cooler_id,
-                'sys_id'=>$photo['sys_id'],
+            $cooler=Cooler::where('cooler_sn',$cooler_sn)->first();
+            if (!$cooler)
+            {
+                return $this->response->errorMethodNotAllowed('冰箱不存在');
+            }
+            $cooler_id=$cooler->cooler_id;
+        }
+        $photos = request()->get('photos');
+        $photos = is_array($photos) ? $photos : json_decode($photos, true);
+        foreach ($photos as $photo) {
+            $search = [
+                'cooler_id' => $cooler_id,
+                'sys_id' => $photo['sys_id'],
             ];
-            $attribute=['value'=>$photo['value']];
-            $result[]=$this->model->updateOrCreate($search,$attribute);
+            $attribute = ['value' => $photo['value']];
+            $result[] = $this->model->updateOrCreate($search, $attribute);
         }
         return $this->response->array($result);
     }
 
     public function show($id)
     {
-        $cooler=Cooler::where('cooler_id',$id)->orWhere('cooler_sn',$id)->first();
-        if(!$cooler)
-        {
+        $cooler = Cooler::where('cooler_id', $id)->orWhere('cooler_sn', $id)->first();
+        if (!$cooler) {
             return $this->response->errorMethodNotAllowed('无法识别冰箱信息');
         }
-        $photos=$this->model->where('cooler_id',$cooler->cooler_id)->get();
+        $photos = $this->model->where('cooler_id', $cooler->cooler_id)->get();
         $fractal = new Manager();
-        $sys_photos=new Collection(SysCoolerPhoto::all(),new CoolerPhotoTransformer());
+        $sys_photos = new Collection(SysCoolerPhoto::all(), new CoolerPhotoTransformer());
         $array = $fractal->createData($sys_photos)->toArray();
-        return $this->response->collection($photos,new \App\Transformers\Ccrp\CoolerPhotoTransformer())
-            ->addMeta('sys_details',$array);
+        return $this->response->collection($photos, new \App\Transformers\Ccrp\CoolerPhotoTransformer())
+            ->addMeta('sys_details', $array);
     }
 
 

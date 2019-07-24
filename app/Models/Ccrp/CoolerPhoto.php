@@ -8,7 +8,7 @@ class CoolerPhoto extends Coldchain2ModelWithTimestamp
 {
     protected $table = 'cooler_photos';
 
-    protected $fillable = ['category','name','slug','value','description','note','sort'];
+    protected $fillable = ['cooler_id','sys_id','value'];
 
     public function sys_photo()
     {
