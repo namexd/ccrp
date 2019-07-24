@@ -57,6 +57,10 @@ class CoolerDetailsController extends Controller
     public function show($id)
     {
         $cooler=Cooler::where('cooler_id',$id)->orWhere('cooler_sn',$id)->first();
+        if(!$cooler)
+        {
+            return $this->response->errorMethodNotAllowed('无法识别冰箱信息');
+        }
         $details=$this->model->where('cooler_id',$cooler->cooler_id)->get();
         $fractal = new Manager();
         $sys_details=new Collection(SysCoolerDetail::all(),new CoolerDetailTransformer());
