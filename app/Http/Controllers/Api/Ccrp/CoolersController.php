@@ -68,7 +68,7 @@ class CoolersController extends Controller
     public function show($cooler)
     {
         $this->check();
-        $cooler = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_id',$cooler)->whereOr('cooler_sn',$cooler);
+        $cooler = $this->cooler->whereIn('company_id', $this->company_ids)->find($cooler);
         if ($cooler) {
             return $this->response->item($cooler, new CoolerTransformer());
         } else {
