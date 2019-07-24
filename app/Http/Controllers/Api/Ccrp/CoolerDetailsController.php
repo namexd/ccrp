@@ -35,10 +35,19 @@ class CoolerDetailsController extends Controller
     {
         $this->check();
         $result=[];
-        $cooler_id=request()->get('cooler_id');
-        if (!$cooler_id)
+        $cooler_id = request()->get('cooler_id')??0;
+        $cooler_sn = request()->get('cooler_sn')??0;
+        if (!($cooler_id||$cooler_sn)){
+            return $this->response->errorMethodNotAllowed('cooler_id或者cooler_sn不能为空');
+        }
+        if ($cooler_sn)
         {
-            return $this->response->errorMethodNotAllowed('cooler_id不能为空');
+            $cooler=Cooler::where('cooler_sn',$cooler_sn)->first();
+            if (!$cooler)
+            {
+                return $this->response->errorMethodNotAllowed('冰箱不存在');
+            }
+            $cooler_id=$cooler->cooler_id;
         }
         $details=request()->get('details');
         $details=is_array($details)?$details:json_decode($details,true);
