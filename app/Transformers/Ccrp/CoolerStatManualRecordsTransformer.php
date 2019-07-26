@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerStatManualRecordsTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['collectors'];
+    protected $availableIncludes = ['collectors','company'];
 
     public function transform(Cooler $cooler)
     {
@@ -63,5 +63,8 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
         return $data;
     }
 
-
+    public function includeCompany(Cooler $cooler)
+    {
+        return $this->item($cooler->company,new CompanyListTransformer());
+    }
 }

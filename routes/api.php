@@ -86,6 +86,7 @@ $api->version('v1', [
             $api->get('senders/products', 'SendersController@products');
             $api->resource('senders', SendersController::class);
             // 所有冰箱
+            $api->post('coolers/add_vaccine_tags/{id}', 'CoolersController@addVaccineTags')->name('api.ccrp.coolers.add_vaccine_tags');
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
             $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');

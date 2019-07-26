@@ -98,6 +98,7 @@ class Company extends Coldchain2Model
         6 => '犬伤门诊',
     ];
 
+    const 单位设置_可以添加仓位=17;
     /**
      * 字段中文名称
      * @return array

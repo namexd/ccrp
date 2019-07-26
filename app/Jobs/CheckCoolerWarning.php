@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\WarningSendlogChange;
 use Carbon\Carbon;
@@ -35,18 +36,56 @@ class CheckCoolerWarning implements ShouldQueue
      */
     public function handle()
     {
-        $activeCoolers = $this->company->coolersOnline;
-        foreach ($activeCoolers as $activeCooler) {
-            $offline = 0;
-            $activeCollectors=$activeCooler->collectorsOnline()->where('offline_check',1)->get();
-            foreach ($activeCollectors as $activeCollector) {
-                if (Carbon::now()->diffInHours(Carbon::createFromTimestamp($activeCollector->refresh_time)) >= 4)//探头离线了
-                {
-                    //统计一下
-                    $offline++;
-                }
-            }
-            if ($offline == $activeCollectors->count()) {//所有探头都离线
+//        $activeCoolers = $this->company->coolersOnline;
+//        foreach ($activeCoolers as $activeCooler) {
+//            $offline = 0;
+//            $activeCollectors=$activeCooler->collectorsOnline()->where('offline_check',1)->get();
+//            foreach ($activeCollectors as $activeCollector) {
+//                if (Carbon::now()->diffInHours(Carbon::createFromTimestamp($activeCollector->refresh_time)) >= 4)//探头离线了
+//                {
+//                    //统计一下
+//                    $offline++;
+//                }
+//            }
+//            if ($offline == $activeCollectors->count()) {//所有探头都离线
+//                $temp = $activeCooler->coolerWarningTempLogs->last();
+//                if ($temp) {
+//                    if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
+//                        //发送冰箱报警
+////                        $this->sendMessage($activeCooler, $this->company);
+//                        $activeCooler->coolerWarningTempLogs()->create([
+//                            'warning_time' => Carbon::now(),
+//                            'company_id'=>$this->company->id
+//                        ]);
+//                    }
+//                } else {
+//                    //发送冰箱报警
+////                    $this->sendMessage($activeCooler, $this->company);
+//                    $activeCooler->coolerWarningTempLogs()->create([
+//                        'warning_time' => Carbon::now(),
+//                        'company_id'=>$this->company->id
+//                    ]);
+//                }
+//            } else {
+//                if ($activeCooler->coolerWarningTempLogs) {//有一个恢复了就把临时日志删除
+//                    $activeCooler->coolerWarningTempLogs()->delete();
+//                }
+//            }
+//        }
+
+        $activeCollectors=Collector::selectRaw('cooler_id,
+        count(collect_id) as total_collector
+        sum(if(TIMESTAMPDIFF(HOUR,from_unixtime(refresh_time),now())>4,1,0) as offline_collector,
+        ')
+            ->where('status', Collector::状态_正常)
+            ->whereIn('company_id',$this->company->id)
+            ->groupBy('cooler_id')
+            ->with('cooler')
+            ->get();
+        foreach ($activeCollectors as $activeCollector)
+        {
+            $activeCooler= $activeCollector->cooler;
+            if ($activeCollector->total_collector == $activeCollector->offline_collector) {//所有探头都离线
                 $temp = $activeCooler->coolerWarningTempLogs->last();
                 if ($temp) {
                     if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
@@ -97,7 +136,7 @@ class CheckCoolerWarning implements ShouldQueue
                 'send_to' => $phone,
                 'send_time' => time(),
                 'send_content' => json_encode($messages),
-                'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'检测设备全部离线，请及时处理!',
+                'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
                 'collector_name' => '-',
                 'cooler_id' => $activeCooler->cooler_id,
                 'cooler_name' => $activeCooler->cooler_name,
