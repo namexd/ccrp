@@ -4,7 +4,7 @@ namespace App\Models\Ccrp;
 
 use Carbon\Carbon;
 
-class WarningSendlog extends Coldchain2pgModel
+class WarningSendlogChange extends Coldchain2Model
 {
     protected $table = 'warning_sendlog';
     protected $fillable = [

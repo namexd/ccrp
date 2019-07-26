@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Jobs\CheckCoolerWarning;
+use App\Models\Ccrp\Company;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,8 +26,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->call(function (){
+            $companies=Company::whereHas('useSettings',function ($query){
+                $query->where('setting_id',20)->where('value',1);
+            })->get();
+            foreach ($companies as $company)
+            {
+                dispatch(new CheckCoolerWarning($company));
+            }
+        })->everyMinute();
     }
 
     /**

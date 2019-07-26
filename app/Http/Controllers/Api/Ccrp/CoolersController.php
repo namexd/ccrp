@@ -42,7 +42,7 @@ class CoolersController extends Controller
             $coolers = $coolers->where('collector_num', '>', 0);
         }
         if ($keyword = request()->get('keyword')) {
-            $coolers = $coolers->where('cooler_name', 'like', '%'.$keyword.'%')->whereOr('cooler_sn', 'like', '%'.$keyword.'%');
+            $coolers = $coolers->where('cooler_name', 'like', '%'.$keyword.'%')->orWhere('cooler_sn', 'like', '%'.$keyword.'%');
         }
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);

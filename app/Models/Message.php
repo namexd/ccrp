@@ -28,9 +28,23 @@ class Message extends Model
     {
         $app = App::where('slug', 'ccrp')->first();
         $url = config('app.message_url');
-        $access = microservice_access_encode($app->appkey, $app->appsecret,['test'=>'hello ,im ccsc.admin requester']);
+        $access = microservice_access_encode($app->appkey, $app->appsecret,[]);
         $client = new Client();
         $res =  $client->request('POST', $url.'message', [
+            'headers' => [
+                'access' => $access,
+            ],
+            'form_params' =>$params
+        ]);
+    }
+
+    public function asyncPush($params)
+    {
+        $app = App::where('slug', 'ccrp')->first();
+        $url = config('app.pusher_url');
+        $access = microservice_access_encode($app->appkey, $app->appsecret,[]);
+        $client = new Client();
+        $res =  $client->request('POST', $url.'send', [
             'headers' => [
                 'access' => $access,
             ],

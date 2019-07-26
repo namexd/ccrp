@@ -16,7 +16,9 @@ $api->version('v1', [
 //        $sql2="select create_sensortable('454678752') as result;";
 //        $rs2=\DB::connection('dbhistory')->select($sql2);
 //        dd($rs2);
-        dd(\App\Models\Ccrp\Collectorguanxi::first());
+//        dd(\App\Models\Ccrp\Collectorguanxi::first());
+        $cooler=\App\Models\Ccrp\Cooler::find(10630);
+        dd($cooler->coolerWarningTempLogs);
     });
     //测试：生成access发送请求
     $api->get('test/send', 'HelloController@send');

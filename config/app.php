@@ -54,6 +54,7 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     'message_url' => env('APP_MESSAGE_URL', 'https://message-ms.coldyun.net/api/'),
     'we_url' => env('APP_WE_URL', 'https://we.coldyun.net'),
+    'pusher_url' => env('APP_PUSHER_URL', 'https://pusher-ms.coldyun.net/api/'),
 
     /*
     |--------------------------------------------------------------------------

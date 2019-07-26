@@ -153,6 +153,10 @@ class  Cooler extends Coldchain2Model
         return $this->belongsToMany(SysCoolerDetail::class,'cooler_details','cooler_id','sys_id')->withPivot('value');
 
     }
+    public function coolerWarningTempLogs()
+    {
+        return $this->hasMany(CoolerWarningTempLogs::class,'cooler_id','cooler_id');
+    }
 
     public function photos()
     {
@@ -415,7 +419,6 @@ class  Cooler extends Coldchain2Model
             foreach ($cooler->collectorsOnline as $vo) {
                 if ($vo->warningSetting) {
                     $vo->warningSetting()->update(['temp_warning' => $status]);
-                    \Log::info($vo->warningSetting()->update(['temp_warning' => $status]));
                 } else {
                     $count++;
                     $message = $count.'个探头未设置报警';

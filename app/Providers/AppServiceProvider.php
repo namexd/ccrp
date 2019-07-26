@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('zh');
         app('view')->prependNamespace('admin', resource_path('views/laravel-admin'));
-        //
+
 //        \DB::listen(function($query) {
 //            $tmp = str_replace('?', '"'.'%s'.'"', $query->sql);
 //            $tmp = vsprintf($tmp, $query->bindings);
