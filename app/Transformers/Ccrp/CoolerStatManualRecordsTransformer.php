@@ -23,6 +23,8 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
         $temp_cool = [];
         $temp_cold = [];
         $need_note = false;
+        $data['temp_cool_overrun'] = 0;
+        $data['temp_cold_overrun'] = 0;
         foreach ($collectors as $collector) {
             if ($collector->temp_type == Collector::温区_冷藏) {
                 if ($collector->refresh_time < (time() - Collector::离线时间)) {
@@ -31,6 +33,10 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
                 } else {
                     $temp_cool[] = $collector->temp;
                     $need_note = $need_note || false ;
+                    if ($collector->temp>$collector->warningSetting->temp_high||$collector->temp<$collector->warningSetting->temp_low)
+                    {
+                        $data['temp_cool_overrun']=1;
+                    }
                 }
             } elseif ($collector->temp_type == Collector::温区_冷冻) {
                 if ($collector->refresh_time < (time() - Collector::离线时间)) {
@@ -39,6 +45,10 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
                 } else {
                     $temp_cold[] = $collector->temp;
                     $need_note = $need_note || false ;
+                    if ($collector->temp>$collector->warningSetting->temp_high||$collector->temp<$collector->warningSetting->temp_low)
+                    {
+                        $data['temp_cold_overrun'] = 1;
+                    }
                 }
             }
         }
