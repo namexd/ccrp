@@ -187,4 +187,13 @@ class CollectorsController extends Controller
     {
         return $this->response->collection(SysCoolerType::all(), new CoolerTypeTransformer());
     }
+
+    public function countWarningSettingUnset()
+    {
+        $this->check();
+        $count=$this->collector->whereDoesntHave('warningSetting',function ($query){
+            $query->where('temp_warning',1);
+        })->whereIn('company_id',$this->company_ids)->count();
+        return $this->response->array(['count'=>$count]);
+    }
 }
