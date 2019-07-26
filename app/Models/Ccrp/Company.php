@@ -99,6 +99,7 @@ class Company extends Coldchain2Model
     ];
 
     const 单位设置_可以添加仓位=17;
+    const 单位设置_开启冰箱整体离线巡检=20;
     /**
      * 字段中文名称
      * @return array

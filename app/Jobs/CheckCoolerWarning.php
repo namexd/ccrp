@@ -16,19 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class CheckCoolerWarning implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    protected $company;
-
-    /**
-     * Create a new job instance.
-     *
-     * @param Company $company
-     */
-    public function __construct(Company $company)
-    {
-        $this->company = $company;
-    }
-
+    
     /**
      * Execute the job.
      *
@@ -36,7 +24,46 @@ class CheckCoolerWarning implements ShouldQueue
      */
     public function handle()
     {
-//        $activeCoolers = $this->company->coolersOnline;
+        $companyIds=Company::whereHas('useSettings',function ($query){
+            $query->where('setting_id',Company::单位设置_开启冰箱整体离线巡检)->where('value',1);
+        })->pluck('id');
+        $activeCollectors = Collector::selectRaw('company_id,cooler_id,
+        count(collector_id) as total_collector,
+        SUM(IF(TIMESTAMPDIFF(HOUR,from_unixtime(refresh_time),now())>4,1,0)) as offline_collector
+        ')
+            ->where('status', Collector::状态_正常)
+            ->whereIn('company_id', $companyIds)
+            ->groupBy('cooler_id')
+            ->with(['cooler.coolerWarningTempLogs'])
+            ->get();
+        foreach ($activeCollectors as $activeCollector) {
+            $activeCooler = $activeCollector->cooler;
+            if ($activeCollector->total_collector == $activeCollector->offline_collector) {//所有探头都离线
+                $temp = collect($activeCooler->coolerWarningTempLogs)->last();
+                if ($temp) {
+                    if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
+                        //发送冰箱报警
+//                        $this->sendMessage($activeCooler, $activeCollector->company_id);
+                        $activeCooler->coolerWarningTempLogs()->create([
+                            'warning_time' => Carbon::now(),
+                            'companyIds_id' => $activeCollector->company_id
+                        ]);
+                    }
+                } else {
+                    //发送冰箱报警
+//                    $this->sendMessage($activeCooler, $activeCollector->company_id);
+                    $activeCooler->coolerWarningTempLogs()->create([
+                        'warning_time' => Carbon::now(),
+                        'companyIds_id' => $activeCollector->company_id
+                    ]);
+                }
+            } else {
+                if ($activeCooler->coolerWarningTempLogs->isNotEmpty()) {//有一个恢复了就把临时日志删除
+                    $activeCooler->coolerWarningTempLogs()->delete();
+                }
+            }
+        }
+//        $activeCoolers = $companyIds->coolersOnline;
 //        foreach ($activeCoolers as $activeCooler) {
 //            $offline = 0;
 //            $activeCollectors=$activeCooler->collectorsOnline()->where('offline_check',1)->get();
@@ -52,18 +79,18 @@ class CheckCoolerWarning implements ShouldQueue
 //                if ($temp) {
 //                    if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
 //                        //发送冰箱报警
-////                        $this->sendMessage($activeCooler, $this->company);
+////                        $this->sendMessage($activeCooler, $companyIds);
 //                        $activeCooler->coolerWarningTempLogs()->create([
 //                            'warning_time' => Carbon::now(),
-//                            'company_id'=>$this->company->id
+//                            'companyIds_id'=>$companyIds->id
 //                        ]);
 //                    }
 //                } else {
 //                    //发送冰箱报警
-////                    $this->sendMessage($activeCooler, $this->company);
+////                    $this->sendMessage($activeCooler, $companyIds);
 //                    $activeCooler->coolerWarningTempLogs()->create([
 //                        'warning_time' => Carbon::now(),
-//                        'company_id'=>$this->company->id
+//                        'companyIds_id'=>$companyIds->id
 //                    ]);
 //                }
 //            } else {
@@ -73,46 +100,9 @@ class CheckCoolerWarning implements ShouldQueue
 //            }
 //        }
 
-        $activeCollectors=Collector::selectRaw('cooler_id,
-        count(collect_id) as total_collector
-        sum(if(TIMESTAMPDIFF(HOUR,from_unixtime(refresh_time),now())>4,1,0) as offline_collector,
-        ')
-            ->where('status', Collector::状态_正常)
-            ->whereIn('company_id',$this->company->id)
-            ->groupBy('cooler_id')
-            ->with('cooler')
-            ->get();
-        foreach ($activeCollectors as $activeCollector)
-        {
-            $activeCooler= $activeCollector->cooler;
-            if ($activeCollector->total_collector == $activeCollector->offline_collector) {//所有探头都离线
-                $temp = $activeCooler->coolerWarningTempLogs->last();
-                if ($temp) {
-                    if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
-                        //发送冰箱报警
-//                        $this->sendMessage($activeCooler, $this->company);
-                        $activeCooler->coolerWarningTempLogs()->create([
-                            'warning_time' => Carbon::now(),
-                            'company_id'=>$this->company->id
-                        ]);
-                    }
-                } else {
-                    //发送冰箱报警
-//                    $this->sendMessage($activeCooler, $this->company);
-                    $activeCooler->coolerWarningTempLogs()->create([
-                        'warning_time' => Carbon::now(),
-                        'company_id'=>$this->company->id
-                    ]);
-                }
-            } else {
-                if ($activeCooler->coolerWarningTempLogs) {//有一个恢复了就把临时日志删除
-                    $activeCooler->coolerWarningTempLogs()->delete();
-                }
-            }
-        }
     }
 
-    public function sendMessage($activeCooler, $company)
+    public function sendMessage($activeCooler, $companyIds)
     {
         $notice_collector = $activeCooler->collectorsOnline->first();
         $messages = [
@@ -142,7 +132,7 @@ class CheckCoolerWarning implements ShouldQueue
                 'cooler_name' => $activeCooler->cooler_name,
                 'send_status' => 1,
                 'sent_again' => 0,
-                'company_id' => $company->id,
+                'companyIds_id' => $companyIds->id,
                 'from_source' => get_client_ip(),
             ];
             WarningSendlogChange::create($logs);

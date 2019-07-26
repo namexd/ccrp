@@ -26,15 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function (){
-            $companies=Company::whereHas('useSettings',function ($query){
-                $query->where('setting_id',20)->where('value',1);
-            })->get();
-            foreach ($companies as $company)
-            {
-                dispatch(new CheckCoolerWarning($company));
-            }
-        })->everyMinute();
+        $schedule->job(new CheckCoolerWarning)->everyMinute();
     }
 
     /**

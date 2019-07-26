@@ -10,6 +10,7 @@ use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Product;
 use App\Models\Ccrp\Reports\CoolerLog;
 use App\Models\Ccrp\Sys\SysCoolerType;
+use App\Models\Ccrp\VaccineTags;
 use App\Transformers\Ccrp\CoolerHistoryTransformer;
 use App\Transformers\Ccrp\CoolerTransformer;
 use App\Transformers\Ccrp\CoolerType100Transformer;
@@ -48,12 +49,14 @@ class CoolersController extends Controller
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         $resp = $this->response->paginator($coolers, new CoolerTransformer());
-        if (request()->has('count')) {
+        if (request()->get('count')==1) {
             $count = [
                 'cooler_lk_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_冷藏冷库, Cooler::设备类型_冷冻冷库],$status),
                 'cooler_bx_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_台式小冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱],$status),
             ];
-            $resp = $resp->addMeta('count', $count);
+            $resp = $resp->addMeta('count', $count)
+                ->addMeta('vaccine_tags_count',VaccineTags::count());
+
         }
         return $resp;
     }
