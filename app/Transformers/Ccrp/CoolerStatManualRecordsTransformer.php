@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerStatManualRecordsTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['collectors','company'];
+    protected $availableIncludes = ['collectors', 'company'];
 
     public function transform(Cooler $cooler)
     {
@@ -29,33 +29,37 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
             if ($collector->temp_type == Collector::温区_冷藏) {
                 if ($collector->refresh_time < (time() - Collector::离线时间)) {
                     $temp_cool[] = '离线';
-                    $need_note = $need_note || true ;
+                    $need_note = $need_note || true;
                 } else {
                     $temp_cool[] = $collector->temp;
-                    $need_note = $need_note || false ;
-                    if ($collector->temp>$collector->warningSetting->temp_high||$collector->temp<$collector->warningSetting->temp_low)
+                    $need_note = $need_note || false;
+                    if ($collector->warningSetting)
                     {
-                        $data['temp_cool_overrun']=1;
+                        if ($collector->temp > $collector->warningSetting->temp_high || $collector->temp < $collector->warningSetting->temp_low) {
+                            $data['temp_cool_overrun'] = 1;
+                        }
                     }
                 }
             } elseif ($collector->temp_type == Collector::温区_冷冻) {
                 if ($collector->refresh_time < (time() - Collector::离线时间)) {
                     $temp_cold[] = '离线';
-                    $need_note = $need_note || true ;
-                } else {
+                    $need_note = $need_note || true;
+                } else {        
                     $temp_cold[] = $collector->temp;
-                    $need_note = $need_note || false ;
-                    if ($collector->temp>$collector->warningSetting->temp_high||$collector->temp<$collector->warningSetting->temp_low)
+                    $need_note = $need_note || false;
+                    if ($collector->warningSetting)
                     {
-                        $data['temp_cold_overrun'] = 1;
+                        if ($collector->temp > $collector->warningSetting->temp_high || $collector->temp < $collector->warningSetting->temp_low) {
+                            $data['temp_cold_overrun'] = 1;
+                        }
                     }
                 }
             }
         }
         $temp_cool = implode('/', $temp_cool);
         $temp_cold = implode('/', $temp_cold);
-        $data['temp_cool'] = $temp_cool==""?'/':$temp_cool;
-        $data['temp_cold'] = $temp_cold==""?'/':$temp_cold;
+        $data['temp_cool'] = $temp_cool == "" ? '/' : $temp_cool;
+        $data['temp_cold'] = $temp_cold == "" ? '/' : $temp_cold;
         $collectors_error = $cooler->collectorsTempTypeError->count();
         $data['collector_type_error'] = $collectors_error;
         $data['need_note'] = (bool)$need_note;
@@ -65,6 +69,6 @@ class CoolerStatManualRecordsTransformer extends TransformerAbstract
 
     public function includeCompany(Cooler $cooler)
     {
-        return $this->item($cooler->company,new CompanyListTransformer());
+        return $this->item($cooler->company, new CompanyListTransformer());
     }
 }
