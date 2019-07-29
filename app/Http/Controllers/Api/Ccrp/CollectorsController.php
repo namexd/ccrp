@@ -193,7 +193,7 @@ class CollectorsController extends Controller
         $this->check();
         $count=$this->collector->whereDoesntHave('warningSetting',function ($query){
             $query->where('temp_warning',1)->where('status',1);
-        })->where('status',Collector::状态_正常)->whereIn('company_id',$this->company_ids)->get();
+        })->where('status',Collector::状态_正常)->whereIn('company_id',$this->company_ids)->count();
         return $this->response->array(['count'=>$count]);
     }
 }
