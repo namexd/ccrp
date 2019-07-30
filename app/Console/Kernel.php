@@ -3,7 +3,6 @@
 namespace App\Console;
 
 use App\Jobs\CheckCoolerWarning;
-use App\Models\Ccrp\Company;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 

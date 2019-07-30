@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\Report\MonthRequest;
 use App\Http\Requests\Api\Ccrp\StatManualRecordRequest;
+use App\Models\Ccrp\Company;
 use App\Models\Ccrp\CompanyHasFunction;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Reports\StatManualRecord;
@@ -54,7 +55,12 @@ class StatManualRecordsController extends Controller
                 $meta['signature']['unit_id'] = $this->company->id;
                 $meta['signature']['action'] = 'sign';
                 $meta['signature']['tips'] = $need_temp_record['tips'];
-                $coolers = $company->coolersOnline->whereIn('cooler_type', CompanyHasFunction::签名设备类型);
+                $cooler_type=CompanyHasFunction::签名设备类型;
+                if ($company->hasUseSetting(Company::单位设置_开启室温人工签名))
+                {
+                    $cooler_type[]=Cooler::设备类型_房间室温;
+                }
+                $coolers = $company->coolersOnline->whereIn('cooler_type', $cooler_type);
                 return $this->response->collection($coolers, new CoolerStatManualRecordsTransformer())
                     ->addMeta('ccrp', $meta);
             } else {

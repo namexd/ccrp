@@ -43,7 +43,7 @@ class CheckCoolerWarning implements ShouldQueue
                 if ($temp) {
                     if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
                         //发送冰箱报警
-//                        $this->sendMessage($activeCooler, $activeCollector->company_id);
+                        $this->sendMessage($activeCooler, $activeCollector->company_id);
                         $activeCooler->coolerWarningTempLogs()->create([
                             'warning_time' => Carbon::now(),
                             'companyIds_id' => $activeCollector->company_id
@@ -51,7 +51,7 @@ class CheckCoolerWarning implements ShouldQueue
                     }
                 } else {
                     //发送冰箱报警
-//                    $this->sendMessage($activeCooler, $activeCollector->company_id);
+                    $this->sendMessage($activeCooler, $activeCollector->company_id);
                     $activeCooler->coolerWarningTempLogs()->create([
                         'warning_time' => Carbon::now(),
                         'companyIds_id' => $activeCollector->company_id

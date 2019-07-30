@@ -70,14 +70,14 @@ class CoolerTransformer extends TransformerAbstract
     }
     public function includeDetails(Cooler $cooler)
     {
-        return $this->collection($cooler->details->toArray(),function ($arr){
+        return $this->collection($cooler->details()->whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->get()->toArray(),function ($arr){
             return $arr;
         });
     }
 
     public function includePhotos(Cooler $cooler)
     {
-        return $this->collection($cooler->photos->toArray(),function ($arr){
+        return $this->collection($cooler->photos()->whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->get()->toArray(),function ($arr){
             $arr['pivot']['value']=$arr['pivot']['value']?config('app.we_url').'/files/'.$arr['pivot']['value'] : '';;
             return $arr;
         });

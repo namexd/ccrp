@@ -21,4 +21,8 @@ class SysCoolerDetail extends Coldchain2ModelWithTimestamp
         'note'
     ];
 
+    public function getValueAttribute($key)
+    {
+        return json_decode($key,true);
+    }
 }

@@ -20,8 +20,8 @@ class CoolerDetailTransformer extends TransformerAbstract
            'cooler_id' => $cooler->cooler_id,
            'sys_id' => $cooler->sys_id,
            'value' => $cooler->value,
-           'created_at' => $cooler->created_at->toDateTimeString(),
-           'updated_at' => $cooler->updated_at->toDateTimeString()
+           'created_at' => $cooler->created_at?$cooler->created_at->toDateTimeString():'',
+           'updated_at' => $cooler->updated_at?$cooler->updated_at->toDateTimeString():''
        ];
     }
     public function includeSysDetail(CoolerDetail $detail)

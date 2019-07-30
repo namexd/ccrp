@@ -72,7 +72,7 @@ class CoolerDetailsController extends Controller
         }
         $details=$this->model->where('cooler_id',$cooler->cooler_id)->get();
         $fractal = new Manager();
-        $sys_details=new Collection(SysCoolerDetail::all(),new CoolerDetailTransformer());
+        $sys_details=new Collection(SysCoolerDetail::whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->get(),new CoolerDetailTransformer());
         $array = $fractal->createData($sys_details)->toArray();
         return $this->response->collection($details,new \App\Transformers\Ccrp\CoolerDetailTransformer())
             ->addMeta('sys_details',$array);
