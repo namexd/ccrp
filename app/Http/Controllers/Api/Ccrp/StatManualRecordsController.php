@@ -56,7 +56,7 @@ class StatManualRecordsController extends Controller
                 $meta['signature']['action'] = 'sign';
                 $meta['signature']['tips'] = $need_temp_record['tips'];
                 $cooler_type=CompanyHasFunction::签名设备类型;
-                if ($company->hasUseSetting(Company::单位设置_开启室温人工签名))
+                if ($company->hasUseSettings(Company::单位设置_开启室温人工签名,1))
                 {
                     $cooler_type[]=Cooler::设备类型_房间室温;
                 }
