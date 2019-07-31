@@ -55,10 +55,9 @@ class StatManualRecordsController extends Controller
                 $meta['signature']['unit_id'] = $this->company->id;
                 $meta['signature']['action'] = 'sign';
                 $meta['signature']['tips'] = $need_temp_record['tips'];
-                $cooler_type=CompanyHasFunction::签名设备类型;
-                if ($company->hasUseSettings(Company::单位设置_开启室温人工签名,1))
-                {
-                    $cooler_type[]=Cooler::设备类型_房间室温;
+                $cooler_type = CompanyHasFunction::签名设备类型;
+                if ($company->hasUseSettings(Company::单位设置_开启室温人工签名, 1)) {
+                    $cooler_type[] = Cooler::设备类型_房间室温;
                 }
                 $coolers = $company->coolersOnline->whereIn('cooler_type', $cooler_type);
                 return $this->response->collection($coolers, new CoolerStatManualRecordsTransformer())
@@ -111,11 +110,11 @@ class StatManualRecordsController extends Controller
         $this->response->created();
     }
 
-    public function list($cooler_id,$month)
+    public function list($cooler_id, $month)
     {
         $this->check();
-        $manualRecord=new StatManualRecord();
-        $data['data']=$manualRecord->getListByCoolerAndMonth($cooler_id,$month);
+        $manualRecord = new StatManualRecord();
+        $data['data'] = $manualRecord->getListByCoolerAndMonth($cooler_id, $month);
         return $this->response->array($data);
     }
 
