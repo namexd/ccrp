@@ -50,5 +50,6 @@ class Message extends Model
             ],
             'form_params' =>$params
         ]);
+        \Log::info(json_decode($res->getBody()->getContents(),true));
     }
 }

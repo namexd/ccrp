@@ -46,7 +46,7 @@ class CheckCoolerWarning implements ShouldQueue
                         $this->sendMessage($activeCooler, $activeCollector->company_id);
                         $activeCooler->coolerWarningTempLogs()->create([
                             'warning_time' => Carbon::now(),
-                            'companyIds_id' => $activeCollector->company_id
+                            'company_id' => $activeCollector->company_id
                         ]);
                     }
                 } else {
@@ -54,7 +54,7 @@ class CheckCoolerWarning implements ShouldQueue
                     $this->sendMessage($activeCooler, $activeCollector->company_id);
                     $activeCooler->coolerWarningTempLogs()->create([
                         'warning_time' => Carbon::now(),
-                        'companyIds_id' => $activeCollector->company_id
+                        'company_id' => $activeCollector->company_id
                     ]);
                 }
             } else {
@@ -102,41 +102,45 @@ class CheckCoolerWarning implements ShouldQueue
 
     }
 
-    public function sendMessage($activeCooler, $companyIds)
+    public function sendMessage($activeCooler, $company_id)
     {
         $notice_collector = $activeCooler->collectorsOnline->first();
-        $messages = [
-            'deviceid' => $activeCooler->cooler_name,
-            'alarmvalue' => '检测设备全部离线'
-        ];
-        $phones = $notice_collector->warningSetting->warninger->warninger_body;
-        $params = [
-            'phone' => $phones,
-            'data' => $messages,
-            'template' => ''
-        ];
-//        dispatch(new PushMessage($params));
-        foreach (explode(',', $phones) as $phone) {
-            $logs = [
-                'event_id' => 0,
-                'event_type' => '离线报警',
-                'event_value' => 0,
-                'event_level' => 0,
-                'msg_type' => 1,
-                'send_to' => $phone,
-                'send_time' => time(),
-                'send_content' => json_encode($messages),
-                'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
-                'collector_name' => '-',
-                'cooler_id' => $activeCooler->cooler_id,
-                'cooler_name' => $activeCooler->cooler_name,
-                'send_status' => 1,
-                'sent_again' => 0,
-                'companyIds_id' => $companyIds->id,
-                'from_source' => get_client_ip(),
+        if ($notice_collector->warningSetting)
+        {
+            $messages = [
+                'deviceid' => $activeCooler->cooler_name,
+                'alarmvalue' => '检测设备全部离线'
             ];
-            WarningSendlogChange::create($logs);
+            $phones = $notice_collector->warningSetting->warninger->warninger_body;
+            $params = [
+                'phone' => $phones,
+                'data' => json_encode($messages),
+                'template' => 'SMS_138074225'
+            ];
+            dispatch(new PushMessage($params));
+            foreach (explode(',', $phones) as $phone) {
+                $logs = [
+                    'event_id' => 0,
+                    'event_type' => '离线报警',
+                    'event_value' => 0,
+                    'event_level' => 0,
+                    'msg_type' => 1,
+                    'send_to' => $phone,
+                    'send_time' => time(),
+                    'send_content' => json_encode($messages),
+                    'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
+                    'collector_name' => '-',
+                    'cooler_id' => $activeCooler->cooler_id,
+                    'cooler_name' => $activeCooler->cooler_name,
+                    'send_status' => 1,
+                    'sent_again' => 0,
+                    'company_id' => $company_id,
+                    'from_source' => get_client_ip(),
+                ];
+                WarningSendlogChange::create($logs);
+            }
         }
+
 
     }
 }
