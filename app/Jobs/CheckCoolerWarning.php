@@ -43,7 +43,7 @@ class CheckCoolerWarning implements ShouldQueue
                 if ($temp) {
                     if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
                         //发送冰箱报警
-                        $this->sendMessage($activeCooler, $activeCollector->company_id);
+//                        $this->sendMessage($activeCooler, $activeCollector->company_id);
                         $activeCooler->coolerWarningTempLogs()->create([
                             'warning_time' => Carbon::now(),
                             'company_id' => $activeCollector->company_id
@@ -51,7 +51,7 @@ class CheckCoolerWarning implements ShouldQueue
                     }
                 } else {
                     //发送冰箱报警
-                    $this->sendMessage($activeCooler, $activeCollector->company_id);
+//                    $this->sendMessage($activeCooler, $activeCollector->company_id);
                     $activeCooler->coolerWarningTempLogs()->create([
                         'warning_time' => Carbon::now(),
                         'company_id' => $activeCollector->company_id
@@ -108,14 +108,12 @@ class CheckCoolerWarning implements ShouldQueue
         if ($notice_collector->warningSetting)
         {
             $messages = [
-                'deviceid' => $activeCooler->cooler_name,
-                'alarmvalue' => '检测设备全部离线'
+                'eventcontent' => $activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
             ];
             $phones = $notice_collector->warningSetting->warninger->warninger_body;
             $params = [
                 'phone' => $phones,
                 'data' => json_encode($messages),
-                'template' => 'SMS_138074225'
             ];
             dispatch(new PushMessage($params));
             foreach (explode(',', $phones) as $phone) {
