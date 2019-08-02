@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
+use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\WarningSendlogChange;
 use Carbon\Carbon;
 use function EasyWeChat\Kernel\Support\get_client_ip;
@@ -32,6 +33,10 @@ class CheckCoolerWarning implements ShouldQueue
         SUM(IF(TIMESTAMPDIFF(HOUR,from_unixtime(refresh_time),now())>4,1,0)) as offline_collector
         ')
             ->where('status', Collector::状态_正常)
+            ->whereHas('cooler',function ($query)
+            {
+                $query->where('status',Cooler::状态_正常)->whereIn('cooler_type',[Cooler::设备类型_冷藏冰箱,Cooler::设备类型_冷冻冰箱,Cooler::设备类型_普通冰箱,Cooler::设备类型_深低温冰箱,Cooler::设备类型_冷藏冷库]);
+            })
             ->whereIn('company_id', $companyIds)
             ->groupBy('cooler_id')
             ->with(['cooler.coolerWarningTempLogs'])

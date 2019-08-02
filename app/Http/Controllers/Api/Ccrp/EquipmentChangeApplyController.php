@@ -71,6 +71,7 @@ class EquipmentChangeApplyController extends Controller
         } else {
             $request['status'] = EquipmentChangeApply::状态_未处理;
         }
+        $request['company_id']=$this->company->id;
         $result = $this->model->add($request->all());
         if ($result instanceof Model) {
             if ($result->status == EquipmentChangeApply::状态_未处理) {
