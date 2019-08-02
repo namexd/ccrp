@@ -30,7 +30,7 @@ class CheckCoolerWarning implements ShouldQueue
         })->pluck('id');
         $activeCollectors = Collector::selectRaw('company_id,cooler_id,
         count(collector_id) as total_collector,
-        SUM(IF(TIMESTAMPDIFF(HOUR,from_unixtime(refresh_time),now())>4,1,0)) as offline_collector
+        SUM(IF(TIMESTAMPDIFF(MINUTE,from_unixtime(refresh_time),now())>offline_span,1,0)) as offline_collector
         ')
             ->where('status', Collector::状态_正常)
             ->whereHas('cooler',function ($query)
