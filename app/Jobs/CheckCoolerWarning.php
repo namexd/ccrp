@@ -83,7 +83,6 @@ class CheckCoolerWarning implements ShouldQueue
                 'phone' => $phones,
                 'data' => json_encode($messages),
             ];
-            dispatch(new PushMessage($params));
             foreach (explode(',', $phones) as $phone) {
                 $logs = [
                     'event_id' => 0,
@@ -105,6 +104,7 @@ class CheckCoolerWarning implements ShouldQueue
                 ];
                 WarningSendlogChange::create($logs);
             }
+            dispatch(new PushMessage($params));
         }
 
 
