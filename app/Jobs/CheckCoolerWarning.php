@@ -47,20 +47,20 @@ class CheckCoolerWarning implements ShouldQueue
                 $temp = collect($activeCooler->coolerWarningTempLogs)->last();
                 if ($temp) {
                     if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
-                        //发送冰箱报警
-                        $this->sendMessage($activeCooler, $activeCollector->company_id);
                         $activeCooler->coolerWarningTempLogs()->create([
                             'warning_time' => Carbon::now(),
                             'company_id' => $activeCollector->company_id
                         ]);
+                        //发送冰箱报警
+                        $this->sendMessage($activeCooler, $activeCollector->company_id);
                     }
                 } else {
-                    //发送冰箱报警
-                    $this->sendMessage($activeCooler, $activeCollector->company_id);
                     $activeCooler->coolerWarningTempLogs()->create([
                         'warning_time' => Carbon::now(),
                         'company_id' => $activeCollector->company_id
                     ]);
+                    //发送冰箱报警
+                    $this->sendMessage($activeCooler, $activeCollector->company_id);
                 }
             } else {
                 if ($activeCooler->coolerWarningTempLogs->isNotEmpty()) {//有一个恢复了就把临时日志删除
@@ -76,7 +76,7 @@ class CheckCoolerWarning implements ShouldQueue
         if ($notice_collector->warningSetting)
         {
             $messages = [
-                'eventcontent' => $activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
+                'eventcontent' => $activeCooler->cooler_name.'的监测设备全部离线，请及时处理!',
             ];
             $phones = $notice_collector->warningSetting->warninger->warninger_body;
             $params = [
@@ -94,7 +94,7 @@ class CheckCoolerWarning implements ShouldQueue
                     'send_to' => $phone,
                     'send_time' => time(),
                     'send_content' => json_encode($messages),
-                    'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'的检测设备全部离线，请及时处理!',
+                    'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】设备'.$activeCooler->cooler_name.'的监测设备全部离线，请及时处理!',
                     'collector_name' => '-',
                     'cooler_id' => $activeCooler->cooler_id,
                     'cooler_name' => $activeCooler->cooler_name,
