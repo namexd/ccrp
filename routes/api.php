@@ -7,6 +7,19 @@ $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api',
     'middleware' => ['serializer:array']
 ], function ($api) {
+    $api->group([
+        'namespace' => 'Ccrp',
+        'prefix' => 'ccrp',
+    ], function ($api) {
+        //冰箱品牌
+        $api->resource('cooler_brands', CoolerBrandsController::class);
+        $api->post('cooler_brands/show','CoolerBrandsController@show')->name('api.ccrp.cooler_brands.show');
+        //冰箱型号
+        $api->post('cooler_models','CoolerModelsController@index')->name('api.ccrp.cooler_models.index');
+        $api->post('cooler_models/show','CoolerModelsController@show')->name('api.ccrp.cooler_models.show');
+        $api->post('cooler_models/store','CoolerModelsController@store')->name('api.ccrp.cooler_models.store');
+    });
+
     // 版本
     $api->get('version', function () {
         return '1.0.19.4.25';

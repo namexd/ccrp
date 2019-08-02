@@ -2,10 +2,10 @@
 
 namespace App\Models\Ccrp\Sys;
 
-use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
+//use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
+use Illuminate\Database\Eloquent\Model;
 
-
-class SysCoolerModel extends Coldchain2ModelWithTimestamp
+class SysCoolerModel extends Model
 {
 protected $table='sys_cooler_models';
     protected $fillable =[
@@ -18,6 +18,13 @@ protected $table='sys_cooler_models';
         'cold_volume',
         'whole_volume',
         'is_medical',
+        'popularity',
+        'body_type',
+        'product_date',
+        'medical_licence',
+        'picture',
+        'comment',
+        'warmarea_count'
     ];
     public function brand()
     {
