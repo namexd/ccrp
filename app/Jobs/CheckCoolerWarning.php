@@ -48,7 +48,7 @@ class CheckCoolerWarning implements ShouldQueue
                 if ($temp) {
                     if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
                         //发送冰箱报警
-//                        $this->sendMessage($activeCooler, $activeCollector->company_id);
+                        $this->sendMessage($activeCooler, $activeCollector->company_id);
                         $activeCooler->coolerWarningTempLogs()->create([
                             'warning_time' => Carbon::now(),
                             'company_id' => $activeCollector->company_id
@@ -56,7 +56,7 @@ class CheckCoolerWarning implements ShouldQueue
                     }
                 } else {
                     //发送冰箱报警
-//                    $this->sendMessage($activeCooler, $activeCollector->company_id);
+                    $this->sendMessage($activeCooler, $activeCollector->company_id);
                     $activeCooler->coolerWarningTempLogs()->create([
                         'warning_time' => Carbon::now(),
                         'company_id' => $activeCollector->company_id
@@ -68,43 +68,6 @@ class CheckCoolerWarning implements ShouldQueue
                 }
             }
         }
-//        $activeCoolers = $companyIds->coolersOnline;
-//        foreach ($activeCoolers as $activeCooler) {
-//            $offline = 0;
-//            $activeCollectors=$activeCooler->collectorsOnline()->where('offline_check',1)->get();
-//            foreach ($activeCollectors as $activeCollector) {
-//                if (Carbon::now()->diffInHours(Carbon::createFromTimestamp($activeCollector->refresh_time)) >= 4)//探头离线了
-//                {
-//                    //统计一下
-//                    $offline++;
-//                }
-//            }
-//            if ($offline == $activeCollectors->count()) {//所有探头都离线
-//                $temp = $activeCooler->coolerWarningTempLogs->last();
-//                if ($temp) {
-//                    if (Carbon::now() >= Carbon::parse($temp->warning_time)->addDays(1)) {
-//                        //发送冰箱报警
-////                        $this->sendMessage($activeCooler, $companyIds);
-//                        $activeCooler->coolerWarningTempLogs()->create([
-//                            'warning_time' => Carbon::now(),
-//                            'companyIds_id'=>$companyIds->id
-//                        ]);
-//                    }
-//                } else {
-//                    //发送冰箱报警
-////                    $this->sendMessage($activeCooler, $companyIds);
-//                    $activeCooler->coolerWarningTempLogs()->create([
-//                        'warning_time' => Carbon::now(),
-//                        'companyIds_id'=>$companyIds->id
-//                    ]);
-//                }
-//            } else {
-//                if ($activeCooler->coolerWarningTempLogs) {//有一个恢复了就把临时日志删除
-//                    $activeCooler->coolerWarningTempLogs()->delete();
-//                }
-//            }
-//        }
-
     }
 
     public function sendMessage($activeCooler, $company_id)
