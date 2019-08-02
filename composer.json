@@ -12,7 +12,7 @@
         "dingo/api": "^2.0.0-alpha2",
         "distilleries/form-builder": "2.*",
         "doctrine/dbal": " ~2.3",
-        "encore/laravel-admin": "^1.6",
+        "encore/laravel-admin": "^1.7",
         "fideloper/proxy": "~3.3",
         "jacobcyl/ali-oss-storage": "^2.1",
         "jenssegers/agent": "^2.6",
