@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Ccrp\CoolerModels;
 use App\Http\Requests\Api\Ccrp\CoolerModelsRequest;
 use App\Models\Ccrp\Sys\SysCoolerModel;
+use App\Models\Ccrp\Sys\SysCoolerBrand;
 use App\Transformers\Ccrp\CoolerModelsTransformer;
 use App\Transformers\Ccrp\Sys\CoolerModelTransformer;
 
@@ -16,17 +16,19 @@ class CoolerModelsController extends Controller
     private $cooler_models;
     private $sys_cooler_models;
 
-    public function __construct(CoolerModels $cooler_models,SysCoolerModel $sys_cooler_models)
+    public function __construct(CoolerModels $cooler_models,SysCoolerModel $sys_cooler_models,SysCoolerBrand $sys_cooler_brands)
     {
         $this -> cooler_models = $cooler_models;
         $this -> sys_cooler_models = $sys_cooler_models;
+        $this -> sys_cooler_brands = $sys_cooler_brands;
     }
 
-    public function index(CoolerModelsRequest $request,$pagesize=10)
+    public function index(Request $request)
     {
+        $pagesize = $request->get('pagesize')??'10';
         $data = $request->all();
         if(isset($data['sys_brand'])){
-            $sys_brand_id = DB::table('sys_cooler_brands')->where('name',$data['sys_brand'])->pluck('id');
+            $sys_brand_id = $this -> sys_cooler_brands->where('name',$data['sys_brand'])->pluck('id');
             $populer_id = $this -> sys_cooler_models->where('brand_id',$sys_brand_id)->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','description']);
         }else{
             $populer_id = $this -> sys_cooler_models->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','description']);
@@ -39,7 +41,7 @@ class CoolerModelsController extends Controller
         $data = $request->all();
         $cooler_model = trim($data['cooler_model']);
         if(isset($data['sys_brand'])){
-            $sys_brand_id = DB::table('sys_cooler_brands')->where('name', $data['sys_brand'])->pluck('id');
+            $sys_brand_id =  $this -> sys_cooler_brands->where('name', $data['sys_brand'])->pluck('id');
         }
         $str_arr = str_split($cooler_model);
         if(preg_match("/^[".chr(0xa1)."-".chr(0xff)."]+$/",$str_arr[0])) {
@@ -80,7 +82,7 @@ class CoolerModelsController extends Controller
         $model = $request -> all();
         $user_model = trim($model['cooler_model']);
         if(isset($model['sys_brand'])){
-            $sys_brand_id = DB::table('sys_cooler_brands')->where('name', $model['sys_brand'])->pluck('id');
+            $sys_brand_id =  $this -> sys_cooler_brands->where('name', $model['sys_brand'])->pluck('id');
         }
         if(isset($model['sys_model'])){
             if(isset($sys_brand_id)){

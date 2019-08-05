@@ -18,10 +18,11 @@ class CoolerBrandsController extends Controller
         $this -> cooler_brands = $cooler_brands;
         $this -> sys_cooler_brands = $sys_cooler_brands;
     }
-    public function index($pagesize=10)
+    public function index(Request $request)
     {
+        $pagesize = $request->get('pagesize')??'10';
         $popular_brands = $this->sys_cooler_brands->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','slug']);
-        return $this->response->array($popular_brands, new CoolerBrandTransformer());
+        return $this->response->collection($popular_brands, new CoolerBrandTransformer());
     }
 
     public function show(CoolerBrandsRequest $request)
