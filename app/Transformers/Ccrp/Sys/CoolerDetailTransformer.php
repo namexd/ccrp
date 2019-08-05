@@ -17,6 +17,7 @@ class CoolerDetailTransformer extends TransformerAbstract
             'slug'=>$coolerType->slug,
             'description'=>$coolerType->description,
             'note'=>$coolerType->note,
+            'value'=>$coolerType->value,
             'created_at'=>Carbon::parse($coolerType->created_at)->toDateTimeString(),
             'updated_at'=>Carbon::parse($coolerType->updated_at)->toDateTimeString(),
         ];
