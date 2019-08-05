@@ -130,10 +130,9 @@ class CollectorsController extends Controller
     public function update(Request $request, $id)
     {
         $this->check();
-        $this->authorize('unit_operate', $this->company);
         $cooler_object = new Cooler();
-
         $old = $this->collector->find($id);
+        $this->authorize('unit_operate', $old->company);
         $request['install_uid'] = $this->user->id;
         //更换了冰箱
         if ($request->get('cooler_id') && ($request->get('cooler_id') <> $old['cooler_id'])) {
@@ -171,7 +170,8 @@ class CollectorsController extends Controller
         if ($change_note == '') return $this->response->errorBadRequest('备注不能为空');
         if (strlen($change_note) < 4) return $this->response->errorBadRequest('“备注”中请填写清楚具体报废的原因');
          $collector=$this->collector->find($id);
-         if ($collector->status==Collector::状态_报废)
+        $this->authorize('unit_operate', $collector->company);
+        if ($collector->status==Collector::状态_报废)
          {
              return $this->response->errorMethodNotAllowed('该探头已经报废');
          }

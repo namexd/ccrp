@@ -15,6 +15,7 @@ use App\Transformers\Ccrp\CoolerHistoryTransformer;
 use App\Transformers\Ccrp\CoolerTransformer;
 use App\Transformers\Ccrp\CoolerType100Transformer;
 use App\Transformers\Ccrp\Sys\CoolerTypeTransformer;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 ;
@@ -120,8 +121,9 @@ class CoolersController extends Controller
     public function update(Request $request, $id)
     {
         $this->check();
-        $this->authorize('unit_operate', $this->company);
+
         $cooler = $this->cooler->find($id);
+        $this->authorize('unit_operate', $cooler->company);
         $cooler->fill($request->all());
         $result = $cooler->save();
         if ($result) {

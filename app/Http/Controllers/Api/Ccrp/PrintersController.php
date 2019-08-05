@@ -105,6 +105,7 @@ class PrintersController extends Controller
     {
         $this->check();
         $printer = $this->printer->find($id);
+        $this->authorize('unit_operate', $printer->company);
         $request = request()->all();
         $request['update_time'] = time();
         $printer->update($request);

@@ -15,7 +15,7 @@ class CompanyDetailTransformer extends TransformerAbstract
             'name'=>$companyDetail->name,
             'category'=>$companyDetail->category,
             'slug'=>$companyDetail->slug,
-            'value'=>$companyDetail->value,
+            'sys_value'=>$companyDetail->value,
             'description'=>$companyDetail->description,
             'note'=>$companyDetail->note,
             'created_at'=>Carbon::parse($companyDetail->created_at)->toDateTimeString(),

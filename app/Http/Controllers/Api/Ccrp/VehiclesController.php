@@ -48,6 +48,7 @@ class VehiclesController extends Controller
     {
         $this->check();
         $vehicle = $this->vehicle->find($id);
+        $this->authorize('unit_operate', $vehicle->company);
         $request=request()->all();
         if ($vehicle->update($request))
         {

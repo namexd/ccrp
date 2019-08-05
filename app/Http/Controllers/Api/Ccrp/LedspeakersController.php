@@ -39,6 +39,8 @@ class LedspeakersController extends Controller
     public function update($id)
     {
         $this->check();
+        $ledspeaker = $this->model->find($id);
+        $this->authorize('unit_operate', $ledspeaker->company);
         $request = request()->all();
         if (array_has($request, 'collector_id')) {
             $request['collector_num'] = count(explode(',', request()->get('collector_num')));
@@ -48,7 +50,6 @@ class LedspeakersController extends Controller
             $request['collector_id'] = '';
         }
         $request['update_time'] = time();
-        $ledspeaker = $this->model->find($id);
         $result = $ledspeaker->update($request);
         if ($result) {
             return $this->response->item($ledspeaker, new LedspeakerTransformer());
