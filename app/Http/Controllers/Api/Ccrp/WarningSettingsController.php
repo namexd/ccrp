@@ -53,19 +53,25 @@ class WarningSettingsController extends Controller
         $request=request()->all();
         if ($request['temp_warning'])
         {
-            if ($request['temp_low'] > $request['temp_high']) {
+            if (array_has($request,'temp_low') && array_has($request,'temp_high'))
+            {
+                if ($request['temp_low'] > $request['temp_high']) {
 
-                $request['temp_low'] = $request['temp_low'] + $request['temp_high'];
-                $request['temp_high'] = $request['temp_low'] - $request['temp_high'];
-                $request['temp_low'] = $request['temp_low'] - $request['temp_high'];
+                    $request['temp_low'] = $request['temp_low'] + $request['temp_high'];
+                    $request['temp_high'] = $request['temp_low'] - $request['temp_high'];
+                    $request['temp_low'] = $request['temp_low'] - $request['temp_high'];
 
+                }
             }
+
         }
         if ($request['humi_warning'])
         {
-            $request['humi_warning_last'] = $request['temp_warning_last'];
-            $request['humi_warning2_last'] = $request['temp_warning2_last'];
-            $request['humi_warning3_last'] = $request['temp_warning3_last'];
+            if (array_has($request,'humi_warning_last') && array_has($request,'humi_warning2_last') && array_has($request,'humi_warning3_last')) {
+                $request['humi_warning_last'] = $request['temp_warning_last'];
+                $request['humi_warning2_last'] = $request['temp_warning2_last'];
+                $request['humi_warning3_last'] = $request['temp_warning3_last'];
+            }
         }
         $request['set_time'] = time();
         $warning_setting=$this->model->find($id);

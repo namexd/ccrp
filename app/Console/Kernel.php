@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Jobs\CheckCoolerWarning;
+use App\Models\Ccrp\Company;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -25,7 +26,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new CheckCoolerWarning)->everyMinute();
+        $schedule->call(function (){
+            $companyIds=Company::whereHas('useSettings',function ($query){
+                $query->where('setting_id',Company::单位设置_开启冰箱整体离线巡检)->where('value',1);
+            })->pluck('id');
+            foreach ($companyIds as $companyId)
+            {
+                \Log::info($companyId);
+                dispatch(new CheckCoolerWarning($companyId));
+            }
+        })->everyMinute();
     }
 
     /**
