@@ -8,18 +8,18 @@ use League\Fractal\TransformerAbstract;
 
 class CoolerDetailTransformer extends TransformerAbstract
 {
-    public function transform(SysCoolerDetail $coolerType)
+    public function transform(SysCoolerDetail $coolerDetail)
     {
         $arr=[
-            'id'=>$coolerType->id,
-            'name'=>$coolerType->name,
-            'category'=>$coolerType->category,
-            'slug'=>$coolerType->slug,
-            'description'=>$coolerType->description,
-            'note'=>$coolerType->note,
-            'value'=>$coolerType->value,
-            'created_at'=>Carbon::parse($coolerType->created_at)->toDateTimeString(),
-            'updated_at'=>Carbon::parse($coolerType->updated_at)->toDateTimeString(),
+            'id'=>$coolerDetail->id,
+            'name'=>$coolerDetail->name,
+            'category'=>$coolerDetail->category,
+            'slug'=>$coolerDetail->slug,
+            'description'=>$coolerDetail->description,
+            'note'=>$coolerDetail->note,
+            'sys_value'=>$coolerDetail->value,
+            'created_at'=>Carbon::parse($coolerDetail->created_at)->toDateTimeString(),
+            'updated_at'=>Carbon::parse($coolerDetail->updated_at)->toDateTimeString(),
         ];
         return $arr;
     }

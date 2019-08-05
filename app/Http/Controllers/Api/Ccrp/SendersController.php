@@ -44,6 +44,7 @@ class SendersController extends Controller
         $request = request()->all();
         $request['update_time']=time();
         $sender = $this->model->find($id);
+        $this->authorize('unit_operate', $sender->company);
         $result = $sender->update($request);
         if ($result) {
             return $this->response->item($sender, new SenderNewTransformer());
@@ -55,6 +56,7 @@ class SendersController extends Controller
     public function store(SenderRequest $request)
     {
         $this->check();
+        $this->authorize('unit_operate', $this->company);
         $request['install_time']=time();
         $request['install_uid'] = $this->user->id;
         $request['company_id'] = $this->company->id;

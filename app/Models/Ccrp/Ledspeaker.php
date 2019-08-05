@@ -38,6 +38,11 @@ class Ledspeaker extends Coldchain2Model
         '2' => '实时显示（不报警）'
     ];
 
+    public function company()
+    {
+        return $this->belongsTo(Company::class,'company_id','id');
+    }
+
     public function collectors()
     {
         return Collector::whereIn('collector_id', explode(',', $this->collector_id))->select('collector_id','collector_name','cooler_name')->get() ?? [];
