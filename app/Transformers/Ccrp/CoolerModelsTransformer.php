@@ -12,10 +12,8 @@ class CoolerModelsTransformer extends TransformerAbstract
         $arr = [
             'id' => $models -> id,
             'sys_brand_id' => $models->sys_brand_id,
-            'sys_model'=> $models -> sys_model,
             'user_model'=> $models -> user_model,
             'popularity'=>$models->popularity,
-            'is_approved' => $models -> is_approved
         ];
         return $arr;
     }
