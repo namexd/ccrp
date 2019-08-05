@@ -129,7 +129,7 @@ class CoolersController extends Controller
     public function sysModels($brand)
     {
         $sysBrand = SysCoolerBrand::where('id', $brand)->first();
-        $sysModels = $sysBrand->models;
+        $sysModels = SysCoolerModel::where('brand_id', $brand)->orderBy('popularity','desc')->get();
         foreach ($sysModels as $item) {
             if ($item->type) {
                 $type = $item->type;
@@ -138,10 +138,10 @@ class CoolersController extends Controller
                 $typename = '';
             }
             $info['data'][] = [
-                "title" =>  $sysBrand->name. ' ' . $item->name . ' ' . $typename,
+                "title" => $sysBrand->name. ' ' . $item->name . ' ' . $typename .  ($item->is_medical==1?' [医用]':''),
                 'meta' => [
                     "header" => $item->name .' (热度:'.$item->popularity.')',
-                    "detail_data" => '/api/ccrp/reports/coolers/sys/models/details/' . $item->id . '?with=columns',
+                    "detail_data" => '/api/ccrp/reports/coolers/sys/models_details/' . $item->id . '?with=columns',
                     "detail_template" => 'detail'
                 ]
             ];
