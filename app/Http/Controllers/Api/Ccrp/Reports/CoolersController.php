@@ -112,7 +112,7 @@ class CoolersController extends Controller
                 'meta' => [
                     "header" => $item->name .' (热度:'.$item->popularity.')',
                     "detail_data" => '/api/ccrp/reports/coolers/sys/models/' . $item->id . '?with=columns',
-                    "detail_template" => 'detail'
+                    "detail_template" => 'list'
                 ]
             ];
         }
