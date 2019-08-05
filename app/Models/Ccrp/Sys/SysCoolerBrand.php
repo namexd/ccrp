@@ -16,7 +16,7 @@ class SysCoolerBrand extends Coldchain2ModelWithTimestamp
 
     public function models()
     {
-        return $this->hasMany(SysCoolerModel::class,'brand_id','id')->orderBy('is_medical','desc')->orderBy('popularity','desc');
+        return $this->hasMany(SysCoolerModel::class,'brand_id','id');
 
     }
 }

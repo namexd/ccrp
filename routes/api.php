@@ -205,7 +205,7 @@ $api->version('v1', [
                 $api->get('companies/infomation','CompaniesController@infomation')->name('api.ccrp.reports.companies.infomation');
                 //冰箱资料馆
                 $api->get('coolers/sys/brands','CoolersController@sysBrands')->name('api.ccrp.reports.coolers.sys_brands');
-                $api->get('coolers/sys/models/details/{model}','CoolersController@sysModelsDetail')->name('api.ccrp.reports.coolers.sys_models_detail');
+                $api->get('coolers/sys/models_details/{model}','CoolersController@sysModelsDetail')->name('api.ccrp.reports.coolers.sys_models_detail');
                 $api->get('coolers/sys/models/{brand}','CoolersController@sysModels')->name('api.ccrp.reports.coolers.sys_models');
                 //预警类型统计
                 $api->get('warning_type_statistics', 'WarningersController@warningTypeStatistics')->name('api.ccrp.warning_type_statistics');
