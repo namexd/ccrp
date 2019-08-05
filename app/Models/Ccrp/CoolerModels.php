@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Models\Ccrp;
-
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Ccrp\Coldchain2ModelWithTimestamp;
 use App\Models\Ccrp\Sys\SysCoolerModel;
 
-class CoolerModels extends Model
+class CoolerModels extends Coldchain2ModelWithTimestamp
 {
     protected $table = "cooler_models";
     protected $primaryKey = 'id';
