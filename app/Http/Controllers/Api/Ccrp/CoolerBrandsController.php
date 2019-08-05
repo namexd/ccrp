@@ -18,9 +18,9 @@ class CoolerBrandsController extends Controller
         $this -> cooler_brands = $cooler_brands;
         $this -> sys_cooler_brands = $sys_cooler_brands;
     }
-    public function index()
+    public function index($pagesize=10)
     {
-        $popular_brands = $this->sys_cooler_brands->orderBy('popularity', 'desc')->take(10)->get(['id','name','slug']);
+        $popular_brands = $this->sys_cooler_brands->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','slug']);
         return $this->response->array($popular_brands, new CoolerBrandTransformer());
     }
 
@@ -30,10 +30,10 @@ class CoolerBrandsController extends Controller
         $cooler_brand = trim($data['cooler_brand']);
         $str_arr = str_split($cooler_brand);
         if(preg_match("/^[".chr(0xa1)."-".chr(0xff)."]+$/",$str_arr[0])){
-            $brand_res = $this->sys_cooler_brands->selectRaw("concat(name,'(',slug,')') as brandname,name as sys_brand,LOCATE('".$cooler_brand."',name) as num")
+            $brand_res = $this->sys_cooler_brands->selectRaw("name as brandname,name as sys_brand,LOCATE('".$cooler_brand."',name) as num")
                 ->where('name', 'like', '%'.$cooler_brand.'%')->orderBy('num')->orderBy('popularity', 'desc')->get();
         }else{
-            $brand_res = $this->sys_cooler_brands->selectRaw("concat(slug,'(',name,')') as brandname,name as sys_brand,LOCATE('".$cooler_brand."',slug) as num")
+            $brand_res = $this->sys_cooler_brands->selectRaw("slug as brandname,name as sys_brand,LOCATE('".$cooler_brand."',slug) as num")
                 ->where('slug', 'like', '%'.$cooler_brand.'%')->orderBy('num')->orderBy('popularity','desc')->get();
         }
         if(count($brand_res)>0){
@@ -52,8 +52,15 @@ class CoolerBrandsController extends Controller
         $brand = $request -> all();
         $user_brand = trim($brand['cooler_brand']);
         if(isset($brand['sys_brand'])){
-            $this->cooler_brands->where([['sys_brand',$brand['sys_brand']],['user_brand',$user_brand]])->increment('popularity');
-            $data = $this->cooler_brands->where([['sys_brand',$brand['sys_brand']],['user_brand',$user_brand]])->first();
+            $sys_brand_id = $this->sys_cooler_brands->where([['name',$brand['sys_brand']],['name',$user_brand]])->orWhere([['name',$brand['sys_brand']],['slug',$user_brand]])->pluck('id');
+            if(isset($sys_brand_id[0])){
+                $this->sys_cooler_brands->where('id',$sys_brand_id)->increment('popularity',1);
+                $data = $this->sys_cooler_brands->where('id',$sys_brand_id)->get();
+                return $this->response->item($data, new CoolerBrandTransformer())->setStatusCode(201);
+            }else{
+                $this->cooler_brands->where([['sys_brand',$brand['sys_brand']],['user_brand',$user_brand]])->increment('popularity',1);
+                $data = $this->cooler_brands->where([['sys_brand',$brand['sys_brand']],['user_brand',$user_brand]])->first();
+            }
         }else{
             $new['user_brand'] = $user_brand;
             $data = $this->cooler_brands->create($new);
