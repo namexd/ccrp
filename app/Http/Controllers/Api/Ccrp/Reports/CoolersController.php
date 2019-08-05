@@ -138,9 +138,9 @@ class CoolersController extends Controller
                 $typename = '';
             }
             $info['data'][] = [
-                "title" => $item->name,
+                "title" =>  $sysBrand->name. ' ' . $item->name . ' ' . $typename,
                 'meta' => [
-                    "header" => $sysBrand->name . ' ' . $item->name . ' ' . $typename,
+                    "header" => $item->name .' (热度:'.$item->popularity.')',
                     "detail_data" => '/api/ccrp/reports/coolers/sys/models/details/' . $item->id . '?with=columns',
                     "detail_template" => 'detail'
                 ]
