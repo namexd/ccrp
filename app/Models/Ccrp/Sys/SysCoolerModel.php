@@ -25,6 +25,11 @@ protected $table='sys_cooler_models';
         'comment',
         'warmarea_count'
     ];
+    const IS_MEDICAL = [
+        0=>'未知',
+        1=>'医用',
+        2=>'非医用',
+    ];
     public function brand()
     {
         return $this->belongsTo(SysCoolerBrand::class,'brand_id');
