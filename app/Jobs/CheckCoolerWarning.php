@@ -18,11 +18,11 @@ class CheckCoolerWarning implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $company_id;
+    protected $companyIds;
 
-    public function __construct($company_id)
+    public function __construct($companyIds)
     {
-        $this->company_id = $company_id;
+        $this->companyIds = $companyIds;
     }
 
     /**
@@ -40,7 +40,7 @@ class CheckCoolerWarning implements ShouldQueue
             ->whereHas('cooler', function ($query) {
                 $query->where('status', Cooler::状态_正常)->whereIn('cooler_type', [Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_深低温冰箱, Cooler::设备类型_冷藏冷库]);
             })
-            ->where('company_id', $this->company_id)
+            ->whereIn('company_id', $this->companyIds)
             ->where('offline_check', 1)
             ->groupBy('cooler_id')
             ->with(['cooler.coolerWarningTempLogs'])
@@ -75,51 +75,56 @@ class CheckCoolerWarning implements ShouldQueue
         }
         //发送冰箱报警
         if (count($warning_cooler) > 0) {
-            $this->sendMessage($warning_cooler, $this->company_id);
+            $this->sendMessage($warning_cooler, $warning_cooler->pluck('company_id'));
 
         }
     }
 
-    public function sendMessage($activeCoolers, $company_id)
+    public function sendMessage($activeCoolers, $companyIds)
     {
         $coolers = [];
-        $phones = '';
+        $phones = [];
         foreach ($activeCoolers as $activeCooler) {
             $notice_collector = $activeCooler->collectorsOnline->first();
             if ($notice_collector->warningSetting) {
-                $coolers[] = $activeCooler->cooler_name;
-                $phones .= $notice_collector->warningSetting->warninger->warninger_body;
+                $coolers[$activeCooler->company_id][] = $activeCooler->cooler_name;
+                $phones[$activeCooler->company_id][]= $notice_collector->warningSetting->warninger->warninger_body;
             }
         }
-        $phones_unique = collect(explode(',', $phones))->unique();
-        $phones_unique_string = implode(',', $phones_unique->toArray());
-        $cooler_names = implode('、', $coolers);
-        $messages = [
-            'eventcontent' => $cooler_names.'的监测设备全部离线',
-        ];;
-        $params = [
-            'phone' => $phones_unique_string,
-            'data' => json_encode($messages),
-        ];
-        $logs = [
-            'event_id' => 0,
-            'event_type' => '离线报警',
-            'event_value' => 0,
-            'event_level' => '',
-            'msg_type' => 1,
-            'send_to' => $phones_unique_string,
-            'send_time' => time(),
-            'send_content' => json_encode($messages,JSON_UNESCAPED_UNICODE ),
-            'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】'.$cooler_names.'的监测设备全部离线，请及时处理!',
-            'collector_name' => '-',
-            'cooler_name' => $cooler_names,
-            'send_status' => 1,
-            'sent_again' => 0,
-            'company_id' => $company_id,
-            'from_source' => get_client_ip(),
-        ];
-        WarningSendlogChange::create($logs);
-        dispatch(new PushMessage($params));
+        foreach ($companyIds as $company_id)
+        {
+            $phoneStrings=implode(',',$phones[$company_id]);
+            $phones_unique = collect(explode(',', $phoneStrings))->unique();
+            $phones_unique_string = implode(',', $phones_unique->toArray());
+            $cooler_names = implode('、', $coolers[$company_id]);
+            $messages = [
+                'eventcontent' => $cooler_names.'的监测设备全部离线',
+            ];;
+            $params = [
+                'phone' => $phones_unique_string,
+                'data' => json_encode($messages),
+            ];
+            $logs = [
+                'event_id' => 0,
+                'event_type' => '离线报警',
+                'event_value' => 0,
+                'event_level' => '',
+                'msg_type' => 1,
+                'send_to' => $phones_unique_string,
+                'send_time' => time(),
+                'send_content' => json_encode($messages,JSON_UNESCAPED_UNICODE ),
+                'send_content_all' => '【'.env('ALIYUN_SMS_SIGN_NAME').'】'.$cooler_names.'的监测设备全部离线，请及时处理!',
+                'collector_name' => '-',
+                'cooler_name' => $cooler_names,
+                'send_status' => 1,
+                'sent_again' => 0,
+                'company_id' => $company_id,
+                'from_source' => get_client_ip(),
+            ];
+            WarningSendlogChange::create($logs);
+            dispatch(new PushMessage($params));
+        }
+
     }
 
 }
