@@ -11,5 +11,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index')->name('admin.home');
+    $router->resource('sys-cooler-brands', Sys\CoolerBrandsController::class);
+    $router->resource('sys-cooler-models', Sys\CoolerModelsController::class);
 
 });
