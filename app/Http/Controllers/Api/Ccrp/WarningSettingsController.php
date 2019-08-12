@@ -63,7 +63,6 @@ class WarningSettingsController extends Controller
 
                 }
             }
-
         }
         if ($request['humi_warning'])
         {

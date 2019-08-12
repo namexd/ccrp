@@ -33,7 +33,7 @@ class CoolerModelsController extends Controller
         }else{
             $populer_id = $this -> sys_cooler_models->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','description']);
         }
-        return $this -> response ->array($populer_id, new CoolerModelTransformer());
+        return $this -> response ->collection($populer_id, new CoolerModelTransformer());
     }
 
     public function show(CoolerModelsRequest $request)

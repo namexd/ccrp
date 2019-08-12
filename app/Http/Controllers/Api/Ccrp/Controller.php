@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
-use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\User;
 use App\Http\Controllers\Api\Controller as BaseController;
 use App\Models\Microservice\MicroserviceAPI;
+use GuzzleHttp\Client;
 
 class Controller extends BaseController
 {
@@ -69,6 +68,43 @@ class Controller extends BaseController
             \Auth::loginUsingId($info['userinfo']['id']);
         }
     }
+
+    public function http($method,$url,$options=[])
+    {
+        switch ($method) {
+            case 'GET':
+                $options = $this->get($options);
+                break;
+            case 'POST':
+                $options = $this->post($options);
+                break;
+        }
+        $client = new Client();
+        try {
+            $response = $client->$method($url, $options);
+            return $response->getBody()->getContents();
+        }catch (\Exception $exception){
+            return $exception->getMessage();
+        }
+    }
+
+    public function get($params)
+    {
+        $options = [
+            'query' => $params,
+        ];
+
+        return $options;
+    }
+
+    public function post($params)
+    {
+        $options = [
+            'form_params' => $params,
+        ];
+        return $options;
+    }
+
 
 
 }
