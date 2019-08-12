@@ -11,8 +11,8 @@ class CoolerBrandsTransformer extends TransformerAbstract
     {
         $arr = [
             'id' => $brands -> id,
-            'sys_brand'=> $brands -> sys_brand,
-            'user_brand'=> $brands -> user_brand,
+            'name'=> $brands -> sys_brand,
+            'slug'=> $brands -> user_brand,
             'popularity'=>$brands->popularity,
             'is_approved' => $brands -> is_approved
         ];

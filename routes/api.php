@@ -16,7 +16,7 @@ $api->version('v1', [
         $api->post('cooler_brands/show','CoolerBrandsController@show')->name('api.ccrp.cooler_brands.show');
         $api->post('cooler_brands/store','CoolerBrandsController@store')->name('api.ccrp.cooler_brands.store');
         //冰箱型号
-        $api->post('cooler_models/index','CoolerModelsController@index')->name('api.ccrp.cooler_models.index');
+        $api->post('cooler_models','CoolerModelsController@index')->name('api.ccrp.cooler_models.index');
         $api->post('cooler_models/show','CoolerModelsController@show')->name('api.ccrp.cooler_models.show');
         $api->post('cooler_models/store','CoolerModelsController@store')->name('api.ccrp.cooler_models.store');
     });
