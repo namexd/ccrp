@@ -13,5 +13,6 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('admin.home');
     $router->resource('sys-cooler-brands', Sys\CoolerBrandsController::class);
     $router->resource('sys-cooler-models', Sys\CoolerModelsController::class);
+    $router->resource('task-remind-login-tasks', Reports\TaskRemindLoginTasksController::class);
 
 });
