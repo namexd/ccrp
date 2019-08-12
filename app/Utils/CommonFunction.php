@@ -21,7 +21,15 @@ function array_trim($arr, $trim = true)
     }
     return $arr;
 }
+function creat_deliverorder($company_id)
 
+{
+
+    //10000011511212151123
+
+    return sprintf("%04d", $company_id) . date('ymdHis');
+
+}
 function format_value($value, $none = null, $decimal = 1, $suffix = '')
 {
     if ($value !== '' and $value !== NULL and $value <> -999){

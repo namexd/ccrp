@@ -15,7 +15,7 @@ class Collector extends Coldchain2ModelWithTimestamp
     protected $table = 'collector';
     protected $primaryKey = 'collector_id';
 
-    protected $fillable = ['collector_id', 'supplier_id', 'collector_name', 'cooler_id', 'cooler_name', 'supplier_product_model', 'supplier_collector_id', 'category_id', 'company_id', 'temp_warning', 'install_uid', 'humi_warning', 'volt_warning', 'temp', 'humi', 'volt', 'rssi', 'update_time', 'install_time', 'uninstall_time', 'status','offline_span','offline_check','temp_type'];
+    protected $fillable = ['collector_id', 'supplier_id', 'collector_name', 'cooler_id', 'cooler_name', 'supplier_product_model', 'supplier_collector_id', 'category_id', 'company_id', 'temp_warning', 'install_uid', 'humi_warning', 'volt_warning', 'temp', 'humi', 'volt', 'rssi', 'update_time', 'install_time', 'uninstall_time', 'status', 'offline_span', 'offline_check', 'temp_type'];
 
     //探头监测类型：
     const 离线时间 = 3600;
@@ -52,6 +52,13 @@ class Collector extends Coldchain2ModelWithTimestamp
 //        '5'=>'断电',
 //        '6'=>'电压低',
 //        '7'=>'电压高',
+    ];
+
+    //探头电压
+    const  COLLECTOR_WORRY_VOLT = [
+        'ZKS_S1_COOL' => 2.8,
+        'ZKS_S1_COLD' => 2.6,
+        'ZKS_S2' => 3.8,
     ];
     const 预警类型_离线 = 3;
 
@@ -133,20 +140,19 @@ class Collector extends Coldchain2ModelWithTimestamp
         $history->tableName($sn);
 
 
-         $check = "select to_regclass('sensor.idx_sensor_".$sn."_collect_time');";
-         $rs = \DB::connection('dbhistory')->select($check);
-         if($rs and $rs[0]->to_regclass == null)
-         {
-             $update_index = "DO $$
+        $check = "select to_regclass('sensor.idx_sensor_".$sn."_collect_time');";
+        $rs = \DB::connection('dbhistory')->select($check);
+        if ($rs and $rs[0]->to_regclass == null) {
+            $update_index = "DO $$
 BEGIN
 IF to_regclass('sensor.idx_sensor_".$sn."_collect_time') IS NULL THEN
     CREATE INDEX idx_sensor_".$sn."_collect_time ON \"sensor\".\"".$sn."\" (sensor_collect_time);
 END IF;
 END$$;";
-             $rs = \DB::connection('dbhistory')->select($update_index);
-         }
+            $rs = \DB::connection('dbhistory')->select($update_index);
+        }
 
-        return $history->setTable('sensor.' . $sn . '')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
+        return $history->setTable('sensor.'.$sn.'')->whereBetween('sensor_collect_time', [$start_time, $end_time])->select(['data_id', 'temp', 'humi', 'sensor_collect_time as collect_time', 'system_time'])->limit(3000)->orderBy('sensor_collect_time', 'asc')->get();
     }
 
     public function uninstall($collector_id, $note = '')
@@ -167,7 +173,7 @@ END$$;";
         $set['uninstall_time'] = time();
         $id = $collector->update($set);
         if ($id) {
-           (new Cooler)->flush_collector_num($collector['cooler_id']);
+            (new Cooler)->flush_collector_num($collector['cooler_id']);
             //更新报警器，自动解除已绑定的探头
             $where = 'FIND_IN_SET("'.$collector_id.'", collector_id)';
             $model_ledspeaker = new Ledspeaker();
@@ -193,32 +199,46 @@ END$$;";
 
     public function create(array $attributes = [], array $options = [])
     {
-        if(array_get($attributes,'supplier_product_model')=='LWTG310S' or array_get($attributes,'supplier_product_model')=='LWTGD310S'){
+        if (array_get($attributes, 'supplier_product_model') == 'LWTG310S' or array_get($attributes, 'supplier_product_model') == 'LWTGD310S') {
             $attributes['supplier_id'] = 1001;
         }
         $rs = parent::create($attributes);
         return $rs;
     }
+
     public function update(array $attributes = [], array $options = [])
     {
         $collector_id = $this->collector_id;
-        $save = parent::update($attributes,$options) ;
+        $save = parent::update($attributes, $options);
         $self = $this->find($collector_id);
-        if($self['supplier_product_model']=='LWTG310S' or $self['supplier_product_model']=='LWTGD310S'){
+        if ($self['supplier_product_model'] == 'LWTG310S' or $self['supplier_product_model'] == 'LWTGD310S') {
             $gateway = new GatewaybindingdataModel();
             $gateway->set_collector($collector_id);
-            if($collector_id){
-                if($self['status']==1)   //status==2，报废，解除不添加
+            if ($collector_id) {
+                if ($self['status'] == 1)   //status==2，报废，解除不添加
                 {
-                    $gateway->do_mod_collector(array('DisplayName'=>$self['collector_name']));
+                    $gateway->do_mod_collector(array('DisplayName' => $self['collector_name']));
 
-                }else{
+                } else {
                     $gateway->do_del_collector();
                 }
 
             }
         }
         return $save;
+    }
+
+    public function getCollectorByCoolerType(array $type)
+    {
+        $list = [];
+        $results = $this->whereIn('cooler_type', $type)->get();
+        foreach ($results as $result) {
+            $list[] = [
+                'value' => $result->collector_id,
+                'label' => $result->collector_name,
+            ];
+        }
+        return $list;
     }
 
 }

@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class SenderNewTransformer extends TransformerAbstract
 {
-    protected $availableIncludes=['cooler_category','sender_status','warning_setting'];
+    protected $availableIncludes=['cooler_category','sender_status','warning_setting','company'];
     public function transform(Sender $sender)
     {
         return [
@@ -21,6 +21,7 @@ class SenderNewTransformer extends TransformerAbstract
             'ischarging' => $sender->ischarging,
             'ischarging_update_time' =>$sender->ischarging_update_time>0?Carbon::createFromTimestamp($sender->ischarging_update_time)->toDateTimeString():0,
             'company' => $sender->company->title,
+            'company_id' => $sender->company_id,
             'status' => $sender->status,
             'created_at' => $sender->install_time>0?Carbon::createFromTimestamp($sender->install_time)->toDateTimeString():0,
             'updated_at' => $sender->update_time>0?Carbon::createFromTimestamp($sender->update_time)->toDateTimeString():0,
@@ -52,5 +53,9 @@ class SenderNewTransformer extends TransformerAbstract
         return new Item(null,function (){
             return [];
         });
+    }
+    public function includeCompany(Sender $sender)
+    {
+       return $this->item($sender->company(),new CompanyInfoTransformer());
     }
 }

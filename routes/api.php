@@ -112,6 +112,7 @@ $api->version('v1', [
             $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');
             $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
+            $api->get('collectors/couveuse', 'CollectorsController@couveuse')->name('api.ccrp.coolers.couveuse');
             $api->get('collectors/count_warningSetting_unset', 'CollectorsController@countWarningSettingUnset')->name('api.ccrp.coolers.count_warningSetting_unset');
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
             $api->get('collectors/realtime', 'CollectorsController@realtime')->name('api.ccrp.collectors.realtime');
@@ -169,7 +170,7 @@ $api->version('v1', [
             $api->get('vehicles/vehicle_map','VehiclesController@vehicle_map');
             $api->resource('vehicles',VehiclesController::class);
             $api->resource('vehicle_warning_events',VehicleWarningEventsController::class);
-
+            //打印机
             $api->get('printers/history_temp','PrintersController@printTemp');
             $api->get('printers/clear/{id}',function ($id){
                 $resp= file_get_contents('http://pr01.coldyun.com/WPServer/clearorder?sn='.$id);
@@ -178,6 +179,15 @@ $api->version('v1', [
             $api->get('printers/test/{id}','PrintersController@test');
             $api->resource('printers',PrintersController::class);
             $api->resource('printer_logs',PrinterLogsController::class);
+            //保温车订单管理
+            $api->post('deliverorders/finished/{id}','DeliverOrdersController@finished');
+            $api->resource('deliverorders',DeliverOrdersController::class);
+            //保温车常用联系人
+            $api->resource('delivers',DeliversController::class);
+            //常用车辆
+            $api->resource('delivervehicles',DeliverVehiclesController::class);
+            //订单报警设置
+            $api->resource('deliver_warning_settings',DeliverWarningSettingController::class);
 
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
