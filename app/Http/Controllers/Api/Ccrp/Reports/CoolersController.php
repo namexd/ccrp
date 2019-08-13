@@ -221,12 +221,68 @@ class CoolersController extends Controller
                     "value" => "whole_volume"
                 ];
         }
+        if ($item->weight) {
+            $info["weight"] = $item->weight;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "重量",
+                    "value" => "weight"
+                ];
+        }
+        if ($item->power) {
+            $info["power"] = $item->power;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "用电",
+                    "value" => "power"
+                ];
+        }
+        if ($item->specifications) {
+            $info["specifications"] = $item->specifications;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "体积",
+                    "value" => "specifications"
+                ];
+        }
+        if ($item->temperature) {
+            $info["temperature"] = $item->temperature;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "温度",
+                    "value" => "temperature"
+                ];
+        }
         if ($item->comment) {
             $info["comment"] = $item->comment;
             $info["meta"]["columns"][] =
                 [
                     "label" => "说明",
                     "value" => "comment"
+                ];
+        }
+        if ($item->medical_licence) {
+            $info["medical_licence"] = $item->medical_licence;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "注册证编号",
+                    "value" => "medical_licence"
+                ];
+        }
+        if ($item->warmarea_count) {
+            $info["warmarea_count"] = $item->warmarea_count;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "温区",
+                    "value" => "warmarea_count"
+                ];
+        }
+        if ($item->description) {
+            $info["description"] = $item->description;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "描述",
+                    "value" => "description"
                 ];
         }
 
