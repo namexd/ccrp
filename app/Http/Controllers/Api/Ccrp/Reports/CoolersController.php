@@ -189,6 +189,14 @@ class CoolersController extends Controller
                     "value" => "is_medical"
                 ];
         }
+        if ($item->warmarea_count) {
+            $info["warmarea_count"] = $item->warmarea_count;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "温区",
+                    "value" => "warmarea_count"
+                ];
+        }
         if ($item->body_type) {
             $info["body_type"] = $item->body_type;
             $info["meta"]["columns"][] =
@@ -267,14 +275,6 @@ class CoolersController extends Controller
                 [
                     "label" => "注册证编号",
                     "value" => "medical_licence"
-                ];
-        }
-        if ($item->warmarea_count) {
-            $info["warmarea_count"] = $item->warmarea_count;
-            $info["meta"]["columns"][] =
-                [
-                    "label" => "温区",
-                    "value" => "warmarea_count"
                 ];
         }
         if ($item->description) {
