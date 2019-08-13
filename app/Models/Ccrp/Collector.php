@@ -62,6 +62,20 @@ class Collector extends Coldchain2ModelWithTimestamp
     ];
     const 预警类型_离线 = 3;
 
+    const SUPPLIER_PRODUCT_MODEL = [
+        'LWTG310' => 'LWTG310 无线温湿度探头',
+        'LWTG310S' => 'LWTG310S 无线温湿度探头',
+        'LWTGD310' => 'LWTGD310 无线深低温探头',
+        'LWYL201' => 'LWYL201 便携式温度记录仪',
+        'TG100-AU' => 'TG100-AU 无线温度探头',
+        'LWSSH200' => 'LWSSH200 有线温度探头',
+        'LWSSH400' => 'LWSSH400 有线温度探头',
+        'RCW1000' => 'RCW1000 有线温度探头',
+        'LWJC2000' => 'LWJC2000 远距离无线温湿度探头',
+        'SANY001' => 'SANY001 海珠三洋探头',
+        'LDS511' => 'LDS511 无线温湿度探头',
+        'LDS520' => 'LDS520 无线低温探头',
+    ];
     function cooler()
     {
         return $this->belongsTo(Cooler::class, 'cooler_id', 'cooler_id');

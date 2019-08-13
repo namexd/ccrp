@@ -36,10 +36,14 @@ class WarningSendlog extends Coldchain2pgModel
         2 => '邮件',
         3 => '微信',
     ];
-    const 预警类型_离线 = '离线报警';
-    const 预警类型_超温 = '温度报警';
-    const 预警类型_断电 = '市电断电';
-
+    const 市电断电 = '市电断电';
+    const 温度报警 = '温度报警';
+    const 离线报警 = '离线报警';
+    const EVENT_TYPES = [
+        '市电断电' => self::市电断电,
+        '温度报警' => self::温度报警,
+        '离线报警' => self::离线报警,
+    ];
     public function eventOverTemp()
     {
         return $this->belongsTo(WarningEvent::class, 'event_id', 'id')->where('event_type', '温度报警');

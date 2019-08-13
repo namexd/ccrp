@@ -33,7 +33,7 @@ class CoolerModelsController extends AdminController
         $grid->column('name', __('Name'));
         $grid->column('type_id', __('Type id'));
         $grid->column('brand_id', __('Brand id'));
-        $grid->column('description', __('Description'));
+//        $grid->column('description', __('Description'));
         $grid->column('cool_volume', __('Cool volume'));
         $grid->column('cold_volume', __('Cold volume'));
         $grid->column('whole_volume', __('Whole volume'));
@@ -48,6 +48,7 @@ class CoolerModelsController extends AdminController
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
 
+        $grid->fixColumns(0, -1);
         $grid->filter(function ($filter) {
 //            $filter->disableIdFilter();
             $filter->equal('name', '型号');
