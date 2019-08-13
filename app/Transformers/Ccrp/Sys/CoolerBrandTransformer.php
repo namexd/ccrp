@@ -16,6 +16,7 @@ class CoolerBrandTransformer extends TransformerAbstract
             'slug'=>$brand->slug,
             'comporation'=>$brand->comporation,
             'has_medical'=>$brand->has_medical,
+            'popularity' => $brand->popularity,
             'created_at'=>Carbon::parse($brand->created_at)->toDateTimeString(),
             'updated_at'=>Carbon::parse($brand->updated_at)->toDateTimeString(),
         ];

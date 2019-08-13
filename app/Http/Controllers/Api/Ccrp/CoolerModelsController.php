@@ -27,11 +27,14 @@ class CoolerModelsController extends Controller
     {
         $pagesize = $request->get('pagesize')??'10';
         $data = $request->all();
-        if(isset($data['sys_brand'])){
-            $sys_brand_id = $this -> sys_cooler_brands->where('name',$data['sys_brand'])->pluck('id');
-            $populer_id = $this -> sys_cooler_models->where('brand_id',$sys_brand_id)->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','description']);
+        if(isset($data['sys_brand'])) {
+            $sys_brand_id = $this->sys_cooler_brands->where('name', $data['sys_brand'])->pluck('id');
+        }
+        if(!isset($sys_brand_id[0])) {
+            $populer_id = $this -> sys_cooler_models->orderBy('popularity', 'desc')->take($pagesize)->get();
         }else{
-            $populer_id = $this -> sys_cooler_models->orderBy('popularity', 'desc')->take($pagesize)->get(['id','name','description']);
+
+            $populer_id = $this -> sys_cooler_models->where('brand_id',$sys_brand_id)->orderBy('popularity', 'desc')->take($pagesize)->get();
         }
         return $this -> response ->collection($populer_id, new CoolerModelTransformer());
     }
@@ -45,61 +48,36 @@ class CoolerModelsController extends Controller
         }
         $str_arr = str_split($cooler_model);
         if(preg_match("/^[".chr(0xa1)."-".chr(0xff)."]+$/",$str_arr[0])) {
-            if (!isset($sys_brand_id)) {
-                $model_res = $this->sys_cooler_models->selectRaw("concat(name,'(',description,')') as modelname,name as sys_model,LOCATE('".$cooler_model."',description) as num,brand_id")
-                    ->where('description','like','%'.$cooler_model.'%')->orderBy('num')->orderBy('popularity','desc')->get();
+            if (!isset($sys_brand_id[0])) {
+                $model_res = $this->sys_cooler_models->selectRaw("*,LOCATE('".$cooler_model."',comment) as num")
+                    ->where('comment','like','%'.$cooler_model.'%')->orderBy('num')->orderBy('popularity','desc')->get();
             } else {
-                $model_res = $this->sys_cooler_models->selectRaw("concat(name,'(',description,')') as modelname,name as sys_model,LOCATE('".$cooler_model."',description) as num,brand_id")
-                    ->where([['description','like','%'.$cooler_model.'%'], ['brand_id','=',$sys_brand_id]])->orderBy('num')->orderBy('popularity','desc')->get();
+                $model_res = $this->sys_cooler_models->selectRaw("*,LOCATE('".$cooler_model."',description) as num")
+                    ->where([['comment','like','%'.$cooler_model.'%'], ['brand_id','=',$sys_brand_id]])->orderBy('num')->orderBy('popularity','desc')->get();
             }
         }else{
-            if (!isset($sys_brand_id)) {
-                $model_res = $this->sys_cooler_models->selectRaw("name as modelname,name as sys_model,LOCATE('".$cooler_model."',name) as num,brand_id")
+            if (!isset($sys_brand_id[0])) {
+                $model_res = $this->sys_cooler_models->selectRaw("*,LOCATE('".$cooler_model."',name) as num")
                     ->where('name','like','%'.$cooler_model.'%')->orderBy('num')->orderBy('popularity','desc')->get();
             } else {
-                $model_res = $this->sys_cooler_models->selectRaw("name as modelname,name as sys_model,LOCATE('".$cooler_model."',name) as num,brand_id")
+                $model_res = $this->sys_cooler_models->selectRaw("*,LOCATE('".$cooler_model."',name) as num")
                     ->where([['name','like','%'.$cooler_model.'%'],['brand_id','=',$sys_brand_id]])->orderBy('num')->orderBy('popularity','desc')->get();
             }
         }
         if (count($model_res)>0) {
-            return $this->response->item($model_res, new CoolerModelTransformer());
+            return $this->response->collection($model_res, new CoolerModelTransformer());
         }else{
-            if(isset($sys_brand_id)){
-                $user_brand_res = $this->cooler_models->selectRaw("user_model as modelname,user_model as sys_model,LOCATE('".$cooler_model."',user_model) as num")->where([['user_model','like','%'.$cooler_model.'%'],['sys_brand_id','=',$sys_brand_id]])->orderBy('num')->orderBy('popularity','desc')->get();
+            if(isset($sys_brand_id[0])){
+                $user_brand_res = $this->cooler_models->selectRaw("*,LOCATE('".$cooler_model."',user_model) as num")->where([['user_model','like','%'.$cooler_model.'%'],['sys_brand_id','=',$sys_brand_id]])->orderBy('num')->orderBy('popularity','desc')->get();
             }else{
-                $user_brand_res = $this->cooler_models->selectRaw("user_model as modelname,user_model as sys_model,LOCATE('".$cooler_model."',user_model) as num")->where('user_model','like','%'.$cooler_model.'%')->orderBy('num')->orderBy('popularity','desc')->get();
+                $user_brand_res = $this->cooler_models->selectRaw("*,LOCATE('".$cooler_model."',user_model) as num")->where('user_model','like','%'.$cooler_model.'%')->orderBy('num')->orderBy('popularity','desc')->get();
             }
             if(count($user_brand_res)>0){
-                return $this->response->item($model_res, new CoolerModelsTransformer());
+                return $this->response->collection($user_brand_res, new CoolerModelsTransformer());
             }else{
                 return $this->response -> noContent();
             }
 
         }
-    }
-    public function store(CoolerModelsRequest $request)
-    {
-        $model = $request -> all();
-        $user_model = trim($model['cooler_model']);
-        if(isset($model['sys_brand'])){
-            $sys_brand_id =  $this -> sys_cooler_brands->where('name', $model['sys_brand'])->pluck('id');
-        }
-        if(isset($model['sys_model'])){
-            if(isset($sys_brand_id)){
-                $this->sys_cooler_models->where([['name',$model['sys_model']],['brand_id',$sys_brand_id[0]]])->increment('popularity',1);
-                $data = $this->sys_cooler_models->where([['name',$model['sys_model']],['brand_id',$sys_brand_id[0]]])->first();
-                return $this->response->item($data, new CoolerModelTransformer())->setStatusCode(201);
-            }else{
-                $this->cooler_models->where('user_model',$model['sys_model'])->increment('popularity',1);
-                $data = $this->cooler_models->where('user_model',$model['sys_model'])->first();
-            }
-        }else{
-            if(isset($sys_brand_id)){
-                $new['sys_brand_id'] = $sys_brand_id[0];
-            }
-            $new['user_model'] = $user_model;
-            $data = $this->cooler_models->create($new);
-        }
-        return $this->response->item($data, new CoolerModelsTransformer())->setStatusCode(201);
     }
 }
