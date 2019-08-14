@@ -183,7 +183,7 @@ class Company extends Coldchain2Model
 
     public function categories()
     {
-        return $this->hasMany(Category::class, 'company_id', 'id')->field('id,title,company_id,cooler_count')->where(['cooler_count' => ['gt', 0]]);
+        return $this->belongsTo(Category::class, 'company_type', 'id');
     }
 
     public function users()
