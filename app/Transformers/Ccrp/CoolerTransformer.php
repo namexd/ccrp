@@ -7,6 +7,7 @@ use App\Transformers\Ccrp\Reports\StatCoolerTransformer;
 use Carbon\Carbon;
 use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
+use phpDocumentor\Reflection\Types\This;
 
 class CoolerTransformer extends TransformerAbstract
 {
@@ -59,14 +60,19 @@ class CoolerTransformer extends TransformerAbstract
         if ($cooler->cooler_category)
         return $this->item($cooler->cooler_category, new CoolerCategoryTransformer());
         else
-            return new Item(null,function (){
-               return [];
-            });
+            return $this->null();
     }
 
     public function includeVaccineTags(Cooler $cooler)
     {
-        return $this->collection($cooler->vaccine_tags,new VaccineTagTransformer());
+        if ($tag_id=request()->get('tag_id'))
+        {
+            $vaccine_tags=$cooler->vaccine_tags()->where('tag_id',$tag_id)->get();
+        }else
+        {
+            $vaccine_tags=$cooler->vaccine_tags;
+        }
+        return $this->collection($vaccine_tags,new VaccineTagTransformer());
     }
     public function includeDetails(Cooler $cooler)
     {

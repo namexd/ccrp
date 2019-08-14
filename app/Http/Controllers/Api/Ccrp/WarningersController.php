@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\WarninerRequest;
+use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Warninger;
 use App\Transformers\Ccrp\WarningerTransformer;
 
@@ -23,7 +24,12 @@ class WarningersController extends Controller
             $warninger = $warninger->where('warninger_name', 'like', '%'.$keyword.'%');
         }
         $warninger = $warninger->orderBy('warninger_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
-        return $this->response->paginator($warninger, new WarningerTransformer());
+        return $this->response->paginator($warninger, new WarningerTransformer())
+            ->addMeta('warninger_body_limit',[
+                'warninger_body'=>$this->company->warninger_body_limit,
+                'warninger_body_level_2'=>1,
+                'warninger_body_level_3'=>1,
+            ]);
     }
 
     public function show($id)

@@ -11,6 +11,7 @@ class EquipmentChangeDetail extends Model
         'apply_id',
         'cooler_id',
         'change_type',
+        'collector_id',
         'reason'
     ];
     public function cooler()
@@ -20,5 +21,14 @@ class EquipmentChangeDetail extends Model
     public function apply()
     {
         return $this->belongsTo(EquipmentChangeApply::class,'apply_id','id');
+    }
+
+    public function getCollectorIdAttribute($value)
+    {
+        return json_decode($value,true);
+    }
+    public function setCollectorIdAttribute($value)
+    {
+        $this->attributes['collector_id']=json_encode($value);
     }
 }
