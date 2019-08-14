@@ -719,6 +719,7 @@ class Company extends Coldchain2Model
     {
         return $query
             ->orderBy('cdc_admin', 'desc')
+            ->orderBy(\DB::raw('(CASE WHEN category_count >0 THEN 1 ELSE 0 END)'), 'desc')
             ->orderBy('region_code', 'asc')
             ->orderBy('company_group', 'asc')
             ->orderBy('cdc_level', 'asc')
