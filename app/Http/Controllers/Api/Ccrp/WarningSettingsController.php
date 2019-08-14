@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\WarningEventRequest;
 use App\Http\Requests\Api\Ccrp\WarningSettingRequest;
+use App\Models\Ccrp\Company;
+use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Warninger;
 use App\Models\Ccrp\WarningEvent;
 use App\Models\Ccrp\WarningSenderEvent;
@@ -123,6 +125,26 @@ class WarningSettingsController extends Controller
         $request['status'] = 1;
         $request['company_id'] = $this->company->id;
 
+        if ($temp_warning_last=$this->company->hasUseSettings(Company::单位设置_报警延迟时间))
+        {
+            $temp_warning_last_arr=explode(',',$temp_warning_last->value);
+            $request['temp_warning_last']=$temp_warning_last_arr[0];
+            $request['temp_warning2_last']=$temp_warning_last_arr[1];
+            $request['temp_warning3_last']=$temp_warning_last_arr[2];
+        }elseif($temp_warning_last=CompanyHasSetting::query()->whereIn('company_id',$this->company->getParentIds())->first())
+        {
+            $temp_warning_last_arr=explode(',',$temp_warning_last->value);
+            $request['temp_warning_last']=$temp_warning_last_arr[0];
+            $request['temp_warning2_last']=$temp_warning_last_arr[1];
+            $request['temp_warning3_last']=$temp_warning_last_arr[2];
+        }else
+        {
+            $temp_warning_last=Setting::find(Company::单位设置_报警延迟时间);
+            $temp_warning_last_arr=explode(',',$temp_warning_last->value);
+            $request['temp_warning_last']=$temp_warning_last_arr[0];
+            $request['temp_warning2_last']=$temp_warning_last_arr[1];
+            $request['temp_warning3_last']=$temp_warning_last_arr[2];
+        }
         $result= $this->model->create($request->all());
         if ($result)
         {

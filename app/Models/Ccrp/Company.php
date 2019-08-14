@@ -101,6 +101,9 @@ class Company extends Coldchain2Model
     const 单位设置_可以添加仓位=17;
     const 单位设置_开启冰箱整体离线巡检=20;
     const 单位设置_开启室温人工签名=21;
+    const 单位设置_报警联系人人数=10;
+    const 单位设置_离线报警时长=1;
+    const 单位设置_报警延迟时间=7;
     /**
      * 字段中文名称
      * @return array
@@ -748,9 +751,14 @@ class Company extends Coldchain2Model
         return $this->hasMany(CompanyUseSetting::class);
     }
 
-    public function hasUseSettings($settings_id, $value)
+    public function hasUseSettings($settings_id, $value=null)
     {
-        return $this->useSettings()->where('setting_id', $settings_id)->where('value', $value)->first();
+        $result= $this->useSettings()->where('setting_id', $settings_id);
+        if ($value!==null)
+        {
+            $result=$result->where('value',$value);
+        }
+     return $result->first();
     }
 
     public function defaultSetting($category = 'all')
@@ -866,5 +874,16 @@ class Company extends Coldchain2Model
     function tags()
     {
         return $this->belongsToMany(Tag::class, 'company_has_tags');
+    }
+
+    //获取所有上级单位id
+    public function getParentIds(&$arr=[])
+    {
+        if ($this->parent)
+        {
+            $arr[]=$this->parent->id;
+            $this->parent->getParentIds($arr);
+        }
+        return $arr;
     }
 }

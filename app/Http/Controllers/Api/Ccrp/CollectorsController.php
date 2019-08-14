@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\Ccrp;
 use App\Http\Requests\Api\Ccrp\CollectorRequest;
 use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Collectorguanxi;
+use App\Models\Ccrp\Company;
+use App\Models\Ccrp\CompanyUseSetting;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\DataHistory;
 use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\Product;
+use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Traits\ControllerDataRange;
 use App\Transformers\Ccrp\CollectorDetailTransformer;
@@ -128,6 +131,18 @@ class CollectorsController extends Controller
         $request['supplier_id'] = $product['supplier_id'];
         if ($request['supplier_product_model'] == 'LWYL201') {
             $request['offline_check'] = 0;
+        }
+        if ($offline_span=$this->company->hasUseSettings(Company::单位设置_离线报警时长))
+        {
+            $request['offline_span']=$offline_span->value;
+        }elseif($offline_span=CompanyHasSetting::query()->whereIn('company_id',$this->company->getParentIds())->first())
+        {
+            $request['offline_span']=$offline_span->value;
+        }else
+        {
+            $offline_span=Setting::find(Company::单位设置_离线报警时长);
+            $request['offline_span']=$offline_span->value;
+
         }
         $result = $this->collector->create($request->all());
         if ($result) {
