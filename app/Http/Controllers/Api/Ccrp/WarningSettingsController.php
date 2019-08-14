@@ -125,7 +125,7 @@ class WarningSettingsController extends Controller
         $request['status'] = 1;
         $request['company_id'] = $this->company->id;
 
-        if ($temp_warning_last=$this->company->hasUseSettings(Company::单位设置_报警延迟时间))
+        if ($temp_warning_last=$this->company->hasSettings()->where('setting_id',Company::单位设置_报警延迟时间)->first())
         {
             $temp_warning_last_arr=explode(',',$temp_warning_last->value);
             $request['temp_warning_last']=$temp_warning_last_arr[0];

@@ -6,6 +6,7 @@ use App\Http\Requests\Api\Ccrp\CollectorRequest;
 use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Collectorguanxi;
 use App\Models\Ccrp\Company;
+use App\Models\Ccrp\CompanyHasSetting;
 use App\Models\Ccrp\CompanyUseSetting;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\DataHistory;
@@ -132,12 +133,14 @@ class CollectorsController extends Controller
         if ($request['supplier_product_model'] == 'LWYL201') {
             $request['offline_check'] = 0;
         }
-        if ($offline_span=$this->company->hasUseSettings(Company::单位设置_离线报警时长))
+        if ($offline_span=$this->company->hasSettings()->where('setting_id',Company::单位设置_离线报警时长)->first())
         {
             $request['offline_span']=$offline_span->value;
-        }elseif($offline_span=CompanyHasSetting::query()->whereIn('company_id',$this->company->getParentIds())->first())
+
+        }elseif($offline_span=CompanyHasSetting::query()->where('setting_id',Company::单位设置_离线报警时长)->whereIn('company_id',$this->company->getParentIds())->first())
         {
             $request['offline_span']=$offline_span->value;
+
         }else
         {
             $offline_span=Setting::find(Company::单位设置_离线报警时长);
