@@ -37,5 +37,13 @@ class PrinterLog extends Coldchain2Model
     {
         return $this->belongsTo(Printer::class, 'printer_id', 'printer_id');
     }
+    public function approve()
+    {
+        $this->hasOne(PrinterlogApprove::class,'log_id','id');
+    }
 
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

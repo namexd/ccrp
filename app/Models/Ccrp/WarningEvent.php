@@ -68,4 +68,23 @@ class WarningEvent extends Coldchain2Model
             ->first();
         return $result;
     }
+
+    public function checkWarning($company_id = null)
+    {
+        $start = Carbon::now()->subDays(3)->timestamp;
+        $end = time();
+        if ($company_id === null) {
+            $query = $this->whereNotIn('company_id',Company::getUnwatchIds())->selectRaw('"company_id" as object_key,company_id as object_value,count(collector_id) as result')->whereBetween('warning_event_time', [$start, $end])->where('warning_type', 1)->groupBy('company_id')->havingRaw('count(collector_id)>?', [10])->get();
+            return $query;
+        } else {
+            $query = $this->whereBetween('warning_event_time', [$start, $end])->where('warning_type', 1)->where('company_id', $company_id)
+                ->count();
+            $result = new StdClass();
+            $result->object_key = 'company_id';
+            $result->object_value = $company_id;
+            $result->result = $query>9?$query:0;
+            return $result;
+
+        }
+    }
 }

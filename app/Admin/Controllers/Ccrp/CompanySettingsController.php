@@ -2,79 +2,22 @@
 
 namespace App\Admin\Controllers\Ccrp;
 
+use App\Admin\Actions\CompanySetting\Check;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\CompanyHasSetting;
 use App\Http\Controllers\Controller;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Tag;
+use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 
-class CompanySettingsController extends Controller
+class CompanySettingsController extends AdminController
 {
     use HasResourceActions;
-
-    /**
-     * Index interface.
-     *
-     * @param Content $content
-     * @return Content
-     */
-    public function index(Content $content)
-    {
-        return $content
-            ->header('单位个性化设置')
-            ->description('以疾控为单位查看，下属各站点的个性化设置')
-            ->body($this->grid());
-    }
-
-    /**
-     * Show interface.
-     *
-     * @param mixed $id
-     * @param Content $content
-     * @return Content
-     */
-    public function show($id, Content $content)
-    {
-        return $content
-            ->header('Detail')
-            ->description('description')
-            ->body($this->detail($id));
-    }
-
-    /**
-     * Edit interface.
-     *
-     * @param mixed $id
-     * @param Content $content
-     * @return Content
-     */
-    public function edit($id, Content $content)
-    {
-        $diy = CompanyHasSetting::where('id',$id)->first();
-        return $content
-            ->header('编辑 '.$diy->setting->options)
-            ->description('说明： '.$diy->setting->tip)
-            ->body($this->form()->edit($id));
-    }
-
-    /**
-     * Create interface.
-     *
-     * @param Content $content
-     * @return Content
-     */
-    public function create(Content $content)
-    {
-        return $content
-            ->header('Create')
-            ->description('description')
-            ->body($this->form());
-    }
 
     /**
      * Make a grid builder.
@@ -125,7 +68,7 @@ class CompanySettingsController extends Controller
 
         $grid->actions(function ($actions) {
             $actions->disableDelete();
-            $actions->append('<a target="_blank" href="' . route($actions->row->setting->check_route, [$this->row->setting_id, $this->row->company_id]) . '"><i class="fa fa-cogs" title="检查"></i></a>');
+            $actions->add(new Check());
         });
 
 

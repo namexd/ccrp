@@ -4,7 +4,9 @@ namespace App\Models\Ccrp;
 
 
 use function App\Utils\abs2;
+use function App\Utils\dateFormatByType;
 use function App\Utils\format_value;
+use Carbon\Carbon;
 
 /**
  * Class Collector
@@ -40,10 +42,46 @@ class Collector extends Coldchain2ModelWithTimestamp
         '2' => '报废',
     ];
 
+    const 状态禁用 = 0;
+    const 状态正常 = 1;
+    const 状态报废 = 2;
+    const STATUSES = [
+        self::状态禁用 => '禁用',
+        self::状态正常 => '正常',
+        self::状态报废 => '报废',
+    ];
+
+    const 离线预警关闭 = 0;
+    const 离线预警开启 = 1;
+    const OFFLINE_STATUS = [
+        self::离线预警关闭 => '关闭',
+        self::离线预警开启 => '开启',
+    ];
     const 预警状态_正常 = 0;
     const 预警状态_高温 = 1;
     const 预警状态_低温 = 2;
     const WARNING_TYPE = [
+        '0' => '正常',//正常
+        '1' => '高温',
+        '2' => '低温',
+//        '3'=>'高湿',
+//        '4'=>'低湿',
+//        '5'=>'断电',
+//        '6'=>'电压低',
+//        '7'=>'电压高',
+    ];
+
+    const 预警类型正常 = 0;
+    const 预警类型高温 = 1;
+    const 预警类型低温 = 2;
+    const 预警类型高湿 = 3;
+    const 预警类型低湿 = 4;
+    const 预警类型断电 = 5;
+    const 预警类型低电压 = 6;
+    const 预警类型高电压 = 7;
+
+
+    public static $warning_type = [
         '0' => '正常',//正常
         '1' => '高温',
         '2' => '低温',
@@ -112,6 +150,15 @@ class Collector extends Coldchain2ModelWithTimestamp
         return format_value($value);
     }
 
+    public function getWarningTypeAttr($value)
+    {
+        return self::$warning_type[$value];
+    }
+
+    public function getStatusAttr($value)
+    {
+        return self::STATUSES[$value];
+    }
     public function getUnnormalStatusAttribute()
     {
         if ($this->warning_status == 3) {
@@ -255,4 +302,105 @@ END$$;";
         return $list;
     }
 
+    public static function lists_warning_type()
+    {
+        return [
+            'list' => array2list(self::$warning_type),
+            'default' => array2keys(self::$warning_type) //所有状态
+        ];
+    }
+
+    function certifications()
+    {
+        return $this->hasManyThrough(Certification::class, CollectorHasCertification::class, 'collector_id', 'id', 'collector_id');
+    }
+
+    public function checkOfflineRate80($company_id = null)
+    {
+        if ($company_id == null) {
+            $query = $this->whereHas('cooler', function ($query) {
+                $query->where('status', '<>', Cooler::状态_备用);
+            })->whereNotIn('company_id', Company::getUnwatchIds())->where('status', 1)->selectRaw('"company_id" as object_key,company_id as object_value,concat(round(sum(IF(warning_status ="3", 1, 0))/count(collector_id),2)*100,\' % \') as result')->groupBy('company_id')->havingRaw('(sum(IF(warning_status ="3", 1, 0))/(count(collector_id)))>?', [0.8])->get();
+            return $query;
+        } else {
+            $query = $this->whereHas('cooler', function ($query) {
+                $query->where('status', '<>', Cooler::状态_备用);
+            })->where('status', 1)->selectRaw('"company_id" as object_key,company_id as object_value,concat(round(sum(IF(warning_status ="3", 1, 0))/count(collector_id),2)*100,\' % \') as result')->where('company_id', $company_id)->groupBy('company_id')->first();
+            return $query;
+        }
+
+    }
+
+//巡检报告-探头数量
+    public function getCollectorCount($company_id, $quarter = '')
+    {
+        $date = dateFormatByType($quarter);
+        $start=Carbon::createFromTimestamp($date['end'])->startOfDay()->timestamp;
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this
+            ->whereRaw('((uninstall_time = 0 ) or uninstall_time >' . $start . ') and (install_time is NULL or install_time=0 or  install_time <' . $date['end'] . ')')
+            ->whereIn('company_id', $company_ids)
+            ->count();
+    }
+
+    //巡检报告-监测设备维护统计表（新增）
+    public function getAddCollector($company_id, $quarter = '')
+    {
+        $date = dateFormatByType($quarter);
+        $company_ids = Company::find($company_id)->ids(0);
+        $bfIds=CollectorChangelog::where('change_option',0)->pluck('new_supplier_collector_id');
+        return $this
+            ->whereBetween('install_time', [$date['start'], $date['end']])
+            ->whereRaw('((install_time-uninstall_time)>0)')
+            ->whereIn('company_id', $company_ids)
+            ->whereNotIn('supplier_collector_id',$bfIds)
+            ->with(['company' => function ($query) {
+                $query->selectRaw('id,title');
+            },'cooler'=>function($query){
+                $query->selectRaw('cooler_id,cooler_sn');
+            }])
+            ->selectRaw('cooler_id,company_id,install_time,supplier_collector_id')
+            ->get()
+            ->toArray();
+    }
+
+    //巡检报告-启用冷链装备报警未开启清单
+    public function getWarningUnableCollector($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this->whereHas('warningSetting', function ($query) {
+            $query->where('status', '<>', 1)->orWhere('temp_warning', '<>', 1);
+        })->where('status', 1)
+            ->whereIn('company_id', $company_ids)
+            ->with(['company' => function ($query) {
+                $query->selectRaw('id,title');
+            },'cooler'=>function($query){
+                $query->selectRaw('cooler_id,cooler_name,cooler_sn,status');
+            }])
+            ->selectRaw('cooler_id,company_id,collector_name,supplier_collector_id')
+            ->get()
+            ->toArray();
+    }
+
+    //巡检报告-探头电压异常清单
+    public function getPowerUnusualCollector($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        $date = dateFormatByType($quarter);
+        $productmodel=new Product();
+        $prifix=$productmodel->getConnection()->getConfig('prefix');
+        return $this->join($productmodel->getTable(),function ($join) use ($productmodel){
+            $join->on($this->getTable().'.supplier_product_model','=',$productmodel->getTable().'.supplier_product_model');
+        })->whereRaw($prifix.$this->getTable().'.status=1 and volt>=0 and  (temp_type!=2 and volt <= '.$prifix.$productmodel->getTable().'.safe_collector_volt_low or (temp_type=2 and volt <= '.$prifix.$productmodel->getTable().'.cold_safe_collector_volt_low))')
+            ->whereIn('company_id',$company_ids)
+            ->with(['company'=>function($query){
+                $query->selectRaw('id,title');
+            },'cooler'=>function($query){
+                $query->selectRaw('cooler_id,cooler_sn');
+            }])
+            ->selectRaw('temp_type,company_id,cooler_id,supplier_collector_id,volt,'.$prifix.$productmodel->getTable().'.safe_collector_volt_low,'.$prifix.$productmodel->getTable().'.cold_safe_collector_volt_low')
+            ->get()
+            ->toArray();
+//            ->toSql();
+    }
 }

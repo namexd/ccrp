@@ -7,7 +7,12 @@ class CoolerDetail extends Coldchain2ModelWithTimestamp
 {
     protected $table = 'cooler_details';
 
-    protected $fillable = ['cooler_id','sys_id','value'];
+    protected $fillable =[
+        'cooler_id',
+        'company_id',
+        'sys_id',
+        'value',
+    ];
     function cooler()
     {
         return $this->belongsTo(Cooler::class,'cooler_id','cooler_id');

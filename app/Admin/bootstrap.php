@@ -18,4 +18,29 @@
  *
  */
 
+use Encore\Admin\Form;
+use Encore\Admin\Grid;
+use Encore\Admin\Show;
+
 Encore\Admin\Form::forget(['map', 'editor']);
+Form::init(function (Form $form) {
+    $form->tools(function (Form\Tools $tools) {
+        $tools->disableDelete();
+    });
+});
+Grid::init(function (Grid $grid) {
+    $grid->tools(function ($tools)   {
+        $tools->batch(function ($batch)  {
+            $batch->disableDelete();
+        });
+    });
+    $grid->actions(function ($actions) {
+        $actions->disableDelete();
+    });
+    $grid->fixColumns(0,-1);
+});
+Show::init(function(Show $show){
+    $show->panel()->tools(function ($tools) {
+        $tools->disableDelete();
+    });;
+});

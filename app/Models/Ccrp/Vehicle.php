@@ -196,4 +196,9 @@ class Vehicle extends Coldchain2Model
         return $value>0?Carbon::createFromTimestamp($value)->toDateTimeString():0;
     }
 
+    public function getCountByCompanyId($company_id,$quarter='')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return self::whereIn('company_id',$company_ids)->count();
+    }
 }

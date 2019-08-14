@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers\Ccrp;
 
+use App\Admin\Actions\Sender\AdminLogin;
+use App\Admin\Actions\Sender\LowerComputeInstruct;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Sender;
 use App\Http\Controllers\Controller;
@@ -20,7 +22,7 @@ class SendersController extends AdminController
 {
     use HasResourceActions;
 
-
+    protected $title = '主机(报警器)';
     /**
      * Make a grid builder.
      *
@@ -100,17 +102,14 @@ class SendersController extends AdminController
             ]);
 
         });
-        $grid->disableRowSelector();
         $grid->actions(function ($actions) {
             $actions->disableDelete();
             $actions->disableEdit();
-            $actions->append('<a target="_blank" href="'.route('ccrp.login',$actions->row->company_id).'"><i class="fa fa-laptop"></i></a>');
+            $actions->add(new AdminLogin());
             if (in_array($actions->row->supplier_model,Sender::LENGWANG_PRODUCT_MODEL)) {
-                $actions->append('<a target="_blank" href="' . route('ccrp.sender_instruct', $actions->row->id) . '"><i class="fa fa-cogs" title="下发指令"></i></a>');
+                $actions->add(new LowerComputeInstruct());
             }
-
         });
-        $grid->fixColumns(0, -1);
         return $grid;
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers\Ccrp;
 
+use App\Admin\Actions\Collector\AdminLogin;
 use App\Admin\Extensions\ExcelExpoter;
 use App\Admin\Extensions\Tools\UpdateField;
 use App\Models\Ccrp\Collector;
@@ -22,6 +23,7 @@ class CollectorsController extends AdminController
 {
     use HasResourceActions;
 
+    protected $title = '探头';
     /**
      * Make a grid builder.
      *
@@ -102,7 +104,7 @@ class CollectorsController extends AdminController
         $grid->actions(function ($actions) {
             $actions->disableDelete();
 //            $actions->disableEdit();
-            $actions->append('<a target="_blank" href="' . route('ccrp.login', $actions->row->company_id) . '"><i class="fa fa-laptop"></i></a>');
+            $actions->add(new AdminLogin());
 
         });
 

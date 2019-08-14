@@ -22,6 +22,24 @@ class SenderWarningSetting extends Coldchain2Model
         'status',
     ];
 
+    const 预警预警关闭 = 0;
+    const 预警预警开启 = 1;
+
+
+    const POWER_WARNING = [
+        self::预警预警关闭 => '关闭',
+        self::预警预警开启 => '开启',
+    ];
+    const STATUS = [
+        0 => '关闭',
+        1 => '开启',
+    ];
+
+    function company()
+    {
+        return $this->belongsTo(Company::class,'company_id');
+    }
+
     public function sender()
     {
         return $this->belongsTo(Sender::class, 'sender_id', 'sender_id');

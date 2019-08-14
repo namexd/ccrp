@@ -440,4 +440,113 @@ class  Cooler extends Coldchain2Model
             return $this->where('status','<>',4)->whereIn('company_id',$company_id)->whereIn('cooler_type', $cooler_type)->count();
 
     }
+
+    public function sysDetails()
+    {
+        return $this->hasManyThrough(\App\Models\Ccrp\Sys\SysCoolerDetail::class,'cooler_detail','cooler_id','sy_cooler_detail_id','id');
+    }
+
+
+    public function saveDetails($details = [])
+    {
+        if(count($details)>0)
+        {
+            $sysColumns = \App\Models\Ccrp\Sys\SysCoolerDetail::columns();
+            $cooler_id = $this->cooler_id;
+            $sysColumnsId = \App\Models\Ccrp\Sys\SysCoolerDetail::columns('id','slug');
+//            dd($details);
+            $data = array_intersect_key($details,$sysColumns);
+            $new_data = [];
+            foreach($data as $key => $datum)
+            {
+                if($datum and strlen($datum)>0)
+                {
+//                    $row = [
+//                        'cooler_id'=>$this->cooler_id,
+//                        'sys_id'=>$sysColumnsId[$key],
+//                        'value'=>$datum,
+//                    ];
+                    $detail = CoolerDetail::firstOrCreate(['cooler_id'=>$this->cooler_id,
+                        'sys_id'=>$sysColumnsId[$key]]);
+                    $detail->value = $datum;
+                    $new_data[] = $detail;
+                }
+            }
+            $rs = $this->details()->saveMany($new_data);
+        }
+    }
+
+
+    public function getStatusAttr($value)
+    {
+        return self::$status[$value];
+    }
+
+    public function getCoolerTypeAttr($value)
+    {
+        return self::$cooler_type[$value];
+    }
+
+
+    /**
+     * 联动下拉框数据
+     * @return array
+     */
+    public static function lists_status()
+    {
+        return [
+            'list' => array2list(self::$status),
+            'default' => array2keys(self::$status) //所有状态
+        ];
+
+    }
+
+
+    public function validate()
+    {
+        return $this->hasOne(CoolerValidate::class, 'cooler_id', 'cooler_id');
+    }
+
+//巡检报表-冷库类型
+    public function getCoolerByType($company_id, $quarter)
+    {
+        $date = dateFormatByType($quarter);
+        $start=Carbon::createFromTimestamp($date['end'])->startOfDay()->timestamp;
+        $company_ids = Company::find($company_id)->ids(0);
+        $coolers = $this->selectRaw('
+        sum(IF(cooler_type="5" or cooler_type="6",1,0)) as lk_count,
+        sum(IF(cooler_type!="5" and cooler_type!="6" and cooler_type!="101",1,0)) as bx_count,
+        sum(IF(cooler_type="101",1,0)) as lcc_count')
+            ->whereRaw('((uninstall_time = 0 ) or uninstall_time >' . $start . ') and (install_time is NULL or install_time=0 or  install_time <' . $date['end'] . ')')
+            ->whereIn('company_id', $company_ids)
+            ->first()
+            ->toArray();
+        return $coolers;
+    }
+
+    //巡检报表-冷链装备信息不规范清单
+    public function getUnCompleteCooler($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this
+            ->whereRaw("status!=4 and (length(cooler_sn)=0 or length(cooler_brand)=0 or length(cooler_model)=0 or (length(cooler_size)=0  and length(cooler_size2)=0) or length(cooler_starttime)=0 or is_medical=0)")
+            ->whereIn('company_id', $company_ids)
+            ->with(['company' => function ($query) {
+                $query->select('id', 'title');
+            }])->get()->toArray();
+    }
+//巡检报表-冷链装备状态清单
+    public function getUselessCooler($company_id, $quarter = '')
+    {
+        $date = dateFormatByType($quarter);
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this->selectRaw('company_id,cooler_name,cooler_sn,collector_num,status,uninstall_time')
+            ->whereRaw('status!=1 and (uninstall_time between ' . $date['start'] . ' and ' . $date['end'] . ')')
+            ->whereIn('company_id', $company_ids)
+            ->with(['company' => function ($query) {
+                $query->select('id', 'title');
+            }])->get()->toArray();
+
+    }
+
 }

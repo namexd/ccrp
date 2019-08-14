@@ -147,7 +147,6 @@ class CompaniesController extends Controller
         $grid->contacts('联系人')->count();
         $grid->company_type('单位类型')->using(Company::COMPANY_TYPE);
         $grid->actions(function ($actions) {
-            $actions->disableDelete();
             $actions->add(new AdminLogin());
             $actions->add(new Tool());
 

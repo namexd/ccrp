@@ -100,4 +100,32 @@ class WarningSetting extends Coldchain2Model
         }
         return   $save;
     }
+//巡检报告-预警信息不完整清单
+
+    public function getUnCompleteWarnings($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this->where(function ($query){
+            $query->whereDoesntHave('warninger')->orWhere(function ($query) {
+                $query->whereHas('company', function ($query) {
+                    $query->whereRaw('offline_send_type=99 and offline_send_warninger_id=0');
+                });
+            });
+        })->whereIn('company_id', $company_ids)
+            ->where('status',1)
+            ->with(['warninger'=>function($query){
+                $query->selectRaw('warninger_id,warninger_type');
+            },'company'=>function($query){
+                $query->selectRaw('id,offline_send_type,title,manager,offline_send_warninger_id');
+            },'collector'=>function($query){
+                $query->selectRaw('cooler_id,collector_id,supplier_collector_id');
+            },'collector.cooler'=>function($query){
+                $query->selectRaw('cooler_id,cooler_sn');
+            }])
+            ->selectRaw('company_id,warninger_id,collector_id')
+            ->get()
+            ->toArray();
+
+//            ->toSql();
+    }
 }

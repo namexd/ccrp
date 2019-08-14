@@ -42,7 +42,10 @@ class User extends Coldchain2Model
         }
         return '' === $str ? '' : md5(sha1($str) . $auth_key);
     }
-
+    public function newPassword($password)
+    {
+        return $this->user_md5($password);
+    }
     public function avatarImage()
     {
         return $this->hasOne(PublicUpload::class,'id','avatar');
@@ -50,5 +53,28 @@ class User extends Coldchain2Model
     public function setPasswordAttribute($value)
     {
         $this->attributes['password']=$this->user_md5($value);
+    }
+    public function addFromCompany($username,$password,$company,$level_type,$binding_domain)
+    {
+        $this->userlevel = 13;
+        $this->group = 0;
+        $this->score = 0;
+        $this->money = 0;
+        $this->last_login_ip = '0.0.0.0';
+        $this->reg_ip = '0.0.0.0';
+        $this->reg_type = 'username';
+        $this->ctime = time();
+        $this->utime = time();
+        $this->sort = 0;
+        $this->status = 1;
+        $this->company_id = 1;
+        $this->company = $company->title;
+        $this->company_id = $company->id;
+        $this->username = $username;
+        $this->password = $this->newPassword($password);
+        $this->userlevel = $level_type;
+        $this->binding_domain = $binding_domain;
+        $this->save();
+        return $this;
     }
 }

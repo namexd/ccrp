@@ -2,9 +2,15 @@
 
 namespace App\Models\Ccrp;
 
+use Encore\Admin\Traits\AdminBuilder;
+use Encore\Admin\Traits\ModelTree;
 
 class Area extends Coldchain2Model
 {
+
+    use AdminBuilder, ModelTree {
+        ModelTree::boot as treeBoot;
+    }
     protected $table = 'area';
     protected $fillable = [
         'id',
@@ -55,6 +61,27 @@ class Area extends Coldchain2Model
         $result = self::find($id);
         return strtolower($result['pinyin']);
 
+    }
+
+    public function parent()
+    {
+        return $this->hasOne(self::class,'id','parent_id');
+    }
+    function companies()
+    {
+        return $this->hasMany(Company::class,'region_code','id');
+    }
+    function adminCompany()
+    {
+        return $this->hasMany(Company::class,'region_code','id')->where('cdc_admin','=',1);
+    }
+
+    /**
+     * @return array
+     */
+    public function allNodes(): array
+    {
+        return static::with('adminCompany')->get()->toArray();
     }
 
 

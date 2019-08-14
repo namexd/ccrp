@@ -643,3 +643,31 @@ function format_time($value)
         return '-';
     }
 }
+
+function dateFormatByType($type=1,$extra='')
+{
+    $start=0;
+    $end=0;
+    switch ($type)
+    {
+        case 1:
+            $start=Carbon::now()->subMonth(1)->startOfMonth()->timestamp;
+            $end=Carbon::now()->subMonth(1)->endOfMonth()->timestamp;
+            break;
+        case 2:
+            $start= Carbon::now()->subQuarter(1)->startOfQuarter()->timestamp;
+            $end =Carbon::now()->subQuarter(1)->endOfQuarter()->timestamp;
+            break;
+        case 3:
+            $start=Carbon::now()->subYear(1)->startOfYear()->timestamp;
+            $end=Carbon::now()->subYear(1)->endOfYear()->timestamp;
+            break;
+        case 4:
+            $extra=explode('-',$extra);
+            $start=$extra[0];
+            $end=$extra[1];
+    }
+    $result['start']=$start;
+    $result['end']=$end;
+    return $result;
+}

@@ -70,4 +70,64 @@ class Sender extends Coldchain2Model
         return $data;
 
     }
+
+    public function category()
+    {
+        return $this->belongsTo(CoolerCategory::class);
+    }
+
+    public function warningSetting()
+    {
+        return $this->hasOne(SenderWarningSetting::class,'id','id');
+    }
+
+    public function checkWarningSetting()
+    {
+        $settings = self::where('status', 1)->doesntHave('warningSetting')->get();
+        $i = 1;
+        foreach ($settings as $setting) {
+            $i++;
+            dump($setting->toArray());
+        }
+        dd($i);
+
+    }
+
+    //巡检报告-启用冷链装备报警未开启清单
+    public function getWarningUnableSender($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this->where(function ($query) {
+            $query->whereHas('warningSetting', function ($query) {
+                $query->where('status', '<>', 1)->orWhere('power_warning', '<>', 1)->orWhere('warninger_id','<=',0);
+            })->orWhere(function ($query) {
+                $query->whereDoesntHave('warningSetting');
+            });
+        })
+            ->where('status', 1)
+            ->whereIn('company_id', $company_ids)
+            ->with(['company' => function ($query) {
+                $query->selectRaw('id,title');
+            }, 'warningSetting' => function ($query) {
+                $query->select('sender_id');
+            }])
+            ->selectRaw('id,company_id,sender_id,note')
+            ->get()
+            ->toArray();
+    }
+
+    //巡检报告-主机断电清单
+    public function getPowerOffSender($company_id, $quarter = '')
+    {
+        $company_ids = Company::find($company_id)->ids(0);
+        return $this->where('ischarging', 0)
+            ->where('status',1)
+            ->whereIn('company_id', $company_ids)
+            ->with(['company' => function ($query) {
+                $query->selectRaw('id,title');
+            }])
+            ->selectRaw('company_id,sender_id,note,ischarging_update_time')
+            ->get()
+            ->toArray();
+    }
 }

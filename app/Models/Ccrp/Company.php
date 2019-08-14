@@ -30,7 +30,7 @@ class Company extends Coldchain2Model
     protected $connection = 'dbyingyong';
     protected $table = 'user_company';
     protected $pk = 'id';
-    protected $fillable = ['id', 'title', 'short_title', 'office_title', 'custome_code', 'company_group', 'ctime', 'status', 'list_not_show', 'map_level', 'manager', 'email', 'phone', 'tel', 'address', 'map_title', 'address_lat', 'address_lon', 'username', 'password', 'pid', 'cdc_admin', 'cdc_level', 'cdc_map_level', 'area_level1_id', 'area_level2_id', 'area_level3_id', 'area_level4_id', 'company_type', 'sub_count', 'category_count', 'category_count_has_cooler', 'shebei_install', 'shebei_install_type1', 'shebei_install_type2', 'shebei_install_type3', 'shebei_install_type4', 'shebei_install_type5', 'shebei_install_type6', 'shebei_install_type7', 'shebei_install_type8', 'shebei_install_type100', 'shebei_install_type101', 'shebei_actived', 'shebei_actived_type1', 'shebei_actived_type2', 'shebei_actived_type3', 'shebei_actived_type4', 'shebei_actived_type5', 'shebei_actived_type6', 'shebei_actived_type7', 'shebei_actived_type8', 'shebei_actived_type100', 'shebei_actived_type101', 'shebei_vehicle', 'alerms_all', 'alerms_today', 'alerms_new', 'sort', 'region_code', 'region_name'];
+    protected $fillable = ['id', 'title', 'short_title', 'office_title', 'custome_code', 'company_group', 'ctime', 'status', 'list_not_show', 'map_level', 'manager', 'email', 'phone', 'tel', 'address', 'map_title', 'address_lat', 'address_lon', 'username', 'password', 'pid', 'cdc_admin', 'cdc_level', 'cdc_map_level', 'area_level1_id', 'area_level2_id', 'area_level3_id', 'area_level4_id', 'company_type', 'sub_count', 'category_count', 'category_count_has_cooler', 'shebei_install', 'shebei_install_type1', 'shebei_install_type2', 'shebei_install_type3', 'shebei_install_type4', 'shebei_install_type5', 'shebei_install_type6', 'shebei_install_type7', 'shebei_install_type8', 'shebei_install_type100', 'shebei_install_type101', 'shebei_actived', 'shebei_actived_type1', 'shebei_actived_type2', 'shebei_actived_type3', 'shebei_actived_type4', 'shebei_actived_type5', 'shebei_actived_type6', 'shebei_actived_type7', 'shebei_actived_type8', 'shebei_actived_type100', 'shebei_actived_type101', 'shebei_vehicle', 'alerms_all', 'alerms_today', 'alerms_new', 'sort', 'region_code', 'region_name', 'warninger_body_limit'];
 
     public function __construct(array $attributes = [])
     {
@@ -98,6 +98,12 @@ class Company extends Coldchain2Model
         6 => '犬伤门诊',
     ];
 
+    public static $offline_send_type=[
+        0=>'不报警',
+        1=>'负责人短信',
+        2=>'邮箱',
+        3=>'微信',
+    ];
     const 单位设置_可以添加仓位=17;
     const 单位设置_开启冰箱整体离线巡检=20;
     const 单位设置_开启室温人工签名=21;
@@ -162,21 +168,9 @@ class Company extends Coldchain2Model
         return $this->hasMany(Cooler::class, 'company_id', 'id');
     }
 
-    public function coolersUninstalled()
-    {
-        return $this->hasMany(Cooler::class, 'company_id', 'id')->where('status', '=', 4);
-    }
-
-    public function coolersOnline()
-    {
-        return $this->hasMany(Cooler::class, 'company_id', 'id')->where('status', '!=', 3)->where('status', '!=', 4)->where('collector_num', '>', 0)->orderBy('category_id', 'asc')->orderBy('cooler_name', 'asc');
-    }
-
     public function contacts()
     {
-        return $this->hasMany(Contact::class, 'company_id', 'id')->where([
-            'status' => ['eq', 1],
-        ]);
+        return $this->hasMany(Contact::class, 'company_id', 'id')->where('status', 1);
     }
 
     public function collectors()
@@ -186,7 +180,7 @@ class Company extends Coldchain2Model
 
     public function categories()
     {
-        return $this->hasOne(Category::class, 'id', 'company_type');
+        return $this->hasMany(Category::class, 'company_id', 'id')->field('id,title,company_id,cooler_count')->where(['cooler_count' => ['gt', 0]]);
     }
 
     public function users()
@@ -194,6 +188,32 @@ class Company extends Coldchain2Model
         return $this->hasMany(User::class, 'company_id', 'id');
     }
 
+//冷库数量
+    public function cooler_lk_count()
+    {
+        return $this->coolers->whereIn('cooler_type', [5, 6])->count();
+    }
+
+    //冰箱数量
+    public function cooler_bx_count()
+    {
+        return $this->coolers->whereNotIn('cooler_type', [5, 6, 101])->count();
+    }
+
+    public function collector_count()
+    {
+        return $this->collectors->count();
+    }
+
+    public function coolersUninstalled()
+    {
+        return $this->hasMany(Cooler::class, 'company_id', 'id')->where('status', '=', 4);
+    }
+
+    public function coolersOnline()
+    {
+        return $this->hasMany(Cooler::class, 'company_id', 'id')->where('status', '!=', 3)->where('status', '!=', 4)->where('collector_num', '>', 0)->orderBy('category_id', 'asc')->orderBy('cooler_name', 'asc');
+    }
     public function cooler_category()
     {
         return $this->hasMany(CoolerCategory::class, 'company_id', 'id');
@@ -866,5 +886,223 @@ class Company extends Coldchain2Model
     function tags()
     {
         return $this->belongsToMany(Tag::class, 'company_has_tags');
+    }
+    function getUseSettings($setting_id)
+    {
+        return CompanyUseSetting::where('setting_id', $setting_id)->where('company_id', $this->id)->first();
+    }
+
+    public function settingsName()
+    {
+        return $settings_name = Setting::all()->pluck('name','id');
+    }
+    /**
+     * 管理单位是否包项设置
+     * @param $setting_id
+     * @return mixed
+     */
+    function getHasSettings($setting_id)
+    {
+        return CompanyHasSetting::where('setting_id', $setting_id)->where('company_id', $this->id)->first();
+    }
+
+
+    function remindRules()
+    {
+        return $this->belongsToMany(RemindLoginRule::class, 'task_remind_login_company', 'company_id', 'rule_id');
+    }
+
+    /**
+     * 上级单位
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    function parent()
+    {
+        return $this->belongsTo(self::class, 'pid', 'id');
+    }
+
+    function area()
+    {
+        return $this->belongsTo(Area::class, 'region_code', 'id');
+    }
+
+    function functionManualRecords()
+    {
+        return $this->hasOne(CompanyHasFunction::class, 'company_id', 'id')->where('function_id', CompanyFunction::人工签名ID);
+    }
+
+
+    public function addNew($title, $short_title, $username, $password, $cdc_admin, $region_code, $region_name, $address, $map_level = 10, $company_group, $pid = 0, $address_lat, $address_lon, $cdc_level, $area_level1_id, $area_level2_id, $area_level3_id)
+    {
+        $this->title = $title;
+        $this->short_title = $short_title;
+        $this->username = $username;
+        $this->password = $password;
+        $this->cdc_admin = $cdc_admin;
+        $this->ctime = time();
+        $this->status = 1;
+        $this->region_code = $region_code;
+        $this->region_name = $region_name;
+        $this->address = $address;
+        $this->map_level = $map_level;
+        $this->company_group = $company_group;
+        $this->pid = $pid;
+        $this->address_lat = $address_lat;
+        $this->address_lon = $address_lon;
+        $this->area_fixed = 1;
+        $this->cdc_level = $cdc_level;
+        $this->area_level1_id = $area_level1_id;
+        $this->area_level2_id = $area_level2_id;
+        $this->area_level3_id = $area_level3_id;
+        $this->save();
+
+    }
+
+    public function addSubCdcCompany($area)
+    {
+        // 1. add company
+        $parent_company = $this;
+        $password = $area->pinyin . '123456';
+        if ($this->cdc_level >= 2) {
+            $company_name = $parent_company->title . $area->name;
+        } else {
+            $company_name = $area->name;
+        }
+        $username = $area->id . '000000';
+
+        if (!$new_company = self::where('title', $company_name)->first()) {
+            $area_level1_id = 0;
+            $area_level2_id = 0;
+            $area_level3_id = 0;
+            if (($parent_company->cdc_level + 1) >= 1)
+                $area_level1_id = intval(substr($area->id, 0, 2) . '0000');
+            if (($parent_company->cdc_level + 1) >= 2)
+                $area_level2_id = intval(substr($area->id, 0, 4) . '00');
+            if (($parent_company->cdc_level + 1) >= 3)
+                $area_level3_id = $area->id;
+            $new_company = new self;
+            $new_company->addNew(
+                $company_name,
+                $area->name,
+                $username,
+                $password,
+                1,
+                $area->id,
+                $area->name,
+                str_replace([',', '中国'], '', $area->merger_name),
+                $map_level = $area->level_type + 8,
+                $parent_company->company_group,
+                $parent_company->id,
+                $area->lat,
+                $area->lng,
+                $parent_company->cdc_level + 1,
+                $area_level1_id,
+                $area_level2_id,
+                $area_level3_id
+            );
+        }
+        $user = User::where('username', $username)->first();
+        if (count($user) == 0) {
+            //2. add User
+            $user = new User();
+            $user->addFromCompany($username, $password, $new_company, $area->level_type, $this->users[0]->binding_domain);
+        }
+        //3. add to Old Ucenter
+        if (0 == UcMember::where('nickname', $user->username)->count()) {
+            $uc_member = new UcMember();
+            $add_uc_member = $uc_member->addNew($user);
+        }
+        if (0 == UcUcenterMember::where('username', $user->username)->count()) {
+            $uc_ucenter_member = new UcUcenterMember();
+            $add_uc_ucenter_member = $uc_ucenter_member->addNew($user);
+        }
+        return $new_company;
+
+    }
+
+    static public function getUnwatchIds()
+    {
+        return self::whereHas('tags', function ($query) {
+            $query->where('slug', 'unwatch');
+        })->pluck('id');
+    }
+
+    public function stat_manage()
+    {
+        return $this->hasMany(StatMange::class,'company_id');
+    }
+
+    public function login_log()
+    {
+        return $this->hasMany(UserLoginLog::class,'company_id');
+    }
+
+    //巡检报表-子单位统计
+    public function getSubCompaniesById($company_id, $quarter = '')
+    {
+        $company = $this->find($company_id);
+        return $company->subCompaniesCount();
+    }
+
+    //巡检报表-单位信息不规范清单
+    public function getUnCompleteCompany($company_id, $quarter = '')
+    {
+        $company_ids = $this->find($company_id)->ids(0);
+        return $this->selectRaw('title,manager,phone,email,address')
+            ->where('status',1)
+            ->whereRaw('(length(title)=0 or length(manager)=0 or length(phone)=0 or length(address)=0)')
+            ->whereIn('id', $company_ids)
+            ->get()
+            ->toArray();
+    }
+    //巡检报表-平台登录及管理情况表
+
+    public function getLoginAndManage($company_id, $quarter = '')
+    {
+        $date = dateFormatByType($quarter);
+        $end=Carbon::createFromTimestamp($date['end']);
+        $start=Carbon::createFromTimestamp($date['start']);
+        $start_month=$start->firstOfMonth()->timestamp;
+        $end_month=$end->endOfMonth()->timestamp;
+        $totalDays= $end->diffInDays($start)+1;
+        $company_ids = $this->find($company_id)->ids(0);
+        return $this->whereIn('id',$company_ids)
+            ->with(['login_log'=>function($query) use($date){
+                $query->selectRaw('company_id,count(1) as login_times,
+                   sum(IF(type="1",1,0)) as pc_times,
+                   sum(IF(type!="1",1,0)) as wx_times')
+                    ->whereBetween('login_time',[$date['start'],$date['end']])->groupBy('company_id');
+            },'stat_manage'=>function($query) use($start_month,$end_month,$totalDays){
+                $query->selectRaw("company_id,($totalDays-CONVERT(sum(unlogintimes),SIGNED)) as correct,ROUND(avg(grade),2) as grade")
+                    ->whereRaw('(CONVERT((UNIX_TIMESTAMP(concat(year,"-",if(length(month)=1,concat(0,month),month),"-01"))),SIGNED) between '.$start_month.' and '.$end_month.')')
+                    ->groupBy('company_id');
+            }])
+            ->selectRaw('id,title')
+            ->get()
+            ->toArray();
+//              ->toSql();
+    }
+
+    //巡检报告-报警情况统计及分析表
+    public function getWarningAnalysis($company_id,$quarter)
+    {
+        $date = dateFormatByType($quarter);
+        $company_ids = $this->find($company_id)->ids(0);
+        return $this->with(['warning_sender_events' => function ($query) use ($date) {
+            $query->selectRaw('company_id,
+        SUM(IF(handled="0" AND warning_type = "0",1,0)) AS count_power_unhandled,
+        sum(IF(warning_type="0",1,0)) as count_power_off')
+                ->whereBetween('system_time', [$date['start'], $date['end']])->groupBy('company_id');
+        }, 'warning_events' => function ($query) use ($date) {
+            $query->selectRaw('company_id,
+        SUM(CASE WHEN `handled` = 0 THEN 1 ELSE 0 END ) AS count_temp_unhandled,
+        count(warning_type) as temp_count_all,
+        sum(IF(warning_type="1",1,0)) as temp_count_high,
+        sum(IF(warning_type="2",1,0)) as temp_count_low')
+                ->whereBetween('warning_event_time', [$date['start'], $date['end']])->groupBy('company_id');
+        }])->whereIn('id', $company_ids)
+            ->selectRaw('id,title')
+            ->get()
+            ->toArray();
     }
 }
