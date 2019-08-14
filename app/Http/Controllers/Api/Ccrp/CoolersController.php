@@ -34,12 +34,11 @@ class CoolersController extends Controller
     {
         $this->check();
         $coolers = $this->cooler->whereIn('company_id', $this->company_ids);
-        $status = request()->get('status')??'1';
-        if($status){
-            $coolers=$coolers->where('status', $status);
-        }else
-        {
-            $coolers=$coolers->where('status','<>',4);
+        $status = request()->get('status') ?? '1';
+        if ($status) {
+            $coolers = $coolers->where('status', $status);
+        } else {
+            $coolers = $coolers->where('status', '<>', 4);
         }
         if (request()->get('has_collector')) {
             $coolers = $coolers->where('collector_num', '>', 0);
@@ -50,13 +49,13 @@ class CoolersController extends Controller
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         $resp = $this->response->paginator($coolers, new CoolerTransformer());
-        if (request()->get('count')==1) {
+        if (request()->get('count') == 1) {
             $count = [
-                'cooler_lk_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_冷藏冷库, Cooler::设备类型_冷冻冷库],$status),
-                'cooler_bx_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_台式小冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱],$status),
+                'cooler_lk_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_冷藏冷库, Cooler::设备类型_冷冻冷库], $status),
+                'cooler_bx_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_台式小冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱], $status),
             ];
             $resp = $resp->addMeta('count', $count)
-                ->addMeta('vaccine_tags_count',VaccineTags::count());
+                ->addMeta('vaccine_tags_count', VaccineTags::count());
 
         }
         return $resp;
@@ -73,8 +72,8 @@ class CoolersController extends Controller
     public function show($cooler)
     {
         $this->check();
-        $cooler = $this->cooler->where(function ($query) use ($cooler){
-            $query->where('cooler_id',$cooler)->orWhere('cooler_sn',$cooler);
+        $cooler = $this->cooler->where(function ($query) use ($cooler) {
+            $query->where('cooler_id', $cooler)->orWhere('cooler_sn', $cooler);
         })->whereIn('company_id', $this->company_ids)->first();
         if ($cooler) {
             return $this->response->item($cooler, new CoolerTransformer());
@@ -142,51 +141,11 @@ class CoolersController extends Controller
     {
         $this->check();
         $this->authorize('unit_operate', $this->company);
-
         $cooler = $this->cooler->find($id);
         $status = $request->status;
-        $warning_set = $status == 1 ? 1 : 0;
+        $this->cooler->ChangeCoolerStatus($cooler, $status, $request->get('note'), $this->user->id);
+        return $this->response->item($cooler, new CoolerType100Transformer());
 
-        if ($cooler) {
-            $post['cooler_id'] = $cooler['cooler_id'];
-            $post['cooler_sn'] = $cooler['cooler_sn'];
-            $post['cooler_name'] = $cooler['cooler_name'];
-            $post['category_id'] = $cooler['category_id'];
-            $post['company_id'] = $cooler['company_id'];
-            $post['status'] = $status;
-            $post['note'] = $request->get('note');
-            $post['note_time'] = time();
-            $post['note_uid'] = $this->user->id;
-            //添加操作日志
-            $logmodel = CoolerLog::create($post);
-            $set['status'] = $status;
-
-            if ($logmodel) {
-                if ($status == Cooler::状态_报废) {
-                    $set['uninstall_time'] = time();
-                    $cooler->update($set);
-                    if ($cooler['collector_num'] > 0) {
-                        foreach ($cooler->collectors as $vo) {
-                            (new Collector)->uninstall($vo['collector_id'], '冷链装备报废');
-                        }
-                    }
-                } else {
-                    $cooler->update($set);
-                    $cooler->setWarningByStatus($warning_set);
-//                    $cooler->collectors()->update(['offline_check' => $warning_set]);
-//                    if ($cooler['collector_num'] > 0) {
-//                        foreach ($cooler->collectors as $vo) {
-//                            $vo->warningSetting()->update(['temp_warning' => $warning_set]);
-//
-//                        }
-//                    }
-                }
-
-                return $this->response->item($cooler, new CoolerType100Transformer());
-            } else {
-                return $this->response->errorInternal('操作失败');
-            }
-        }
     }
 
     public function coolerType()

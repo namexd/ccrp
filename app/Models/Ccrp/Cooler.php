@@ -2,12 +2,15 @@
 
 namespace App\Models\Ccrp;
 
+use App\Http\Requests\Api\Ccrp\Setting\CoolerStatusRequest;
+use App\Models\Ccrp\Reports\CoolerLog;
 use App\Models\Ccrp\Reports\StatCooler;
 use App\Models\Ccrp\Sys\SysCoolerDetail;
 use App\Models\Ccrp\Sys\SysCoolerPhoto;
 use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
+use App\Transformers\Ccrp\CoolerType100Transformer;
 use function App\Utils\time_clock;
 
 class  Cooler extends Coldchain2Model
@@ -439,5 +442,38 @@ class  Cooler extends Coldchain2Model
         else
             return $this->where('status','<>',4)->whereIn('company_id',$company_id)->whereIn('cooler_type', $cooler_type)->count();
 
+    }
+
+    //备用、维修、启用 关闭探头，关闭报警
+    public function ChangeCoolerStatus($cooler,$status,$note,$note_uid=0)
+    {
+            $post['cooler_id'] = $cooler['cooler_id'];
+            $post['cooler_sn'] = $cooler['cooler_sn'];
+            $post['cooler_name'] = $cooler['cooler_name'];
+            $post['category_id'] = $cooler['category_id'];
+            $post['company_id'] = $cooler['company_id'];
+            $post['status'] = $status;
+            $post['note'] =$note;
+            $post['note_time'] = time();
+            $post['note_uid'] = $note_uid;
+            //添加操作日志
+            $logmodel = CoolerLog::create($post);
+            $set['status'] = $status;
+            $warning_set = $status == 1 ? 1 : 0;
+            if ($logmodel) {
+                if ($status == Cooler::状态_报废) {
+                    $set['uninstall_time'] = time();
+                    $cooler->update($set);
+                    if ($cooler['collector_num'] > 0) {
+                        foreach ($cooler->collectors as $vo) {
+                            (new Collector)->uninstall($vo['collector_id'], '冷链装备报废');
+                        }
+                    }
+                } else {
+                    $cooler->update($set);
+                    $cooler->setWarningByStatus($warning_set);
+                }
+                return $cooler;
+        }
     }
 }

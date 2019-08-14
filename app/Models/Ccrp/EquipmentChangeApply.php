@@ -81,6 +81,10 @@ class EquipmentChangeApply extends Model
     {
         return $this->hasMany(EquipmentChangeNew::class, 'apply_id');
     }
+    public function contact()
+    {
+        return $this->hasOne(EquipmentChangeContact::class,'apply_id','id');
+    }
 
     public function user()
     {
@@ -104,11 +108,15 @@ class EquipmentChangeApply extends Model
                 if ($apply = self::create($attributes)) {
                     $details = json_decode($data['details'], true);
                     $news = json_decode($data['news'], true);
+                    $contact = json_decode($data['contact'], true);
                     if (is_array($details) && !is_null($details)) {
                         $apply->details()->createMany($details);
                     }
                     if (is_array($news) && !is_null($news) && array_get(array_first($news),'cooler_name')) {
                         $apply->news()->createMany($news);
+                    }
+                    if (is_array($contact) && !is_null($contact)) {
+                        $apply->contact()->create($contact);
                     }
                     return $apply;
                 }
