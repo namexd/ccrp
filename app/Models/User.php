@@ -58,4 +58,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserHasApp::class);
     }
+    public function weuser()
+    {
+        return $this->hasOne(Weuser::class);
+    }
+    public function roles() : BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_has_users', 'user_id', 'role_id');
+    }
+
+    public function permissions() : BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class, 'user_has_permissions', 'user_id', 'permission_id');
+    }
+
+    public function apps()
+    {
+        return $this->belongsToMany(App::class, 'user_has_apps', 'user_id', 'app_id');
+    }
 }

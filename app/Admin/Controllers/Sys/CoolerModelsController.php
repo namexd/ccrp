@@ -59,6 +59,7 @@ class CoolerModelsController extends AdminController
                 SysCoolerBrand::orderBy('popularity','desc')->pluck('name','id')
             );
         });
+        $grid->fixColumns(0, -1);
         return $grid;
     }
 

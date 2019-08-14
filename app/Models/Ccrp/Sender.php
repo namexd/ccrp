@@ -27,6 +27,15 @@ class Sender extends Coldchain2Model
         'uninstall_time',
         'update_time'
     ];
+    const LENGWANG_PRODUCT_MODEL = [
+        'LDH500',
+    ];
+    const SUPPLIER_PRODUCT_MODEL = [
+        'LDH500' => 'LDH500 一体机: 彩屏一体机',
+        'LWZST300' => 'LWZST300 一体机: 报警器一体机',
+        'LWZSR200' => 'LWZSR200 中继器: 中继器',
+        'LWZST300S' => 'LWZST300S 一体机: 本地报警一体机',
+    ];
 
     public function company()
     {

@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Models\Ccrp\Company;
+use Carbon\Carbon;
 
 function array_trim($arr, $trim = true)
 {
@@ -627,4 +628,18 @@ function sortArrByField(&$array, $field, $desc = false)
 
     array_multisort($fieldArr, $sort, $array);
 
+}
+
+function loginkey()
+{
+    return 'D17F6' . strtoupper(substr(md5(date('dmy')), 0, 8));
+}
+
+function format_time($value)
+{
+    if ($value) {
+        return Carbon::createFromTimestamp($value)->toDateTimeString();
+    } else {
+        return '-';
+    }
 }

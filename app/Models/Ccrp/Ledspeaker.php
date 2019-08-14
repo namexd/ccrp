@@ -63,7 +63,10 @@ class Ledspeaker extends Coldchain2Model
         return $data;
 
     }
-    public function create($attribute)
+    /**
+     * 上绑定
+     */
+    public function createBind($attribute)
     {
         $result=parent::create($attribute);
         if ($result) {
@@ -85,7 +88,10 @@ class Ledspeaker extends Coldchain2Model
         return $result;
     }
 
-    public function update(array $attributes = [], array $options = [])
+    /**
+     * 上绑定
+     */
+    public function updateBind(array $attributes = [], array $options = [])
     {
         $result= parent::update($attributes, $options);
         $self = $this->find($this->ledspeaker_id);

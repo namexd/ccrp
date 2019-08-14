@@ -862,4 +862,9 @@ class Company extends Coldchain2Model
     {
         return parent::update($attributes, $options);
     }
+
+    function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'company_has_tags');
+    }
 }
