@@ -39,6 +39,9 @@ class CoolerBrandsController extends AdminController
             $filter->equal('name', '品牌名称');
         });
         $grid->fixColumns(0, -1);
+        $grid->actions(function($actions){
+            $actions->disableDelete(false);
+        });
         return $grid;
     }
 

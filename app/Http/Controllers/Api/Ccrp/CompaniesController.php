@@ -50,6 +50,7 @@ class CompaniesController extends Controller
             $companies=$companies->where('title','like','%'.$keyword.'%');
         }
         if (!$this->company->isProvinceCdc() and isset($request->hidden) and $request->hidden == 'admin') {
+            $this->pagesize=1000;
             $companies->where('cdc_admin', 0);
         } elseif ($this->company->isProvinceCdc()) {
             $companies->where('cdc_admin', 1);
@@ -250,7 +251,7 @@ class CompaniesController extends Controller
         $result = $this->model->create($request->all());
         return $this->response->item($result, new CompanyListTransformer())->setStatusCode(201);
     }
-    
+
     public function update($id,CompanySettingRequest $request)
     {
         $this->check();

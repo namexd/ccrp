@@ -60,6 +60,9 @@ class CoolerModelsController extends AdminController
             );
         });
         $grid->fixColumns(0, -1);
+        $grid->actions(function($actions){
+            $actions->disableDelete(false);
+        });
         return $grid;
     }
 
