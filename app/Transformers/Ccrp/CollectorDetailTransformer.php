@@ -29,6 +29,8 @@ class CollectorDetailTransformer extends TransformerAbstract
             'cooler_name' => $collector->cooler_name,
             'company_id' => $collector->company_id,
             'company' => $collector->company->title,
+            'map_lat' => $collector->map_lat,
+            'map_lon' => $collector->map_lon,
             'map_address' => $collector->map_address,
             'status' => $collector->status,
             'refresh_time' => $collector->refresh_time>0?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():0,

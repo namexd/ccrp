@@ -30,6 +30,9 @@ class EquipmentContactTransformer extends TransformerAbstract
 
     public function includeWarninger(EquipmentChangeContact $contact)
     {
+        if ($contact->warninger)
         return $this->item($contact->warninger,new WarningerTransformer());
+        else
+            return $this->null();
     }
 }
