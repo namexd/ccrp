@@ -5,9 +5,7 @@ namespace App\Transformers\Ccrp;
 use App\Models\Ccrp\Cooler;
 use App\Transformers\Ccrp\Reports\StatCoolerTransformer;
 use Carbon\Carbon;
-use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
-use phpDocumentor\Reflection\Types\This;
 
 class CoolerTransformer extends TransformerAbstract
 {

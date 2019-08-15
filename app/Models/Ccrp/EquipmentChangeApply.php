@@ -149,9 +149,12 @@ class EquipmentChangeApply extends Model
     {
         $k = 0;
         foreach (self::CHANGE_TYPE as $key => $value) {
-            $result[$k]['key'] = $key;
-            $result[$k]['value'] = $value;
-            $k++;
+            if ($key!==self::改温度区间)
+            {
+                $result[$k]['key'] = $key;
+                $result[$k]['value'] = $value;
+                $k++;
+            }
         }
         return $result;
     }

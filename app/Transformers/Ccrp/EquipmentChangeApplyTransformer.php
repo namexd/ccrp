@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 
 class EquipmentChangeApplyTransformer extends TransformerAbstract
 {
-    protected $availableIncludes = ['details'];
+    protected $availableIncludes = ['details','contact'];
 
     public function transform(EquipmentChangeApply $apply)
     {
@@ -40,6 +40,13 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
     public function includeDetails(EquipmentChangeApply $apply)
     {
         return $this->collection($apply->details, new EquipmentChangeDetailTransformer());
+    }
+    public function includeContact(EquipmentChangeApply $apply)
+    {
+        if ($apply->contact)
+        return $this->item($apply->contact, new ContactTransformer());
+        else
+            return $this->null();
     }
     public function getHandler($handler)
     {

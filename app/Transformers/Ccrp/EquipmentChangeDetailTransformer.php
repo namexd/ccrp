@@ -20,7 +20,7 @@ class EquipmentChangeDetailTransformer extends TransformerAbstract
             'apply_id' => $detail->apply_id,
             'cooler_id' => $detail->cooler_id,
             'change_type' => $detail->change_type,
-            'change_type_name' => EquipmentChangeApply::CHANGE_TYPE[$detail->change_type],
+            'change_type_name' =>array_has( EquipmentChangeApply::CHANGE_TYPE,$detail->change_type)?EquipmentChangeApply::CHANGE_TYPE[$detail->change_type]:'未知',
             'reason' => $detail->reason,
         ];
         return $rs;

@@ -8,13 +8,13 @@ class MonthRequest extends Request
     public function rules()
     {
         return [
-            'month'=>'required|date_format:Y-m'
+//            'month'=>'required|date_format:Y-m'
         ];
     }
     public function attributes()
     {
         return [
-            'month' => '月份',
+//            'month' => '月份',
         ];
     }
 }

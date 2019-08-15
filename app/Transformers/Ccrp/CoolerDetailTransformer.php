@@ -2,11 +2,7 @@
 
 namespace App\Transformers\Ccrp;
 
-use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\CoolerDetail;
-use App\Transformers\Ccrp\Reports\StatCoolerTransformer;
-use Carbon\Carbon;
-use League\Fractal\Resource\Item;
 use League\Fractal\TransformerAbstract;
 
 class CoolerDetailTransformer extends TransformerAbstract
