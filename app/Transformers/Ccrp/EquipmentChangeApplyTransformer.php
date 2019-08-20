@@ -3,6 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\EquipmentChangeApply;
+use App\Models\Ccrp\EquipmentChangeContact;
 use App\Models\User;
 use App\Models\UserHasApp;
 use League\Fractal\TransformerAbstract;
@@ -44,7 +45,7 @@ class EquipmentChangeApplyTransformer extends TransformerAbstract
     public function includeContact(EquipmentChangeApply $apply)
     {
         if ($apply->contact)
-        return $this->item($apply->contact, new ContactTransformer());
+        return $this->item($apply->contact, new EquipmentContactTransformer());
         else
             return $this->null();
     }

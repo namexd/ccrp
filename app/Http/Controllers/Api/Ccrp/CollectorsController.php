@@ -12,6 +12,7 @@ use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\DataHistory;
 use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\Product;
+use App\Models\Ccrp\Sender;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Traits\ControllerDataRange;
@@ -133,18 +134,15 @@ class CollectorsController extends Controller
         if ($request['supplier_product_model'] == 'LWYL201') {
             $request['offline_check'] = 0;
         }
-        if ($offline_span=$this->company->hasSettings()->where('setting_id',Company::单位设置_离线报警时长)->first())
-        {
-            $request['offline_span']=$offline_span->value;
+        if ($offline_span = $this->company->hasSettings()->where('setting_id', Company::单位设置_离线报警时长)->first()) {
+            $request['offline_span'] = $offline_span->value;
 
-        }elseif($offline_span=CompanyHasSetting::query()->where('setting_id',Company::单位设置_离线报警时长)->whereIn('company_id',$this->company->getParentIds())->first())
-        {
-            $request['offline_span']=$offline_span->value;
+        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getParentIds())->first()) {
+            $request['offline_span'] = $offline_span->value;
 
-        }else
-        {
-            $offline_span=Setting::find(Company::单位设置_离线报警时长);
-            $request['offline_span']=$offline_span->value;
+        } else {
+            $offline_span = Setting::find(Company::单位设置_离线报警时长);
+            $request['offline_span'] = $offline_span->value;
 
         }
         $result = $this->collector->create($request->all());
@@ -237,10 +235,10 @@ class CollectorsController extends Controller
 
         $collectors = $collectors
             ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $Dccharging = new Dccharging();
+        $sender = new Sender();
         foreach ($collectors as &$collector) {
-            $DC = $Dccharging->select(['ram_count'])->where('sender_id', $collector['supplier_collector_id'])->orderBy('data_id', 'desc')->first();
-            $collector['power'] = $DC['ram_count'];
+            $DC = $sender->select(['ram_count'])->where('sender_id', $collector['supplier_collector_id'])->first();
+            $collector['power'] = $DC ? $DC['ram_count'] : '';
             $collector['power'] = to_dianliang($collector['power']);
             $collector['temp'] = to_wendu($collector['temp'] + $collector['temp_fix']);
             $collector['humi'] = to_shidu($collector['humi']);
@@ -314,22 +312,13 @@ class CollectorsController extends Controller
     {
         $url = 'http://dd.coldyun.com/lbs/multi';
         $rs_obj = array();
-        $collector = D('collector')->where(array('supplier_collector_id' => $sender_id, 'status' => 1))->first();
-        $where = [['isadd' => 0], ['lac1', '<>', 0]];
-        $table = '"senderlbs".'.'"'.abs2($collector['supplier_id']).'_'.$collector['supplier_collector_id'].'"';
+        $collector = $this->collector->where(array('supplier_collector_id' => $sender_id, 'status' => 1))->first();
+        $sensor_id = abs2($collector['supplier_id']).'_'.$collector['supplier_collector_id'];
+        $table = "senderlbs.".$sensor_id;
         $model = new DataHistory();
         $model->setTable($table);
-        if (isset($map['id'])) {
-            $where = array_merge($map, $where);
-            $data = $model->where($where)->first();
-            $httparr = array('sensor' => $sender_id, 'time' => $data['sender_trans_time']);
-        } elseif (isset($map['sender_trans_time'])) {
-            $httparr = array('sensor' => $sender_id, 'time' => $map['sender_trans_time']);
-        } else {
-            $data = $model->where($where)->first();
-            $httparr = array('sensor' => $sender_id, 'time' => $data['sender_trans_time']);
-        }
-
+        $data = $model->where(['isadd' => 0], ['lac1', '<>', 0])->first();
+        $httparr = array('sensor' => $sender_id, 'time' => $data['sender_trans_time']);
         $http = $this->http('GET', $url, $httparr);
         $rs = json_decode($http, true);
         $arr = $rs[0];

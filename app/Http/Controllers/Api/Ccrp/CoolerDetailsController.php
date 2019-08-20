@@ -6,6 +6,7 @@ use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\CoolerDetail;
 use App\Models\Ccrp\Sys\SysCoolerDetail;
 use App\Transformers\Ccrp\Sys\CoolerDetailTransformer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Manager;
@@ -53,11 +54,20 @@ class CoolerDetailsController extends Controller
         $details=is_array($details)?$details:json_decode($details,true);
         foreach ($details as $detail)
         {
+            $value=$detail['value'];
             $search=[
                 'cooler_id'=>$cooler_id,
                 'sys_id'=>$detail['sys_id'],
             ];
-            $attribute=['value'=>$detail['value']];
+            if ($detail['sys_id']==19)
+            {
+                $value=($this->userinfo)['realname'];
+            }
+            if ($detail['sys_id']==20)
+            {
+                $value=Carbon::now()->toDateTimeString();
+            }
+            $attribute=['value'=>$value];
             $result[]=$this->model->updateOrCreate($search,$attribute);
         }
         return $this->response->array($result);
@@ -73,9 +83,17 @@ class CoolerDetailsController extends Controller
         $details=$this->model->where('cooler_id',$cooler->cooler_id)->get();
         $fractal = new Manager();
         $sys_details=new Collection(SysCoolerDetail::whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->get(),new CoolerDetailTransformer());
-        $array = $fractal->createData($sys_details)->toArray();
+        $arrays = $fractal->createData($sys_details)->toArray();
+        $new_array=[];
+        foreach ($arrays['data'] as $key=> $array )
+        {
+            if (strlen($array['note'])==0||in_array($cooler->cooler_type,explode(',',$array['note'])))
+            {
+                $new_array[]=$array;
+            }
+        }
         return $this->response->collection($details,new \App\Transformers\Ccrp\CoolerDetailTransformer())
-            ->addMeta('sys_details',$array);
+            ->addMeta('sys_details',$new_array);
     }
 
 

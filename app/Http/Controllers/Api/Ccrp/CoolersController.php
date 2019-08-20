@@ -169,11 +169,11 @@ class CoolersController extends Controller
     {
         $cooler = $this->cooler->find($id);
         $tags = request()->get('tags');
-        if ($cooler->company->hasUseSettings(Company::单位设置_可以添加仓位, 1)) {
+//        if ($cooler->company->hasUseSettings(Company::单位设置_可以添加仓位, 1)) {
             $cooler->vaccine_tags()->sync($tags);
             return $this->response->noContent();
-        } else {
-            return $this->response->errorMethodNotAllowed('该单位没有权限');
-        }
+//        } else {
+//            return $this->response->errorMethodNotAllowed('该单位没有权限');
+//        }
     }
 }
