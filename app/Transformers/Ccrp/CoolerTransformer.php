@@ -63,7 +63,7 @@ class CoolerTransformer extends TransformerAbstract
 
     public function includeVaccineTags(Cooler $cooler)
     {
-        if ($tag_id=request()->get('tag_id'))
+        if ($tag_id=request()->get('code'))
         {
             $vaccine_tags=$cooler->vaccine_tags()->where('tag_id',$tag_id)->get();
         }else
