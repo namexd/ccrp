@@ -92,6 +92,8 @@ Route::group([
         $router->get('warning_settings/check_temp/cool_range/{setting}/{company}', 'WarningSettingsController@checkTempCoolRange')->name('ccrp.warning_settings.check_temp.cool_range');
         // 单位个性化设置检测：冷冻探头上下限
         $router->get('warning_settings/check_temp/cold_range/{setting}/{company}', 'WarningSettingsController@checkTempColdRange')->name('ccrp.warning_settings.check_temp.cold_range');
+        // 单位个性化设置检测：探头温度报警批量开启关闭
+        $router->get('warning_settings/check_temp_warning/{setting}/{company}', 'WarningSettingsController@checkTempWarning')->name('ccrp.warning_settings.check_temp_warning');
         // 单位个性化设置检测：设置延迟时间
         $router->get('sender_warning_settings/check_warning_last/{setting}/{company}', 'SenderWarningSettingsController@checkWarningLast')->name('ccrp.sender_warning_settings.check_warning_last');
         // 单位个性化设置检测：冷冻探头上限设置

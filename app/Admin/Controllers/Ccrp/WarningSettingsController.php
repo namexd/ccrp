@@ -3,10 +3,12 @@
 namespace App\Admin\Controllers\Ccrp;
 
 use App\Admin\Extensions\Tools\UpdateField;
+use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\WarningSetting;
 use App\Http\Controllers\Controller;
+use function App\Utils\format_time;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -521,5 +523,63 @@ class WarningSettingsController extends Controller
             $item->{$field} = $value;
             $item->save();
         }
+    }
+
+    protected function checkTempWarning(Setting $setting, Company $company, Content $content)
+    {
+        $diy = $company->getHasSettings($setting->id);
+        $value = $diy->value ?? $setting->value;
+        $grid = new Grid(new WarningSetting());
+        $grid->model()
+            ->whereIn('company_id', $company->ids())
+            ->where('status', WarningSetting::预警开启);
+        if($value==0)
+        {
+            $grid->model()->where('temp_warning',1);
+        }else{
+            $grid->model()->where('temp_warning',0);
+        };
+        $grid->model()->orderBy('company_id', 'asc');
+
+        $grid->id('Id');
+        $grid->collector()->collector_id('Collector id');
+        $grid->company()->title('单位名称');
+        $grid->collector()->cooler_name('冰箱名称');
+        $grid->collector()->collector_name('探头名称');
+        $grid->collector()->supplier_collector_id('探头编号');
+        $grid->warninger_id('报警通道');
+        $grid->status('报警设置状态')->display(function($value){return $value?'正常':'关闭';});
+        $grid->temp_warning('温度报警')->display(function($value){return $value?'开启':'关闭';});
+        $grid->collector()->temp('温度');
+        $grid->collector()->humi('湿度');
+        $grid->collector()->rssi('信号');
+        $grid->collector()->refresh_time('更新时间')->display(function ($value) {
+            return format_time($value);
+        });
+        $grid->collector()->sinstall_time('安装时间')->display(function ($value) {
+            return format_time($value);
+        });
+        $grid->collector()->status('探头状态')->using(Collector::STATUSES);
+        $grid->disableCreateButton();
+
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+            $actions->disableDelete();
+            $actions->disableEdit();
+
+        });
+
+
+        $grid->tools(function ($tools) use ($value,$setting) {
+            $tools->batch(function ($batch) use ($value,$setting ) {
+                $batch->disableDelete();
+                $batch->add($setting->name . '：' . ($value==1?"开启":"关闭") . '', new UpdateField(route('ccrp.warning_settings.update_field'), 'temp_warning', $value));
+            });
+        });
+
+        return $content
+            ->header($company->title . ' 的所有探头（'.($value==1?"未":"").'开启超温预警的）')
+            ->description('不包含报废的')
+            ->body($grid);
     }
 }
