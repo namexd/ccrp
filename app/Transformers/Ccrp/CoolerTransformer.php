@@ -3,6 +3,7 @@
 namespace App\Transformers\Ccrp;
 
 use App\Models\Ccrp\Cooler;
+use App\Models\Ccrp\VaccineTags;
 use App\Transformers\Ccrp\Reports\StatCoolerTransformer;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
@@ -63,13 +64,8 @@ class CoolerTransformer extends TransformerAbstract
 
     public function includeVaccineTags(Cooler $cooler)
     {
-        if ($tag_id=request()->get('tag_id'))
-        {
-            $vaccine_tags=$cooler->vaccine_tags()->where('tag_id',$tag_id)->get();
-        }else
-        {
-            $vaccine_tags=$cooler->vaccine_tags;
-        }
+
+        $vaccine_tags=$cooler->vaccine_tags;
         return $this->collection($vaccine_tags,new VaccineTagTransformer());
     }
     public function includeDetails(Cooler $cooler)

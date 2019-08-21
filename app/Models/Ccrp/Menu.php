@@ -2,7 +2,6 @@
 
 namespace App\Models\Ccrp;
 
-//use App\Traits\SysTree;
 use Encore\Admin\Traits\AdminBuilder;
 use Encore\Admin\Traits\ModelTree;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,6 +24,7 @@ class Menu extends Coldchain2Model
      * @var array
      */
     protected $fillable = ['pid', 'order', 'title', 'types', 'slug', 'icon', 'icon_img', 'uri', 'permission'];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Ccrp\Setting\CoolerStatusRequest;
 use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\Cooler;
+use App\Models\Ccrp\CoolerHasVaccineTags;
 use App\Models\Ccrp\Product;
 use App\Models\Ccrp\Reports\CoolerLog;
 use App\Models\Ccrp\Sys\SysCoolerType;
@@ -44,8 +45,25 @@ class CoolersController extends Controller
             $coolers = $coolers->where('collector_num', '>', 0);
         }
         if ($keyword = request()->get('keyword')) {
-            $coolers = $coolers->where('cooler_name', 'like', '%'.$keyword.'%')->orWhere('cooler_sn', 'like', '%'.$keyword.'%');
+            $coolers = $coolers->where(function ($query) use ($keyword) {
+                $query->where('cooler_name', 'like', '%'.$keyword.'%')->orWhere('cooler_sn', 'like', '%'.$keyword.'%');
+            });
         }
+
+        if ($code = request()->get('code')) {
+            $coolers = $coolers->where(function ($query) use ($code) {
+                $query->where('cooler_id', $code)->orWhere('cooler_sn', $code)->orWhereHas('vaccine_tags', function ($q) use ($code) {
+                    $q->where('code', $code)->orWhere('tag_id', $code);
+                });
+            });
+
+        }
+        $vaccine_tags_cooler = $coolers->pluck('cooler_id');
+        $vaccine_tags_count = CoolerHasVaccineTags::whereIn('cooler_id', $vaccine_tags_cooler);
+        if ($vaccine_tag = VaccineTags::query()->where('code', $code)->orWhere('id', $code)->first()) {
+            $vaccine_tags_count = $vaccine_tags_count->where('tag_id', $vaccine_tag->id);
+        }
+        $vaccine_tags_count = $vaccine_tags_count->count();
         $coolers = $coolers->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         $resp = $this->response->paginator($coolers, new CoolerTransformer());
@@ -55,7 +73,7 @@ class CoolersController extends Controller
                 'cooler_bx_count' => $this->cooler->getCoolerCountByCoolerType($this->company_ids, [Cooler::设备类型_台式小冰箱, Cooler::设备类型_普通冰箱, Cooler::设备类型_冷藏冰箱, Cooler::设备类型_冷冻冰箱], $status),
             ];
             $resp = $resp->addMeta('count', $count)
-                ->addMeta('vaccine_tags_count', VaccineTags::count());
+                ->addMeta('vaccine_tags_count', $vaccine_tags_count);
 
         }
         return $resp;
@@ -170,8 +188,8 @@ class CoolersController extends Controller
         $cooler = $this->cooler->find($id);
         $tags = request()->get('tags');
 //        if ($cooler->company->hasUseSettings(Company::单位设置_可以添加仓位, 1)) {
-            $cooler->vaccine_tags()->sync($tags);
-            return $this->response->noContent();
+        $cooler->vaccine_tags()->sync($tags);
+        return $this->response->noContent();
 //        } else {
 //            return $this->response->errorMethodNotAllowed('该单位没有权限');
 //        }

@@ -89,7 +89,7 @@ class CoolerDetailsController extends Controller
         {
             if (strlen($array['note'])==0||in_array($cooler->cooler_type,explode(',',$array['note'])))
             {
-                $new_array[]=$array;
+                $new_array['data'][]=$array;
             }
         }
         return $this->response->collection($details,new \App\Transformers\Ccrp\CoolerDetailTransformer())
