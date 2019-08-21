@@ -150,6 +150,7 @@ Route::group([
         $router->get('equipment_change_applies/create', 'EquipmentChangeApplyController@create')->name('equipment_change_apply.create');
         $router->post('equipment_change_applies/batch', 'EquipmentChangeApplyController@batch');
         $router->resource('equipment_change_applies', EquipmentChangeApplyController::class);
+        $router->resource('menus', MenusController::class);
 
 
     });
