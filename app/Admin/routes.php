@@ -14,7 +14,7 @@ Route::group([
     $router->resource('sys-cooler-brands', Sys\CoolerBrandsController::class);
     $router->resource('sys-cooler-models', Sys\CoolerModelsController::class);
     $router->resource('task-remind-login-tasks', Reports\TaskRemindLoginTasksController::class);
-
+    $router->post('sys-cooler-models/image/upload', 'Sys\CoolerModelsController@upload');
     //ucenter
     $router->resource('ucenter/users', UsersController::class);
     $router->resource('ucenter/roles', RolesController::class);
