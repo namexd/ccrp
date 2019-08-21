@@ -149,7 +149,7 @@ class  Cooler extends Coldchain2Model
     //疫苗标签
     public function vaccine_tags()
     {
-        return $this->belongsToMany(VaccineTags::class,'cooler_has_vaccine_tags','cooler_id','tag_id')->orderBy('category')->orderBy('id');
+        return $this->belongsToMany(VaccineTags::class,'cooler_has_vaccine_tags','cooler_id','tag_id')->orderBy('category')->orderBy('id')->withPivot(['inventory_quantity','inventory_at']);
     }
     public function details()
     {
