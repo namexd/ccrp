@@ -25,7 +25,7 @@ class MenusController extends Controller
             + array_flip($companyMenu)
             + array_flip($roleMenu)
             + array_flip($userMenu));
-        $menus = Menu::whereIn('id', $combine_menus)->whereRaw('length(slug)>0')->pluck('slug');
+        $menus = Menu::whereIn('id', $combine_menus)->where('status',1)->whereRaw('length(slug)>0')->pluck('slug');
         return $this->response->array($menus);
 
     }
