@@ -9,6 +9,8 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use GuzzleHttp\Client;
+use function App\Utils\microservice_access_encode;
 
 class CoolerModelsController extends AdminController
 {
@@ -33,24 +35,32 @@ class CoolerModelsController extends AdminController
         $grid->column('name', __('Name'));
         $grid->column('type_id', __('Type id'));
         $grid->column('brand_id', __('Brand id'));
-        $grid->column('description', __('Description'));
-        $grid->column('power', __('Power'));
+        $grid->column('description', __('Description'))->hide();
+        $grid->column('power', __('Power'))->display(function($power) {
+            return str_limit($power, 15, '...');
+        });
         $grid->column('weight', __('Weight'));
         $grid->column('specifications', __('Specifications'));
         $grid->column('cool_volume', __('Cool volume'));
         $grid->column('cold_volume', __('Cold volume'));
         $grid->column('whole_volume', __('Whole volume'));
         $grid->column('is_medical', __('Is medical'));
-        $grid->column('product_date', __('Product date'));
+        $grid->column('product_date', __('Product date'))->hide();
         $grid->column('body_type', __('Body type'));
-        $grid->column('medical_licence', __('Medical licence'));
-        $grid->column('picture', __('Picture'));
-        $grid->column('temperature', __('Temperature'));
+        $grid->column('medical_licence', __('Medical licence'))->display(function($medical_licence) {
+            return str_limit($medical_licence, 15, '...');
+        });
+        $grid->column('picture', __('Picture'))->display(function($picture) {
+            return str_limit($picture, 8, '...');
+        });
+        $grid->column('temperature', __('Temperature'))->display(function($temperature) {
+            return str_limit($temperature, 10, '...');
+        });
         $grid->column('comment', __('Comment'));
         $grid->column('warmarea_count', __('Warmarea count'));
         $grid->column('popularity', __('Popularity'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('created_at', __('Created at'))->hide();
+        $grid->column('updated_at', __('Updated at'))->hide();
 
         $grid->filter(function ($filter) {
 //            $filter->disableIdFilter();
@@ -125,12 +135,43 @@ class CoolerModelsController extends AdminController
         $form->date('product_date', __('Product date'))->default(date('Y-m-d'));
         $form->text('body_type', __('Body type'));
         $form->text('medical_licence', __('Medical licence'));
-        $form->image('picture', __('Picture'));
+        $form->hidden('picture', __('Picture'));
+        $form->display('图片')->with(function () {
+            $picture = $this->picture;
+            return view('admin.topic_images', ['picture' => $picture])->render();
+        });
         $form->text('temperature', __('Temperature'));
         $form->text('comment', __('Comment'));
         $form->text('warmarea_count', __('Warmarea count'));
         $form->number('popularity', __('Popularity'));
 
         return $form;
+    }
+
+    public function upload()
+    {
+        if ($file = request()->file('zzz')) {
+            $guzzle = new Client();
+            $appkey = 'MICROSERVICE_TOPIC';
+            $appsecret = '4C81FBF908AB0C8EEA9';
+            $access = microservice_access_encode($appkey, $appsecret, []);
+            $response = $guzzle->post('http://file-ms.coldyun.net/api/upload',
+                [
+                    'multipart' => [
+                        [
+                            'name' => 'action',
+                            'contents' => 'test'
+                        ],
+                        [
+                            'name' => 'file',
+                            'contents' => fopen($file->getRealPath(), 'r')
+                        ],
+                    ],
+                    'headers' => ['access' => $access]
+                ]
+            );
+            return json_decode($response->getBody()->getContents())->url;
+        }
+        return '请选择图片';
     }
 }

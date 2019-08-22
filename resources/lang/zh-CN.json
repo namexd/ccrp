@@ -48,5 +48,15 @@
   "Description": "描述",
   "Picture": "图片",
   "Is medical": "是否医用",
-  "Other": "其他"
+  "Other": "其他",
+  "Weight": "重量",
+  "Specifications":"规格",
+  "Cool volume": "冷藏容积",
+  "Cold volume": "冷冻容积",
+  "Whole volume": "总容积",
+  "Temperature": "温度",
+  "Body type": "柜体",
+  "Comment": "备注",
+  "Warmarea count": "温区",
+  "Popularity": "热度"
 }

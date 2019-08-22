@@ -285,6 +285,14 @@ class CoolersController extends Controller
                     "value" => "description"
                 ];
         }
+        if ($item->picture) {
+            $info["picture"] = $item->picture;
+            $info["meta"]["columns"][] =
+                [
+                    "label" => "图片",
+                    "value" => "picture"
+                ];
+        }
 
         return $this->response->array($info);
     }

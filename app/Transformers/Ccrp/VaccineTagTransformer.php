@@ -23,6 +23,11 @@ class VaccineTagTransformer extends TransformerAbstract
             'ctime'=>$tags->ctime,
             'status'=>$tags->status,
         ];
+        //临时演示作用 2019年08月21日 Liu
+        if(request()->route()->getAction()['as']=='api.ccrp.coolers.show' and $tags->pivot and $tags->pivot->inventory_quantity)
+        {
+            $arr['name'] .= '【'.$tags->pivot->inventory_quantity.'】';
+        }
         return $arr;
     }
 }

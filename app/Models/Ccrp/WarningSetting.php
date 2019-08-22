@@ -36,6 +36,19 @@ class WarningSetting extends Coldchain2Model
         'note',
     ];
 
+    const 温度预警关闭 = 0;
+    const 温度预警开启 = 1;
+    const TEMP_WARNING = [
+        self::温度预警关闭 => '关闭',
+        self::温度预警开启 => '开启',
+    ];
+    const 预警关闭 = 0;
+    const 预警开启 = 1;
+    const STATUS = [
+        self::预警关闭 => '关闭',
+        self::预警开启 => '开启',
+    ];
+
     public function collector()
     {
         return $this->belongsTo(Collector::class, 'collector_id', 'collector_id');
@@ -46,6 +59,10 @@ class WarningSetting extends Coldchain2Model
         return $this->belongsTo(Warninger::class, 'warninger_id', 'warninger_id');
     }
 
+    function company()
+    {
+        return $this->belongsTo(Company::class,'company_id');
+    }
    const WARNING_TIME = [
         'WARNING_TIME_LAST' => array(
             '1' => 30,
