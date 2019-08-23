@@ -193,6 +193,8 @@ $api->version('v1', [
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
 
+            $api->post('users/login','UsersController@login')->name('api.ccrp.users.login');
+
             //CCrp数据报表
             $api->group([
                 'namespace' => 'Reports',
