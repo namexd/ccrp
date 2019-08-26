@@ -108,6 +108,7 @@ $api->version('v1', [
             $api->get('coolers/{cooler}/history', 'CoolersController@history')->name('api.ccrp.coolers.history');
             $api->post('coolers/{cooler}/gsp_history', 'CoolersController@gspHistory')->name('api.ccrp.coolers.gspHistory');
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
+            $api->get('coolers/{id}/gsp_warning_off', 'CoolersController@gspWarningOff')->name('api.ccrp.coolers.gspWarningOff');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
             $api->get('sys/cooler_type', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
             $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');

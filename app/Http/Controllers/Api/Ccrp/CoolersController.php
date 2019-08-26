@@ -149,6 +149,12 @@ class CoolersController extends Controller
     {
         $this->check();
         $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_type', $type);
+        if ($keyword = request()->get('keyword')) {
+            $coolers = $coolers->where('cooler_sn', 'like', '%'.$keyword.'%')->whereOr('cooler_name', 'like', '%'.$keyword.'%');
+        }
+        if ($category_id = request()->get('category_id')) {
+            $coolers = $coolers->where('category_id', $category_id);
+        }
         $coolers = $coolers->with(['category', 'collectors'])
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate($this->pagesize);
         return $this->response->paginator($coolers, new CoolerType100Transformer());
@@ -190,9 +196,18 @@ class CoolersController extends Controller
         $this->authorize('unit_operate', $this->company);
         $cooler = $this->cooler->find($id);
         $status = $request->status;
-        $this->cooler->ChangeCoolerStatus($cooler, $status, $request->get('note'), $this->user->id);
+        $this->cooler->ChangeCoolerStatus($cooler, $status, $request->get('note',''), $this->user->id);
         return $this->response->item($cooler, new CoolerType100Transformer());
 
+    }
+
+    public function gspWarningOff($id)
+    {
+        $this->check();
+        $this->authorize('unit_operate', $this->company);
+        $cooler = $this->cooler->findOrFail($id);
+        $cooler->setWarningByStatus(0);
+        return $this->response->item($cooler, new CoolerType100Transformer());
     }
 
     public function coolerType()
