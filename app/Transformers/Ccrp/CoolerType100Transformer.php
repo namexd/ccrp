@@ -23,7 +23,7 @@ class CoolerType100Transformer extends TransformerAbstract
 
     public function includeCollectors(Cooler $cooler)
     {
-        return $this->collection($cooler->collectorsOnline, new CollectorIncludeTransformer());
+        return $this->collection($cooler->collectorsOnline, new CollectorDetailTransformer());
     }
 
 }
