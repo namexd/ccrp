@@ -117,12 +117,13 @@ class Sender extends Coldchain2Model
     }
 
     //巡检报告-主机断电清单
-    public function getPowerOffSender($company_id, $quarter = '')
+    public function getPowerOffSender($company_id, $date = '')
     {
         $company_ids = Company::find($company_id)->ids(0);
         return $this->where('ischarging', 0)
             ->where('status',1)
             ->whereIn('company_id', $company_ids)
+            ->whereBetween('ischarging_update_time',$date)
             ->with(['company' => function ($query) {
                 $query->selectRaw('id,title');
             }])

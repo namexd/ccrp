@@ -12,6 +12,7 @@ use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
 use App\Transformers\Ccrp\CoolerType100Transformer;
 use function App\Utils\time_clock;
+use Carbon\Carbon;
 
 class  Cooler extends Coldchain2Model
 {
@@ -511,9 +512,9 @@ class  Cooler extends Coldchain2Model
     }
 
 //巡检报表-冷库类型
-    public function getCoolerByType($company_id, $quarter)
+    public function getCoolerByType($company_id, $date)
     {
-        $date = dateFormatByType($quarter);
+
         $start=Carbon::createFromTimestamp($date['end'])->startOfDay()->timestamp;
         $company_ids = Company::find($company_id)->ids(0);
         $coolers = $this->selectRaw('
@@ -528,7 +529,7 @@ class  Cooler extends Coldchain2Model
     }
 
     //巡检报表-冷链装备信息不规范清单
-    public function getUnCompleteCooler($company_id, $quarter = '')
+    public function getUnCompleteCooler($company_id, $date = '')
     {
         $company_ids = Company::find($company_id)->ids(0);
         return $this
@@ -539,9 +540,9 @@ class  Cooler extends Coldchain2Model
             }])->get()->toArray();
     }
 //巡检报表-冷链装备状态清单
-    public function getUselessCooler($company_id, $quarter = '')
+    public function getUselessCooler($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = Company::find($company_id)->ids(0);
         return $this->selectRaw('company_id,cooler_name,cooler_sn,collector_num,status,uninstall_time')
             ->whereRaw('status!=1 and (uninstall_time between ' . $date['start'] . ' and ' . $date['end'] . ')')

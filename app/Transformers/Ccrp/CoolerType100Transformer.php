@@ -13,10 +13,10 @@ class CoolerType100Transformer extends TransformerAbstract
     {
         $arr = [
             'id' => $cooler->cooler_id,
-            'category' => $cooler->cooler_category->title,
+            'category' => $cooler->cooler_category ? $cooler->cooler_category->title : '',
             'cooler_name' => $cooler->cooler_name,
-            'cooler_type' =>$cooler->cooler_type!=0? Cooler::COOLER_TYPE[$cooler->cooler_type]:'未知',
-            'status' =>$cooler->status!=0?Cooler::$status[$cooler->status]:'未知',
+            'cooler_type' => $cooler->cooler_type ? Cooler::COOLER_TYPE[$cooler->cooler_type] : '未知',
+            'status' => $cooler->status ? Cooler::$status[$cooler->status] : '未知',
         ];
         return $arr;
     }

@@ -1047,14 +1047,14 @@ class Company extends Coldchain2Model
     }
 
     //巡检报表-子单位统计
-    public function getSubCompaniesById($company_id, $quarter = '')
+    public function getSubCompaniesById($company_id, $date = '')
     {
         $company = $this->find($company_id);
         return $company->subCompaniesCount();
     }
 
     //巡检报表-单位信息不规范清单
-    public function getUnCompleteCompany($company_id, $quarter = '')
+    public function getUnCompleteCompany($company_id, $date = '')
     {
         $company_ids = $this->find($company_id)->ids(0);
         return $this->selectRaw('title,manager,phone,email,address')
@@ -1066,9 +1066,9 @@ class Company extends Coldchain2Model
     }
     //巡检报表-平台登录及管理情况表
 
-    public function getLoginAndManage($company_id, $quarter = '')
+    public function getLoginAndManage($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $end=Carbon::createFromTimestamp($date['end']);
         $start=Carbon::createFromTimestamp($date['start']);
         $start_month=$start->firstOfMonth()->timestamp;
@@ -1093,9 +1093,9 @@ class Company extends Coldchain2Model
     }
 
     //巡检报告-报警情况统计及分析表
-    public function getWarningAnalysis($company_id,$quarter)
+    public function getWarningAnalysis($company_id,$date)
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = $this->find($company_id)->ids(0);
         return $this->with(['warning_sender_events' => function ($query) use ($date) {
             $query->selectRaw('company_id,
