@@ -152,6 +152,8 @@ Route::group([
         $router->resource('equipment_change_applies', EquipmentChangeApplyController::class);
         $router->resource('menus', MenusController::class);
 
+        $router->resource('employees', EmployeesController::class);
+
 
     });
 });
