@@ -4,6 +4,7 @@ namespace App\Utils;
 
 use App\Models\Ccrp\Company;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 function array_trim($arr, $trim = true)
 {
@@ -663,9 +664,10 @@ function dateFormatByType($type=1,$extra='')
             $end=Carbon::now()->subYear(1)->endOfYear()->timestamp;
             break;
         case 4:
-            $extra=explode('-',$extra);
-            $start=$extra[0];
-            $end=$extra[1];
+            $extra=explode('&',$extra);
+            Log::info($extra);
+            $start=Carbon::createFromTimestamp(strtotime($extra[0]))->startOfDay()->timestamp;
+            $end=Carbon::createFromTimestamp(strtotime($extra[1]))->startOfDay()->timestamp;
     }
     $result['start']=$start;
     $result['end']=$end;

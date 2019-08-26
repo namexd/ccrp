@@ -39,9 +39,9 @@ class CollectorChangeLog extends Coldchain2Model
         return $this->belongsTo(Cooler::class,'cooler_id','cooler_id');
     }
     //巡检报告-监测设备维护统计表（报废）
-    public function getUselessCollector($company_id, $quarter = '')
+    public function getUselessCollector($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = Company::find($company_id)->ids(0);
         $bfIds=$this->where('change_option',0)->pluck('supplier_collector_id');
         return $this->where('change_option', 1)
@@ -58,9 +58,9 @@ class CollectorChangeLog extends Coldchain2Model
             ->toArray();
     }
     //巡检报告-监测设备维护统计表（更换）
-    public function getChangeCollector($company_id, $quarter = '')
+    public function getChangeCollector($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = Company::find($company_id)->ids(0);
         return $this->where('change_option', 0)
             ->whereBetween('change_time', [$date['start'], $date['end']])

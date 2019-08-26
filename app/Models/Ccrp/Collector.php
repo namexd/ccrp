@@ -332,9 +332,9 @@ END$$;";
     }
 
 //巡检报告-探头数量
-    public function getCollectorCount($company_id, $quarter = '')
+    public function getCollectorCount($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $start=Carbon::createFromTimestamp($date['end'])->startOfDay()->timestamp;
         $company_ids = Company::find($company_id)->ids(0);
         return $this
@@ -344,9 +344,9 @@ END$$;";
     }
 
     //巡检报告-监测设备维护统计表（新增）
-    public function getAddCollector($company_id, $quarter = '')
+    public function getAddCollector($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = Company::find($company_id)->ids(0);
         $bfIds=CollectorChangelog::where('change_option',0)->pluck('new_supplier_collector_id');
         return $this
@@ -365,7 +365,7 @@ END$$;";
     }
 
     //巡检报告-启用冷链装备报警未开启清单
-    public function getWarningUnableCollector($company_id, $quarter = '')
+    public function getWarningUnableCollector($company_id, $date = '')
     {
         $company_ids = Company::find($company_id)->ids(0);
         return $this->whereHas('warningSetting', function ($query) {
@@ -383,10 +383,10 @@ END$$;";
     }
 
     //巡检报告-探头电压异常清单
-    public function getPowerUnusualCollector($company_id, $quarter = '')
+    public function getPowerUnusualCollector($company_id, $date = '')
     {
         $company_ids = Company::find($company_id)->ids(0);
-        $date = dateFormatByType($quarter);
+
         $productmodel=new Product();
         $prifix=$productmodel->getConnection()->getConfig('prefix');
         return $this->join($productmodel->getTable(),function ($join) use ($productmodel){

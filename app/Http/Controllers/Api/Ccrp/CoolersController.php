@@ -116,10 +116,10 @@ class CoolersController extends Controller
         }
     }
 
-    public function coolerType100()
+    public function getCoolerByType($type)
     {
         $this->check();
-        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_type', 100);
+        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_type', $type);
         $coolers = $coolers->with(['category', 'collectors'])
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate($this->pagesize);
         return $this->response->paginator($coolers, new CoolerType100Transformer());
