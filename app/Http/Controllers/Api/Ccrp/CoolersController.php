@@ -16,6 +16,7 @@ use App\Transformers\Ccrp\CoolerHistoryTransformer;
 use App\Transformers\Ccrp\CoolerTransformer;
 use App\Transformers\Ccrp\CoolerType100Transformer;
 use App\Transformers\Ccrp\Sys\CoolerTypeTransformer;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
@@ -107,13 +108,41 @@ class CoolersController extends Controller
         $end = request()->end ?? date('Y-m-d 23:59:59', strtotime($start));
         $start_time = strtotime($start);
         $end_time = strtotime($end);
-        $cooler = $this->cooler->whereIn('company_id', $this->company_ids)->with('collectors')->find($cooler);
+        $cooler = $this->cooler->with('collectors')->find($cooler);
         if ($cooler) {
             $data = $cooler->history($start_time, $end_time);
             return $this->response->item($data, new CoolerHistoryTransformer());
         } else {
             return $this->response->noContent();
         }
+    }
+
+    public function gspHistory($cooler_id, Request $request)
+    {
+        $this->check();
+        $todayTime = Carbon::now()->startOfDay()->timestamp;
+        $start = $request->start ? strtotime($request->start) : $todayTime;
+        $end = $request->end ? strtotime($request->end) : ($todayTime + 3600 * 24 - 1);
+        $collector_ids = $request->get('collector_ids', null);
+        $spacing_time = $request->get('spacing_time', 0);
+
+        if (is_string($collector_ids)) {
+            $collector_ids = json_decode($collector_ids, true);
+        } else {
+            $collector_ids = null;
+        }
+        $model = $this->cooler;
+        $cooler = $model->find($cooler_id);
+        if ($cooler['install_time'] > $start)
+            $start = $cooler['install_time'];
+
+        if($spacing_time>0)
+        {
+            $gspHistory = $model->spacingHistory($cooler,$start,$end,$collector_ids,$spacing_time);
+        }else{
+            $gspHistory = $model->gspHistory($cooler,$start,$end,$collector_ids);
+        }
+        return $this->response->array(['data' => $gspHistory]);
     }
 
     public function getCoolerByType($type)

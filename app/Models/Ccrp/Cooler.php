@@ -11,8 +11,10 @@ use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
 use App\Transformers\Ccrp\CoolerType100Transformer;
+use function App\Utils\abs2;
 use function App\Utils\time_clock;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class  Cooler extends Coldchain2Model
 {
@@ -197,6 +199,193 @@ class  Cooler extends Coldchain2Model
         }
 
         return $cooler;
+    }
+    public function gspHistory($cooler, $start, $end,$collectors=null)
+    {
+
+        $_string = '(uninstall_time = 0 or uninstall_time >' . $start . ') and ( install_time <' . $end . ')';
+        //间隔取数
+        if($collectors==null)
+        {
+            $collectors = Collector::query()->where('cooler_id', $cooler['cooler_id'])->whereRaw($_string)->get()->toArray();
+        }else{
+            $collectors = Collector::query()->whereIn('collector_id',$collectors)->get()->toArray();
+        }
+
+        if ($cooler['install_time'] > $start) {
+            $start = $cooler['install_time'];
+        }
+
+        $_start = $start;
+        $_end = $end;
+
+        $time_array = array();
+        $pgModel=new DataHistory();
+        foreach ($collectors as &$collector) {
+            $_data = array();
+            if ($collector['install_time'] > $_start) {
+                $_start = $cooler['install_time'];
+            }
+
+            $sensor_id = strval(abs2($collector['supplier_collector_id']));
+
+            $check = "select to_regclass('sensor.idx_sensor_".$sensor_id."_collect_time');";
+            $rs = \DB::connection('dbhistory')->select($check);
+            if($rs and $rs[0]->to_regclass == null)
+            {
+
+                $update_index = "DO $$
+BEGIN
+IF to_regclass('sensor.idx_sensor_".$sensor_id."_collect_time') IS NULL THEN
+    CREATE INDEX idx_sensor_".$sensor_id."_collect_time ON \"sensor\".\"".$sensor_id."\" (sensor_collect_time);
+END IF;
+END$$;";
+                $rs =\DB::connection('dbhistory')->select($update_index);
+            }
+            $table = "sensor." . $sensor_id;
+            $pgModel = $pgModel->setTable($table);
+            $collector_data = $pgModel->selectRaw('temp,humi,sensor_collect_time')->where([
+                ['sensor_collect_time','>',$_start],
+                ['sensor_collect_time','<',$_end]
+            ])->orderBy('sensor_collect_time')->get()->toArray();
+            //temp_fix 温度偏移修正
+            foreach ($collector_data as &$vo) {
+                $vo['temp'] += $collector['temp_fix'];
+                $_data[$vo['sensor_collect_time']] = $vo;
+                if (!in_array($vo['sensor_collect_time'], $time_array) and (0+date('s',$vo['sensor_collect_time']))==0) {
+                    $time_array[] = $vo['sensor_collect_time'];
+                }
+            }
+            $collector['data'] = $_data;//数据数量
+            $collector['data_count'] = count($collector_data);//数据数量
+            unset($data);
+            unset($_data);
+
+        }
+
+        $step = 5;
+        $warning_step = 2;
+        $current = $last = $time_array[0];
+        $is_warning = false;
+        $left = 0; //余数
+        unset($collector);
+        foreach ($time_array as $key => &$time) {
+            $current = $time;
+            foreach ($collectors as $collector) {
+                if (array_has($collector['data'],$time))
+                {
+                    $temp = $collector['data'][$time]['temp'];
+                    if ($temp <= 2 or $temp >= 8) {
+                        $is_warning = true;
+                        $left = ($left + 1) % 2;
+                        continue;
+                    } else {
+                        $is_warning = false;
+                        continue;
+                    }
+                }
+
+            }
+            unset($collector);
+            if ($is_warning == false) {
+                if ($current-$last<($step*60)) {
+                    unset($time_array[$key]);
+                    foreach($collectors as $k=>$collector)
+                    {
+                        unset($collectors[$k]['data'][$time]);
+                    }
+                    unset($k);
+                    continue;
+                } else {
+                    $last = $current;
+                }
+            } else {
+                if ($current-$last<($warning_step*60)) {
+                    unset($time_array[$key]);
+                    foreach($collectors as $k=>$collector)
+                    {
+                        unset($collectors[$k]['data'][$time]);
+                    }
+                    unset($k);
+                    continue;
+                } else {
+                    $last = $current;
+                }
+            }
+        }
+        unset($key);
+
+        return array('times' => array_values($time_array), 'collectors' => $collectors);
+    }
+    public function spacingHistory($cooler, $start, $end,$collectors=null,$spacing=5)
+    {
+
+        $_string = '(uninstall_time = 0 or uninstall_time >' . $start . ') and ( install_time <' . $end . ')';
+        //间隔取数
+        if($collectors==null)
+        {
+            $collectors = Collector::query()->where('cooler_id', $cooler['cooler_id'])->whereRaw($_string)->get()->toArray();
+        }else{
+            $collectors = Collector::query()->whereIn('collector_id',$collectors)->get()->toArray();
+        }
+
+        if ($cooler['install_time'] > $start) {
+            $start = $cooler['install_time'];
+        }
+
+        $_start = $start;
+        $_end = $end;
+
+        $time_array = array();
+        $pgModel=new DataHistory();
+        foreach ($collectors as &$collector) {
+            $_data = array();
+            if ($collector['install_time'] > $_start) {
+                $_start = $cooler['install_time'];
+            }
+            $sensor_id = strval(abs2($collector['supplier_collector_id']));
+            $table = "sensor." . $sensor_id;
+            $pgModel = $pgModel->setTable($table);
+            $collector_data = $pgModel->selectRaw('temp,humi,sensor_collect_time')->where([
+                ['sensor_collect_time','>',$_start],
+                ['sensor_collect_time','<',$_end]
+            ])->orderBy('sensor_collect_time')->get()->toArray();
+
+            //temp_fix 温度偏移修正
+            foreach ($collector_data as &$vo) {
+                $vo['temp'] += $collector['temp_fix'];
+                $_data[$vo['sensor_collect_time']] = $vo;
+                if (!in_array($vo['sensor_collect_time'], $time_array) and (0+date('s',$vo['sensor_collect_time']))==0) {
+                    $time_array[] = $vo['sensor_collect_time'];
+                }
+            }
+            $collector['data'] = $_data;//数据数量
+            $collector['data_count'] = count($collector_data);//数据数量
+            unset($data);
+            unset($_data);
+
+        }
+
+        $step = $spacing;
+        $current = $last = $time_array[0];
+        unset($collector);
+        foreach ($time_array as $key => &$time) {
+            $current = $time;
+            if ($current-$last<($step*60)) {
+                unset($time_array[$key]);
+                foreach($collectors as $k=>$collector)
+                {
+                    unset($collectors[$k]['data'][$time]);
+                }
+                unset($k);
+                continue;
+            } else {
+                $last = $current;
+            }
+        }
+        unset($key);
+
+        return array('times' => array_values($time_array), 'collectors' => $collectors);
     }
 
     function sensors()
