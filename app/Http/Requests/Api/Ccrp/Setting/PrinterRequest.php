@@ -12,7 +12,6 @@ class PrinterRequest extends Request
             'printer_sn'=>'required',
             'printer_key'=>'required',
             'printer_name'=>'required',
-            'vehicle'=>'required',
         ];
     }
     public function attributes()

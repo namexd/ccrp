@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\Ccrp;
 use App\Extensions\Feie\PrinterAPI;
 use App\Http\Requests\Api\Ccrp\Setting\PrinterRequest;
 use App\Models\Ccrp\Collector;
+use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\Printer;
 use App\Models\Ccrp\Vehicle;
 use App\Models\Ccrp\PrinterTemplate;
 use App\Transformers\Ccrp\PrinterTransformer;
+use Illuminate\Http\Request;
 
 
 class PrintersController extends Controller
@@ -125,7 +127,7 @@ class PrintersController extends Controller
        }
     }
 
-    public function printTemp(PrinterRequest $request, Vehicle $vehicleModel, Collector $collectorModel, PrinterTemplate $printTemplate)
+    public function printTemp(Request $request, Vehicle $vehicleModel, Collector $collectorModel, PrinterTemplate $printTemplate)
     {
         $this->check();
         if ($request->has('start') and $request->has('end')) {
@@ -143,6 +145,26 @@ class PrintersController extends Controller
             $collector = $collectorModel->find($request->collector_id);
             $lists = $collector->history(strtotime($start), strtotime($end))->toArray();
             $title = $collector->supplier_collector_id;
+        }
+        if ($collector_ids=$request->get('collector_ids')) {
+            $start=strtotime($start);
+            $end=strtotime($end);
+            if (is_string($collector_ids))
+            {
+                $collector_ids=json_decode($collector_ids,true);
+            }
+            $model = new Cooler();
+            $cooler = $model->find($request->cooler_id);
+            if ($cooler['install_time'] > $start)
+                $start = $cooler['install_time'];
+            $spacing_time=$request->spacing_time??0;
+            if($spacing_time>0)
+            {
+                $lists = $model->spacingHistory($cooler,$start,$end,$collector_ids,$spacing_time);
+            }else{
+                $lists = $model->gspHistory($cooler,$start,$end,$collector_ids);
+            }
+            $title = $cooler->cooler_name;
         }
         $subtitle = $request->subtitle ?? null;
         $summary = $request->summary ?? '';

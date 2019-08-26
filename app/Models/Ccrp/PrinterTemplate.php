@@ -31,6 +31,9 @@ class PrinterTemplate extends Coldchain2Model
                 case 'collector':
                     $result = $this->collector_print_data_format($title, $datas, $subtitle, $summary);
                     break;
+                case 'gsp':
+                    $result = $this->gsp_print_data_format($title, $datas, $subtitle, $summary);
+                    break;
 
             }
         }
@@ -82,6 +85,36 @@ class PrinterTemplate extends Coldchain2Model
         return $orderInfo;
     }
 
+    private function gsp_print_data_format($title, $datas, $subtitle = NULL, $summary = '')
+    {
+        if ($subtitle and gettype($subtitle) == 'string') {
+            $orderInfo = '<CB>'.$title.'</CB><BR>';
+            $orderInfo .= $subtitle.'<BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        } else {
+            $orderInfo = '<CB>'.$title.'</CB><BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        }
+
+        if ($summary != '') {
+            $orderInfo .= $summary;
+            $orderInfo .= '<BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        }
+
+        $orderInfo .= $this->gsp_datas($datas);
+
+        $orderInfo .= '--------------------------------<BR>';
+        $orderInfo .= '打印时间：'.date('Y-m-d H:i:s').'<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= '签字________________________<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= ' 技术支持电话：400-681-5218<BR>';
+        $orderInfo .= '　上海冷王智能科技有限公司';
+        return $orderInfo;
+    }
+
     private function collector_print_data_format($title, $datas, $subtitle, $summary)
     {
         if ($subtitle and gettype($subtitle) == 'string') {
@@ -117,7 +150,37 @@ class PrinterTemplate extends Coldchain2Model
     private function vehicle_print_data_format_no_time($title, $datas)
     {
         $orderInfo = '<CB>'.$title.'</CB><BR>';
-        $orderInfo .=$this->vehicle_datas($datas);
+        $orderInfo .= $this->vehicle_datas($datas);
+        $orderInfo .= '--------------------------------<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= '签字________________________<BR>';
+        $orderInfo .= '<BR>';
+        $orderInfo .= ' 技术支持电话：400-681-5218<BR>';
+        $orderInfo .= '　上海冷王智能科技有限公司';
+        return $orderInfo;
+    }
+
+    private function gsp_print_data_format_no_time($title, $datas, $subtitle = NULL, $summary = '')
+    {
+        if ($subtitle and gettype($subtitle) == 'string') {
+            $orderInfo = '<CB>'.$title.'</CB><BR>';
+            $orderInfo .= $subtitle.'<BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        } else {
+            $orderInfo = '<CB>'.$title.'</CB><BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        }
+
+        if ($summary != '') {
+            $orderInfo .= $summary;
+            $orderInfo .= '<BR>';
+            $orderInfo .= '--------------------------------<BR>';
+        }
+
+
+        $orderInfo .= $this->gsp_datas($datas);
+
         $orderInfo .= '--------------------------------<BR>';
         $orderInfo .= '<BR>';
         $orderInfo .= '<BR>';
@@ -147,7 +210,7 @@ class PrinterTemplate extends Coldchain2Model
             $orderInfo .= '--------------------------------<BR>';
         }
 
-        $orderInfo .=$this->collector_datas($datas);
+        $orderInfo .= $this->collector_datas($datas);
 
         $orderInfo .= '--------------------------------<BR>';
 
@@ -175,7 +238,7 @@ class PrinterTemplate extends Coldchain2Model
             $orderInfo .= '--------------------------------<BR>';
         }
 
-        $orderInfo .=$this->vehicle_datas($datas);
+        $orderInfo .= $this->vehicle_datas($datas);
         $orderInfo .= '--------------------------------<BR>';
         $orderInfo .= '接收单位:<BR>';
         $orderInfo .= '<BR>';
@@ -249,5 +312,41 @@ class PrinterTemplate extends Coldchain2Model
             $orderInfo .= ''.vehicle_time2($vo['RcvDT']).'　'.vehicle_temp2($vo['Temperature']).','.vehicle_temp2($vo['Temperature2']).','.vehicle_temp2($vo['Temperature3']).','.vehicle_temp2($vo['Temperature4']).' <BR>';
         }
         return $orderInfo;
+    }
+
+    private function gsp_datas($datas)
+    {
+
+        if (is_null($datas)) {
+            return '';
+        }
+        $orderInfo = '';
+        $orderInfo .= '　时 间 　  ';
+        foreach ($datas['collectors'] as $key => $vo) {
+            $orderInfo .= '温度'.($key + 1);
+            if (($key + 1) < count($datas)) {
+                $orderInfo .= ',';;
+            }
+        }
+        $orderInfo .= ' <BR>';
+        $orderInfo .= '--------------------------------<BR>';
+
+        unset($key);
+        unset($vo);
+        foreach ($datas['times'] as $time) {
+            $orderInfo .= ''.time_format2($time, 'Y-m-d H:i').' 　';
+            foreach ($datas['collectors'] as $key => $vo) {
+                if (array_has($vo['data'], $time)) {
+                    $orderInfo .= to_wendu($vo['data'][$time]['temp'], '');
+                    if (($key + 1) < count($datas)) {
+                        $orderInfo .= '，';;
+                    }
+                }
+
+            }
+            $orderInfo .= ' <BR>';
+        }
+        return $orderInfo;
+
     }
 }
