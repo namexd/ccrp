@@ -23,7 +23,7 @@ class PrinterLogsController extends Controller
     public function index()
     {
         $this->check();
-        $printer_logs = $this->model;
+        $printer_logs = $this->model->whereIn('company_id',$this->company_ids);
         if ($printer_id = request()->get('printer_id')) {
             $printer_logs = $printer_logs->where('printer_id', $printer_id);
         }
