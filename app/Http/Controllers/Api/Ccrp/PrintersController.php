@@ -27,8 +27,10 @@ class PrintersController extends Controller
         $this->check();
         $printers = $this->printer->whereIn('company_id', $this->company_ids)->where('status', 1);
         if ($keyword = request()->get('keyword')) {
-            $printers = $printers->where('printer_name', 'like', '%'.$keyword.'%')
-                ->orWhere('printer_sn', 'like', '%'.$keyword.'%');
+            $printers = $printers->where(function ($query) use ($keyword){
+                $query->where('printer_name', 'like', '%'.$keyword.'%')
+                    ->orWhere('printer_sn', 'like', '%'.$keyword.'%');
+            });
         }
         if ($this->user->userlevel == 2) {
             if ($this->user->binding_printer <> '')

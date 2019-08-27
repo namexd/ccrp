@@ -23,7 +23,9 @@ class LedspeakersController extends Controller
         $this->check();
         $ledspeaker = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
         if ($keyword = request()->get('keyword')) {
-            $ledspeaker = $ledspeaker->where('ledspeaker_name', 'like', '%'.$keyword.'%')->orWhere('supplier_ledspeaker_id', 'like', '%'.$keyword.'%');
+            $ledspeaker = $ledspeaker->where(function ($query) use ($keyword){
+                $query->where('ledspeaker_name', 'like', '%'.$keyword.'%')->orWhere('supplier_ledspeaker_id', 'like', '%'.$keyword.'%');
+            });
         }
         $ledspeaker = $ledspeaker->orderBy('ledspeaker_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($ledspeaker, new LedspeakerTransformer())->addMeta('ledspeaker_module', $this->model->getLedspeaker_module());

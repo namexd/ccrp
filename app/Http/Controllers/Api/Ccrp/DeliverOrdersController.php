@@ -31,7 +31,9 @@ class DeliverOrdersController extends Controller
         $this->check();
         $deliverorder = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $deliverorder = $deliverorder->where('deliverorder', 'like', '%'.$keyword.'%')->orWhere('customer_name', 'like', '%'.$keyword.'%');
+            $deliverorder = $deliverorder->where(function ($query) use ($keyword){
+                $query->where('deliverorder', 'like', '%'.$keyword.'%')->orWhere('customer_name', 'like', '%'.$keyword.'%');
+            });
         }
         if ($finished = request()->has('finished')) {
             $deliverorder = $deliverorder->where('finished', request()->get('finished'));

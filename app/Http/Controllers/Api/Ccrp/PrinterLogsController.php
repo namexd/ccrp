@@ -28,9 +28,11 @@ class PrinterLogsController extends Controller
             $printer_logs = $printer_logs->where('printer_id', $printer_id);
         }
         if ($keyword = request()->get('keyword')) {
-            $printer_logs = $printer_logs->where('title', 'like', '%'.$keyword.'%')
-                ->orWhere('subtitle', 'like', '%'.$keyword.'%')
-                ->orWhere('printer_id', 'like', '%'.$keyword.'%');
+            $printer_logs = $printer_logs->where(function ($query) use ($keyword){
+                $query->where('title', 'like', '%'.$keyword.'%')
+                    ->orWhere('subtitle', 'like', '%'.$keyword.'%')
+                    ->orWhere('printer_id', 'like', '%'.$keyword.'%');
+            });
         }
         $printer_logs = $printer_logs->orderBy('id','desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($printer_logs, new PrinterLogTransformer);

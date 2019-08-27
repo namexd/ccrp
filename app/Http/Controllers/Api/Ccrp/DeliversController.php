@@ -23,7 +23,9 @@ class DeliversController extends Controller
         $this->check();
         $deliver = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $deliver = $deliver->where('deliver', 'like', '%'.$keyword.'%')->orWhere('phone', 'like', '%'.$keyword.'%');
+            $deliver = $deliver->where(function ($query) use ($keyword){
+                $query->where('deliver', 'like', '%'.$keyword.'%')->orWhere('phone', 'like', '%'.$keyword.'%');
+            });
         }
         if(request()->has('status'))
         {
