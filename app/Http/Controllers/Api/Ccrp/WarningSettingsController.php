@@ -35,7 +35,7 @@ class WarningSettingsController extends Controller
         if ($keyword=request()->get('keyword'))
         {
             $warnings=$warnings->whereHas('collector',function ($query) use ($keyword){
-               $query->where('collector_name','like','%'.$keyword.'%')->whereOr('supplier_collector_id','like','%'.$keyword.'%');
+               $query->where('collector_name','like','%'.$keyword.'%')->orWhere('supplier_collector_id','like','%'.$keyword.'%');
             });
         }
         $warnings=$warnings->orderBy('id','desc')->paginate(request()->get('pagesize')??$this->pagesize);

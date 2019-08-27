@@ -150,7 +150,7 @@ class CoolersController extends Controller
         $this->check();
         $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('cooler_type', $type);
         if ($keyword = request()->get('keyword')) {
-            $coolers = $coolers->where('cooler_sn', 'like', '%'.$keyword.'%')->whereOr('cooler_name', 'like', '%'.$keyword.'%');
+            $coolers = $coolers->where('cooler_sn', 'like', '%'.$keyword.'%')->orWhere('cooler_name', 'like', '%'.$keyword.'%');
         }
         if ($category_id = request()->get('category_id')) {
             $coolers = $coolers->where('category_id', $category_id);

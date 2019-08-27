@@ -19,9 +19,12 @@ class DeliverVehiclesController extends Controller
     public function index()
     {
         $this->check();
-        $delivervehicle = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $delivervehicle = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $delivervehicle = $delivervehicle->where('driver', 'like', '%'.$keyword.'%')->whereOr('vehicle', 'like', '%'.$keyword.'%');
+            $delivervehicle = $delivervehicle->where('driver', 'like', '%'.$keyword.'%')->orWhere('vehicle', 'like', '%'.$keyword.'%');
+        }
+        if ($status = request()->has('status')) {
+            $delivervehicle = $delivervehicle->where('status', request()->get('status'));
         }
         $delivervehicle = $delivervehicle->orderBy('delivervehicle_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($delivervehicle, new DeliverVehicleTransformer());

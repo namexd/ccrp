@@ -46,7 +46,7 @@ class CollectorsController extends Controller
         $status = request()->get('status') ?? 1;
         $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->whereOr('supplier_collector_id', 'like', '%'.$keyword.'%');
+            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
         }
         if (request()->get('volt_worry') == 1) {
             $collectors = $collectors->whereRaw('(((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COOL'].') and (supplier_product_model="LWTG310") and temp >=-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COLD'].') and (supplier_product_model="LWTG310") and temp <-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S2'].') and (supplier_product_model="LWTGD310") and temp <-10  ))');
@@ -229,7 +229,7 @@ class CollectorsController extends Controller
         $this->check();
         $collectors = $this->collector->whereIn('status', [0, 1])->where('supplier_product_model', 'LWYL201')->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->whereOr('supplier_collector_id', 'like', '%'.$keyword.'%');
+            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
         }
 
         $collectors = $collectors
