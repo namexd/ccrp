@@ -233,13 +233,13 @@ class CollectorsController extends Controller
         }
 
         $collectors = $collectors
-            ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $sender = new Sender();
-        foreach ($collectors as &$collector) {
-            $DC = $sender->select(['ram_count'])->where('sender_id', $collector['supplier_collector_id'])->first();
-            $collector['power'] = $DC ? $DC['ram_count'] : '';
+           ->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $Dccharging = new Dccharging();
+        foreach($collectors as &$collector){
+            $DC = $Dccharging->select('ram_count')->where('sender_id',$collector['supplier_collector_id'])->orderBy('data_id','desc')->first();
+            $collector['power'] = $DC['ram_count'];
             $collector['power'] = to_dianliang($collector['power']);
-            $collector['temp'] = to_wendu($collector['temp'] + $collector['temp_fix']);
+            $collector['temp'] = to_wendu($collector['temp']+$collector['temp_fix']);//temp_fix
             $collector['humi'] = to_shidu($collector['humi']);
             $collector['rssi'] = to_rssi($collector['rssi']);
             $collector['volt'] = to_dianya($collector['volt']);
