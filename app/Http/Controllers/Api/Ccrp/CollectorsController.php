@@ -104,14 +104,14 @@ class CollectorsController extends Controller
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
             if ($type == 'overtemp') {
-                $collectors = $collectors->whereIn('warning_type', [$this->collector->预警状态_高温, $this->collector->预警状态_低温]);
+                $collectors = $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
             } elseif ($type == 'offline') {
-                $collectors = $collectors->where('warning_status', $this->collector->预警类型_离线);
+                $collectors = $collectors->where('warning_status', $this->collector::预警类型_离线);
             }
         }
         $count['all'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->count();
-        $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector->预警类型_离线)->count();
-        $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector->预警状态_高温, $this->collector->预警状态_低温])->count();
+        $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector::预警类型_离线)->count();
+        $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温])->count();
         return $this->response->paginator($collectors->paginate($this->pagesize), new CollectorRealtimeTransformer())->addMeta('count', $count);
     }
 
@@ -137,7 +137,7 @@ class CollectorsController extends Controller
         if ($offline_span = $this->company->hasSettings()->where('setting_id', Company::单位设置_离线报警时长)->first()) {
             $request['offline_span'] = $offline_span->value;
 
-        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getParentIds())->first()) {
+        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getManagerId())->first()) {
             $request['offline_span'] = $offline_span->value;
 
         } else {
@@ -149,7 +149,6 @@ class CollectorsController extends Controller
         if ($result) {
             $result->cooler->collector_num++;
             $result->cooler->save();
-
             (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
         }
         return $this->response->item($result, new CollectorDetailTransformer())->setStatusCode(201);

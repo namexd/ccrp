@@ -131,7 +131,7 @@ class WarningSettingsController extends Controller
             $request['temp_warning_last']=$temp_warning_last_arr[0];
             $request['temp_warning2_last']=$temp_warning_last_arr[1];
             $request['temp_warning3_last']=$temp_warning_last_arr[2];
-        }elseif($temp_warning_last=CompanyHasSetting::query()->whereIn('company_id',$this->company->getParentIds())->first())
+        }elseif($temp_warning_last=CompanyHasSetting::query()->where('setting_id',Company::单位设置_报警延迟时间)->whereIn('company_id',$this->company->getManagerId())->first())
         {
             $temp_warning_last_arr=explode(',',$temp_warning_last->value);
             $request['temp_warning_last']=$temp_warning_last_arr[0];

@@ -1125,4 +1125,13 @@ class Company extends Coldchain2Model
         }
         return $arr;
     }
+
+    public function getManagerId()
+    {
+        $ids=$this->getParentIds();
+        $manager= $this->whereIn('id',$ids)->whereHas('tags',function ($query){
+            $query->where('slug',Tag::管理单位);
+        })->first();
+        return $manager?$manager->id:0;
+    }
 }
