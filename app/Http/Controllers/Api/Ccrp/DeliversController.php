@@ -25,6 +25,10 @@ class DeliversController extends Controller
         if ($keyword = request()->get('keyword')) {
             $deliver = $deliver->where('deliver', 'like', '%'.$keyword.'%')->whereOr('phone', 'like', '%'.$keyword.'%');
         }
+        if(request()->has('status'))
+        {
+            $deliver= $deliver->where('status',request()->get('status'));
+        }
         $deliver = $deliver->orderBy('deliver_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($deliver, new DeliverTransformer());
     }
