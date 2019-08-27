@@ -21,7 +21,7 @@ class DeliversController extends Controller
     public function index()
     {
         $this->check();
-        $deliver = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $deliver = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
             $deliver = $deliver->where('deliver', 'like', '%'.$keyword.'%')->whereOr('phone', 'like', '%'.$keyword.'%');
         }
