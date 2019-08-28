@@ -38,7 +38,7 @@ class DeliverOrdersController extends Controller
         if ($finished = request()->has('finished')) {
             $deliverorder = $deliverorder->where('finished', request()->get('finished'));
         }
-        $deliverorder = $deliverorder->orderBy('deliverorder_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $deliverorder = $deliverorder->orderBy('deliverorder_id', 'desc')->orderBy('finished_time', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($deliverorder, new DeliverOrderTransformer());
     }
 
