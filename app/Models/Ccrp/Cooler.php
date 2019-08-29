@@ -7,6 +7,7 @@ use App\Models\Ccrp\Reports\CoolerLog;
 use App\Models\Ccrp\Reports\StatCooler;
 use App\Models\Ccrp\Sys\SysCoolerDetail;
 use App\Models\Ccrp\Sys\SysCoolerPhoto;
+use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
@@ -773,5 +774,10 @@ END$$;";
                 }
                 return $cooler;
         }
+    }
+
+    public static function getTypeGroup($id)
+    {
+      return  SysCoolerType::query()->find($id)->category;
     }
 }
