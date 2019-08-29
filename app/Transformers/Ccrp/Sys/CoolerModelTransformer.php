@@ -14,7 +14,7 @@ class CoolerModelTransformer extends TransformerAbstract
         $arr=[
             'id'=>$coolerModel->id,
             'name'=>$coolerModel->name,
-            'type_id'=>$coolerModel->type_id,
+            'type_id'=>$coolerModel->type,
             'brand_id'=>$coolerModel->brand_id,
             'specifications'=>$coolerModel->specifications,
             'slug'=>$coolerModel->slug,
