@@ -83,6 +83,7 @@ class Vehicle extends Coldchain2Model
 
     public function vehicle_temp($filter,$start,$end)
     {
+        $data_arr=[];
         if (array_has($filter, 'vehicle') or array_has($filter, 'id')) {
             if (array_has($filter, 'vehicle')) {
                 $vehicle = array_get($filter, 'vehicle');

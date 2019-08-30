@@ -21,6 +21,7 @@ use App\Transformers\Ccrp\CollectorHistoryTransformer;
 use App\Transformers\Ccrp\CollectorRealtimeTransformer;
 use App\Transformers\Ccrp\Sys\CoolerTypeTransformer;
 use function App\Utils\abs2;
+use function App\Utils\http;
 use function App\Utils\to_dianliang;
 use function App\Utils\to_dianya;
 use function App\Utils\to_rssi;
@@ -237,10 +238,10 @@ class CollectorsController extends Controller
         }
         $collectors = $collectors
            ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $Dccharging = new Dccharging();
+        $sender=new Sender;
         foreach($collectors as &$collector){
-            $DC = $Dccharging->select('ram_count')->where('sender_id',$collector['supplier_collector_id'])->orderBy('data_id','desc')->first();
-            $collector['power'] = $DC['ram_count'];
+            $DC =$sender->getRealTimeStatus($collector['supplier_collector_id'],$collector['supplier_id']);
+            $collector['power'] = $DC[0]['ram_count'];
             $collector['power'] = to_dianliang($collector['power']);
             $collector['temp'] = to_wendu($collector['temp']+$collector['temp_fix']);//temp_fix
             $collector['humi'] = to_shidu($collector['humi']);
@@ -321,7 +322,7 @@ class CollectorsController extends Controller
         $model->setTable($table);
         $data = $model->where(['isadd' => 0], ['lac1', '<>', 0])->first();
         $httparr = array('sensor' => $sender_id, 'time' => $data['sender_trans_time']);
-        $http = $this->http('GET', $url, $httparr);
+        $http = http('GET', $url, $httparr);
         $rs = json_decode($http, true);
         $arr = $rs[0];
         $arr['status'] = 0;
@@ -333,7 +334,7 @@ class CollectorsController extends Controller
     {
         $key = env('BAIDU_MAP_API_KEY_SERVER');
         $url = 'http://api.map.baidu.com/geocoder/v2/?ak='.$key.'&location='.$lat.','.$lon.'&output=json&pois=1';
-        $httpstr = $this->http('GET', $url);
+        $httpstr = http('GET', $url);
         $rs_obj = json_decode($httpstr, true);
         return $rs_obj;
     }

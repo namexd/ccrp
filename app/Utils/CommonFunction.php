@@ -4,6 +4,7 @@ namespace App\Utils;
 
 use App\Models\Ccrp\Company;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
 function array_trim($arr, $trim = true)
@@ -672,4 +673,28 @@ function dateFormatByType($type=1,$extra='')
     $result['start']=$start;
     $result['end']=$end;
     return $result;
+}
+
+
+ function http($method,$url,$params=[])
+{
+    switch ($method) {
+        case 'GET':
+            $options = [
+                'query' => $params,
+            ];
+            break;
+        case 'POST':
+            $options = [
+                'form_params' => $params,
+            ];
+            break;
+    }
+    $client = new Client();
+    try {
+        $response = $client->$method($url, $options);
+        return $response->getBody()->getContents();
+    }catch (\Exception $exception){
+        return $exception->getMessage();
+    }
 }
