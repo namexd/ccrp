@@ -133,8 +133,6 @@ class CoolersController extends Controller
 
         if (is_string($collector_ids)) {
             $collector_ids = json_decode($collector_ids, true);
-        } else {
-            $collector_ids = null;
         }
         $model = $this->cooler;
         $cooler = $model->find($cooler_id);

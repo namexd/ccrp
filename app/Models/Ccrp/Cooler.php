@@ -263,7 +263,10 @@ END$$;";
             unset($_data);
 
         }
-
+        if (count($time_array)==0)
+        {
+            return [];
+        }
         $step = 5;
         $warning_step = 2;
         $current = $last = $time_array[0];
@@ -366,7 +369,10 @@ END$$;";
             unset($_data);
 
         }
-
+         if (count($time_array)==0)
+         {
+             return [];
+         }
         $step = $spacing;
         $current = $last = $time_array[0];
         unset($collector);
