@@ -83,7 +83,12 @@ class CoolersController extends Controller
     public function all()
     {
         $this->check();
-        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('status', 1)->with('company')
+        $coolers = $this->cooler->whereIn('company_id', $this->company_ids)->where('status', 1);
+        if ($category_id=request()->get('category_id'))
+        {
+            $coolers=$coolers->where('category_id',$category_id);
+        }
+        $coolers=$coolers ->with('company')
             ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->get();
         return $this->response->collection($coolers, new CoolerTransformer());
     }
