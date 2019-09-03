@@ -4,7 +4,7 @@ namespace App\Models\Ccrp;
 
 use function app\Utils\dateFormatByType;
 
-class CheckTask extends Coldchain2ModelWithTimestamp
+class CheckTask extends Coldchain2ModelWrite
 {
 
     protected $fillable = [

@@ -2,7 +2,7 @@
 
 namespace App\Models\Ccrp;
 
-class CheckTaskResult extends Coldchain2ModelWithTimestamp
+class CheckTaskResult extends Coldchain2ModelWrite
 {
     protected $fillable=[
         'task_id','key','value'

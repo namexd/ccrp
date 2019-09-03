@@ -124,7 +124,7 @@ class CheckTasksController extends Controller
             $action->add(new ExportPDF());
         });
 
-        
+
         $grid->filter(function ($filter) {
             $filter->where(function ($query) {
                 $company = Company::find($this->input);
