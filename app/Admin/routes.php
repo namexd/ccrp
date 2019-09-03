@@ -9,6 +9,7 @@ Route::group([
     'namespace'     => config('admin.route.namespace'),
     'middleware'    => config('admin.route.middleware'),
 ], function (Router $router) {
+    $router->get('api/companies', 'ApisController@company')->name('api.companies');
 
     $router->get('/', 'HomeController@index')->name('admin.home');
     $router->resource('sys-cooler-brands', Sys\CoolerBrandsController::class);
