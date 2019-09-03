@@ -117,9 +117,6 @@ class CompaniesController extends Controller
 
         $grid->id('Id');
         $grid->tools(function ($tools) {
-            $tools->batch(function ($batch)  {
-                $batch->add('',new Test());
-            });
            $tools->append(new TagCompany());
         });
         $grid->area()->merger_name('地区');

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CheckTask;
+use App\Models\Ccrp\CheckTask;
 use Illuminate\Console\Command;
 
 class BuildCheckTask extends Command
@@ -12,7 +12,7 @@ class BuildCheckTask extends Command
      *
      * @var string
      */
-    protected $signature = 'ccsc:build-check-task';
+    protected $signature = 'build-check-task';
 
     /**
      * The console command description.
