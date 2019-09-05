@@ -21,7 +21,7 @@ class CollectorRealtimeTransformer extends TransformerAbstract
             'company' => $collector->company->title,
             'temp' => format_value($collector->temp,'-'),
             'humi' => format_value($collector->humi,'-'),
-            'refresh_time' =>$collector->refresh_time?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():'',
+            'refresh_time' =>$collector->refresh_time?Carbon::createFromTimestamp($collector->refresh_time)->toDateTimeString():0,
         ];
         $rs['unnormal_status'] = $collector->unnormal_status;
         $rs['warning_setting_temp_range'] = $collector->warning_setting_temp_range;

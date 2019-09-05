@@ -99,6 +99,7 @@ class CheckTasksController extends Controller
     protected function grid()
     {
         $grid = new Grid(new CheckTask);
+        $grid->model()->orderBy('id','desc');
         $grid->disableCreateButton();
         $grid->id('Id');
         $grid->company()->title('单位');
