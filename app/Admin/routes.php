@@ -22,6 +22,9 @@ Route::group([
     $router->resource('ucenter/permissions', PermissionsController::class);
     $router->resource('ucenter/menus', MenusController::class);
 
+    $router->resource('physical_configs', Ccrp\PhysicalConfigsController::class);
+
+
     //巡检报告
     $router->get('check_tasks/build_task','CheckTasksController@buildTask');
     $router->resource('check_tasks', CheckTasksController::class);

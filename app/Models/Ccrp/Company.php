@@ -6,6 +6,7 @@ use App\Models\Ccrp\Reports\StatMange;
 use App\Models\Ccrp\Sys\SysCompanyDetail;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Sys\SysCompanyPhoto;
+use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Models\CoolerCategory;
 use App\Models\Ocenter\Member;
 use App\Models\Ocenter\UCenterMember;
@@ -194,13 +195,16 @@ class Company extends Coldchain2Model
 //冷库数量
     public function cooler_lk_count()
     {
-        return $this->coolers->whereIn('cooler_type', [5, 6])->count();
+        $ids=SysCoolerType::query()->where('category','冷库')->pluck('id');
+        return $this->coolers->whereIn('cooler_type', $ids)->count();
     }
 
     //冰箱数量
     public function cooler_bx_count()
     {
-        return $this->coolers->whereNotIn('cooler_type', [5, 6, 101])->count();
+        $ids=SysCoolerType::query()->where('category','冰箱')->pluck('id');
+
+        return $this->coolers->whereIn('cooler_type', $ids)->count();
     }
 
     public function collector_count()

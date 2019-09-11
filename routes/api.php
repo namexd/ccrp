@@ -57,6 +57,8 @@ $api->version('v1', [
             'prefix' => 'ccrp',
         ], function ($api) {
             //疫苗分类
+            $api->resource('physical_configs',PhysicalConfigController::class);
+            $api->resource('company_physicals',CompanyPhysicalController::class);
             $api->get('vaccine/category','VaccineTagsController@getCategory');
             $api->resource('vaccines',VaccineTagsController::class);
             //单位基础资料
