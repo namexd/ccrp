@@ -418,43 +418,6 @@ END$$;";
     }
 
 
-    /**
-     * @param array $map
-     * @param array $where
-     * @return array|false|\PDOStatement|string|\think\Collection
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function list_all($map = [], $where = [])
-    {
-        if ($map == []) {
-            $map['c.status'] = array('egt', 0);
-            $map['b.status'] = 1;
-            $map['a.status'] = array('not in', '3,4');
-            $map['a.cooler_type'] = array('lt', '100');  //固定式设备
-        }
-        if ($where) {
-            $map += $where;
-        }
-        $coolers = $this
-            ->field('a.cooler_name,a.cooler_sn,a.cooler_id,a.collector_num,a.company_id,b.temp_fix,b.collector_id,b.collector_name,b.supplier_collector_id,a.status as cooler_status,a.cooler_type, c.title as category_name,c.sort as category_sort,b.`temp`,b.humi,b.warning_status,b.warning_type,b.refresh_time,b.temp_fix,b.humi_fix,d.pid,b.note,b.temp_type,ifnull(s.temp_high,999) as temp_high,ifnull(s.temp_low,-999) as temp_low')
-            ->alias('a')
-            ->join('__COOLER_CATEGORY__ c', ' a.category_id = c.id', 'RIGHT')
-            ->join('__COLLECTOR__ b ', ' b.cooler_id = a.cooler_id', 'LEFT')
-            ->join('__USER_COMPANY__ d ', ' a.company_id = d.id', 'LEFT')
-            ->join('__WARNING_SETTING__ s ', ' s.collector_id = b.collector_id and s.temp_warning=1 and s.status=1', 'LEFT')
-            ->where($map)->order('d.cdc_level asc,d.sort desc,d.company_type asc,c.sort asc,c.id asc,a.sort asc,a.cooler_type asc,a.cooler_name asc,a.cooler_id desc,b.collector_name asc')->select();
-        //temp_fix 温度偏移修正
-        foreach ($coolers as &$vo) {
-            $vo['temp'] += $vo['temp_fix'];
-            $vo['humi'] += $vo['humi_fix'];
-        }
-        return $coolers;
-
-
-    }
-
     public function getListByCompanyIdsAndMonth($companyIds, $month_start, $month_end)
     {
         return $this->whereIn('company_id', $companyIds)
@@ -509,7 +472,7 @@ END$$;";
             ifnull(sum(if(cooler_type="16",1,0)),0)as type_16,
             ifnull(sum(if(cooler_type="17",1,0)),0)as type_17,
             ifnull(sum(if(cooler_type="12",1,0)),0)as type_12'
-        )->first();
+        )->first()->toArray();
     }
 
     //各地设备容积统计
@@ -544,7 +507,7 @@ END$$;";
             ifnull(round(sum((if('.$coolerInfoTable.'.ice_state=4,1,0)*(cooler_size+cooler_size2)))),0) as total_count_volume4,
             ifnull(round(sum((if('.$coolerInfoTable.'.ice_state=5,1,0)*(cooler_size+cooler_size2)))),0) as total_count_volume5
            '
-        )->first();
+        )->first()->toArray();
     }
 
 //冷链设备使用状态统计
@@ -582,7 +545,7 @@ END$$;";
            round(sum((if('.$coolerInfoTable.'.ice_state=4 and cooler_type=2,1,0)*(cooler_size+cooler_size2)))) as total_count_ld_volume4,
            round(sum((if('.$coolerInfoTable.'.ice_state=5 and cooler_type=2,1,0)*(cooler_size+cooler_size2)))) as total_count_ld_volume5
            '
-        )->first();
+        )->first()->toArray();
     }
 
     //新增冰箱

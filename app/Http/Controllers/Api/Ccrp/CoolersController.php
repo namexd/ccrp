@@ -161,7 +161,7 @@ class CoolersController extends Controller
             $coolers = $coolers->where('category_id', $category_id);
         }
         $coolers = $coolers->with(['category', 'collectors'])
-            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate($this->pagesize);
+            ->orderBy('company_id', 'asc')->orderBy('cooler_name', 'asc')->paginate(request()->get('pagesize',$this->pagesize));
         return $this->response->paginator($coolers, new CoolerType100Transformer());
     }
 
