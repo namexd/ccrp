@@ -47,10 +47,10 @@ class CompanyPhysicalController extends Controller
         $config=PhysicalConfig::query()->find($id);
         $function=$config->function;
         $result=$this->model->{$function}($this->company->id,$config);
-//        $result['company_id']=$this->company->id;
-//        $result['physical_id']=$id;
-//        $result['count_time']=$count_time;
-//        $this->model->create($result);
+        $result['company_id']=$this->company->id;
+        $result['physical_id']=$id;
+        $result['count_time']=$count_time;
+        $this->model->create($result);
         return $this->response->array(['data'=>$result]);
 
     }
