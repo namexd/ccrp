@@ -245,15 +245,11 @@ class CollectorsController extends Controller
                 if ($cooler->status==Cooler::状态_盘苗)
                 {
                     $status_5++;
-                } 
-            }
-            foreach ($count as $item)
-            {
-                if ($item->cooler->status==1)
-                {
-                    $warning_count++;
                 }
-               
+                if ($cooler->status==Cooler::状态_正常)
+                {
+                    $warning_count+=$cooler->collector_num;
+                }
             }
         }
         return $this->response->array(['warning_count' => $warning_count,'status_3'=>$status_3,'status_6'=>$status_6,'status_5'=>$status_5]);
