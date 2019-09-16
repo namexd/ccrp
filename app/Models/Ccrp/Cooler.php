@@ -32,6 +32,14 @@ class  Cooler extends Coldchain2Model
     const 状态_除霜 = 6;
     const IS_MEDICAL = ['0' => '未知', '1' => '否', '2' => '是'];
 
+    const STATUSES = [
+        self::状态_正常 => '正常',
+        self::状态_维修 => '维修', //不报警
+        self::状态_备用 => '备用', //不报警，要显示温度
+        self::状态_报废 => '报废', //不报警，解除sensor绑定
+        self::状态_盘苗 => '盘苗',
+        self::状态_除霜 => '除霜',
+        ];
     public static $status = [
         '1' => '正常',
         '2' => '维修', //不报警
