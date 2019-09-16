@@ -223,8 +223,41 @@ class CollectorsController extends Controller
         $this->check();
         $count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
             $query->where('temp_warning', 1)->where('status', 1);
-        })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->count();
-        return $this->response->array(['count' => $count]);
+        })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->get();
+        $warning_count=0;
+        $status_3=0;//Cooler::状态_备用
+        $status_6=0;//Cooler::状态_除霜
+        $status_5=0;//Cooler::状态_盘苗
+        if (!$count->isEmpty())
+        {
+            $coolerIds=collect($count->pluck('cooler_id'))->unique()->values()->all();
+            $coolers=Cooler::query()->whereIn('cooler_id',$coolerIds)->get();
+            foreach ($coolers as $cooler)
+            {
+                if ($cooler->status==Cooler::状态_备用)
+                {
+                    $status_3++;
+                }
+                if ($cooler->status==Cooler::状态_除霜)
+                {
+                    $status_6++;
+                }
+                if ($cooler->status==Cooler::状态_盘苗)
+                {
+                    $status_5++;
+                } 
+            }
+            foreach ($count as $item)
+            {
+                if ($item->cooler->status==1)
+                {
+                    $warning_count++;
+                }
+               
+            }
+        }
+        return $this->response->array(['warning_count' => $warning_count,'status_3'=>$status_3,'status_6'=>$status_6,'status_5'=>$status_5]);
+
     }
 
     public function couveuse()
