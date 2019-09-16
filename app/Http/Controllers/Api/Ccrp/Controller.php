@@ -69,41 +69,6 @@ class Controller extends BaseController
         }
     }
 
-    public function http($method,$url,$options=[])
-    {
-        switch ($method) {
-            case 'GET':
-                $options = $this->get($options);
-                break;
-            case 'POST':
-                $options = $this->post($options);
-                break;
-        }
-        $client = new Client();
-        try {
-            $response = $client->$method($url, $options);
-            return $response->getBody()->getContents();
-        }catch (\Exception $exception){
-            return $exception->getMessage();
-        }
-    }
-
-    public function get($params)
-    {
-        $options = [
-            'query' => $params,
-        ];
-
-        return $options;
-    }
-
-    public function post($params)
-    {
-        $options = [
-            'form_params' => $params,
-        ];
-        return $options;
-    }
 
 
 

@@ -65,6 +65,17 @@ return [
             'strict' => false,
             'engine' => null,
         ],
+        'dbyingyongwrite' => [
+            'driver' =>  env('DB_YINGYONG_WRITE_CONNECTION','mysql'),
+            'host' => env('DB_YINGYONG_WRITE_HOST', '127.0.0.1'),
+            'port' => env('DB_YINGYONG_WRITE_PORT', '3306'),
+            'database' => env('DB_YINGYONG_WRITE_DATABASE', 'forge'),
+            'username' => env('DB_YINGYONG_WRITE_USERNAME', 'forge'),
+            'password' => env('DB_YINGYONG_WRITE_PASSWORD', ''),
+            'prefix' => env('DB_YINGYONG_WRITE_PREFIX', ''),
+            'strict' => false,
+            'engine' => null,
+        ],
         'dbcaiji' => [
             'driver' =>  env('DB_CAIJI_CONNECTION','mysql'),
             'host' => env('DB_CAIJI_HOST', '127.0.0.1'),

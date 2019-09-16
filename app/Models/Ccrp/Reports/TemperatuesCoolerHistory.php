@@ -29,7 +29,7 @@ class TemperatuesCoolerHistory extends Coldchain2Model
 //                'Colsname' => '',              //json数组（请遵循漏下格式，默认空）
                 'Billno' => $cooler->company->title . '_' . $cooler->cooler_name . '_' . $date . '数据一览表',       //订单/运单/文件名
 //            'DatasetJson' => '',           //json数组，默认空
-                'GetdataUrl' => base64_encode(config('api.domain').'/api/ccrp/reports/temperatures/coolers_history_30/' . $cooler->cooler_id . '/' . $month), //URL获取数据的URL，（推荐，传入为base64加密，默认空）
+                'GetdataUrl' => base64_encode(env('CCRP_API_SERVER').'temperatures/coolers_history_30/' . $cooler->cooler_id . '/' . $month), //URL获取数据的URL，（推荐，传入为base64加密，默认空）
             ];
             $params = http_build_query($requestinfo);
             $cooler->url=$url.$params;

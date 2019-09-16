@@ -70,7 +70,7 @@ class StatManualRecordsController extends Controller
                 return $this->response->array($data);
             }
         }
-        return $this->response->noContent();
+        return $this->response->errorMethodNotAllowed('该单位未开启人工测温记录功能');
     }
 
     public function store(StatManualRecordRequest $request)

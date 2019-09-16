@@ -146,7 +146,7 @@ class Warninger extends Coldchain2Model
 
                 if ($the_collector['temp_type'] == 1) {
                     $pgModel=$pgModel->where(function ($query) use($setting){
-                        $query->where('temp','>',intval($setting['temp_high']))->whereOr('temp','<',intval($setting['temp_low']));
+                        $query->where('temp','>',intval($setting['temp_high']))->orWhere('temp','<',intval($setting['temp_low']));
                     });
                 } elseif ($the_collector['temp_type'] == 2) {
                     $pgModel=$pgModel->where('temp','>',intval($setting['temp_high']));

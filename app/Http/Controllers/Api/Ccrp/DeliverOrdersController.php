@@ -13,7 +13,9 @@ use App\Models\Ccrp\DeliverOrderLog;
 use App\Transformers\Ccrp\DeliverOrderTransformer;
 use function App\Utils\creat_deliverorder;
 use Carbon\Carbon;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
+use phpDocumentor\Reflection\Types\Array_;
 
 class DeliverOrdersController extends Controller
 {
@@ -27,12 +29,16 @@ class DeliverOrdersController extends Controller
     public function index()
     {
         $this->check();
-        $status = request()->get('status', 0);
-        $deliverorder = $this->model->whereIn('company_id', $this->company_ids)->where('status', $status);
+        $deliverorder = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $deliverorder = $deliverorder->where('deliverorder', 'like', '%'.$keyword.'%')->whereOr('customer_name', 'like', '%'.$keyword.'%');
+            $deliverorder = $deliverorder->where(function ($query) use ($keyword){
+                $query->where('deliverorder', 'like', '%'.$keyword.'%')->orWhere('customer_name', 'like', '%'.$keyword.'%');
+            });
         }
-        $deliverorder = $deliverorder->orderBy('deliverorder_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
+        if ($finished = request()->has('finished')) {
+            $deliverorder = $deliverorder->where('finished', request()->get('finished'));
+        }
+        $deliverorder = $deliverorder->orderBy('deliverorder_id', 'desc')->orderBy('finished_time', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($deliverorder, new DeliverOrderTransformer());
     }
 
@@ -56,19 +62,19 @@ class DeliverOrdersController extends Controller
             $vo['is_used'] = 0;
             if (in_array($vo['collector_id'], $used_collector))
                 $vo['collector_name'] = '[在途] '.$vo['collector_name'];
-                $vo['is_used'] = 1;
+            $vo['is_used'] = 1;
         }
         $deliverorder = creat_deliverorder($this->company->id);
         //常用车辆
-        $delivervehicle = DeliverVehicle::query()->whereIn('company_id', $this->company_ids)->where('status',1)->orderBy('vehicle','asc')->get(['delivervehicle_id','vehicle']);
+        $delivervehicle = DeliverVehicle::query()->whereIn('company_id', $this->company_ids)->where('status', 1)->orderBy('vehicle', 'asc')->get(['delivervehicle_id', 'vehicle']);
         //常用派件人
-        $deliver = Deliver::query()->whereIn('company_id', $this->company_ids)->where('status',1)->orderBy('deliver','asc')->get(['deliver_id','deliver','phone']);
+        $deliver = Deliver::query()->whereIn('company_id', $this->company_ids)->where('status', 1)->orderBy('deliver', 'asc')->get(['deliver_id', 'deliver', 'phone']);
 
         //报警设置
-        $deliverorder_warning_setting =DeliverWarningSetting::query()->whereIn('company_id', $this->company_ids)->where('status',1)->get(['id','setting_name']);
-        $time=time() - 3600 * 24 * 90;
+        $deliverorder_warning_setting = DeliverWarningSetting::query()->whereIn('company_id', $this->company_ids)->where('status', 1)->get(['id', 'setting_name']);
+        $time = time() - 3600 * 24 * 90;
         //常送客户
-        $deliverorder_customer_name = $this->model->selectRaw('customer_name')->whereRaw("customer_name <> '' and company_id in (".implode(',',$this->company_ids).") and length(customer_name)>2 and finished_time>".$time)->groupBy('customer_name')->get();
+        $deliverorder_customer_name = $this->model->selectRaw('customer_name')->whereRaw("customer_name <> '' and company_id in (".implode(',', $this->company_ids).") and length(customer_name)>2 and finished_time>".$time)->groupBy('customer_name')->get();
         return $this->response->item($deliver_order, new DeliverOrderTransformer())
             ->addMeta('deliverorder', $deliverorder)
             ->addMeta('delivervehicle', $delivervehicle)
@@ -96,7 +102,7 @@ class DeliverOrdersController extends Controller
     {
         $this->check();
         $request['create_uid'] = $this->user->id;
-        $request['create_time'] =Carbon::now()->addMinutes($request->get('create_time_last',0))->timestamp;
+        $request['create_time'] = Carbon::now()->addMinutes($request->get('create_time_last', 0))->timestamp;
         $request['company_id'] = $this->company->id;
         $result = $this->model->create($request->all());
         if ($result) {
@@ -106,35 +112,33 @@ class DeliverOrdersController extends Controller
         }
     }
 
-    public function finished($id,Request $request)
+    public function finished($id, Request $request)
     {
         $this->check();
         $deliverorder = $this->model->find($id);
         $this->authorize('unit_operate', $deliverorder->company);
         $request['finished_time'] = time();
         $request['finished'] = 1;
-        if($request['suborder']==1){
-            $suborder = 1+$this->model->where('deliverorder_main',$deliverorder['deliverorder'])->count();
+        if ($request['suborder'] == 1) {
+            $suborder = 1 + $this->model->where('deliverorder_main', $deliverorder['deliverorder'])->count();
             unset($deliverorder['deliverorder_id']);
-            $deliverorder['finished_time']  = $request['finished_time'];
-            $deliverorder['finished']  = $request['finished'];
-            $deliverorder['suborder']  = $suborder;
-            $deliverorder['deliverorder_main']  = $deliverorder['deliverorder'];
-            $deliverorder['deliverorder']  = $deliverorder['deliverorder'].'-'.$suborder;
-            $deliverorder['customer_name']  = $request['customer_name'];
-            $deliverorder['finished_note']  = $request['finished_note'];
-            $result=$this->model->create($deliverorder->toArray());
-            return $this->response->item($result,new DeliverOrderTransformer());
+            $deliverorder['finished_time'] = $request['finished_time'];
+            $deliverorder['finished'] = $request['finished'];
+            $deliverorder['suborder'] = $suborder;
+            $deliverorder['deliverorder_main'] = $deliverorder['deliverorder'];
+            $deliverorder['deliverorder'] = $deliverorder['deliverorder'].'-'.$suborder;
+            $deliverorder['customer_name'] = $request['customer_name'];
+            $deliverorder['finished_note'] = $request['finished_note'];
+            $result = $this->model->create($deliverorder->toArray());
+            return $this->response->item($result, new DeliverOrderTransformer());
         }
-        $result = $this->model->update($request->all());
-        if ($result)
-        {
+        $result = $deliverorder->update($request->all());
+        if ($result) {
             //关闭报警
-            if ($deliverorder->warningSetting)
-            {
-                $deliverorder->warningSetting()->update(['temp_warning'=>0]);
+            if ($deliverorder->warningSetting) {
+                $deliverorder->warningSetting()->update(['temp_warning' => 0]);
             }
-            return $this->response->item($deliverorder,new DeliverOrderTransformer());
+            return $this->response->item($deliverorder, new DeliverOrderTransformer());
         } else {
             return $this->response->errorInternal('操作失败');
         }

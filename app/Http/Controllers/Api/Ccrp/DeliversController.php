@@ -21,9 +21,15 @@ class DeliversController extends Controller
     public function index()
     {
         $this->check();
-        $deliver = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $deliver = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $deliver = $deliver->where('deliver', 'like', '%'.$keyword.'%')->whereOr('phone', 'like', '%'.$keyword.'%');
+            $deliver = $deliver->where(function ($query) use ($keyword){
+                $query->where('deliver', 'like', '%'.$keyword.'%')->orWhere('phone', 'like', '%'.$keyword.'%');
+            });
+        }
+        if(request()->has('status'))
+        {
+            $deliver= $deliver->where('status',request()->get('status'));
         }
         $deliver = $deliver->orderBy('deliver_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($deliver, new DeliverTransformer());

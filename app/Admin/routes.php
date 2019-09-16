@@ -9,6 +9,7 @@ Route::group([
     'namespace'     => config('admin.route.namespace'),
     'middleware'    => config('admin.route.middleware'),
 ], function (Router $router) {
+    $router->get('api/companies', 'ApisController@company')->name('api.companies');
 
     $router->get('/', 'HomeController@index')->name('admin.home');
     $router->resource('sys-cooler-brands', Sys\CoolerBrandsController::class);
@@ -21,6 +22,18 @@ Route::group([
     $router->resource('ucenter/permissions', PermissionsController::class);
     $router->resource('ucenter/menus', MenusController::class);
 
+    $router->resource('physical_configs', Ccrp\PhysicalConfigsController::class);
+
+
+    //巡检报告
+    $router->get('check_tasks/build_task','CheckTasksController@buildTask');
+    $router->resource('check_tasks', CheckTasksController::class);
+    $router->resource('check_templates', CheckTemplatesController::class);
+    $router->resource('check_template_variables', CheckTemplateVariablesController::class);
+    $router->post('check_task_results/reset','CheckTaskResultController@reset');
+    $router->resource('check_task_results',CheckTaskResultController::class);
+    $router->get('export_word/{id}', 'CheckTasksController@export_word')->name('check_task.export_word');
+    $router->get('export_pdf/{id}', 'CheckTasksController@export_pdf')->name('check_task.export_pdf');
     $router->post('users/remove_roles','UsersController@removeRoles')->name('users.remove_roles');
     //ccrp
     $router->group([

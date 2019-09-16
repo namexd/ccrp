@@ -12,6 +12,7 @@ class Tag extends Coldchain2Model
 
     ];
     const 自定义设置 = 5;
+    const 管理单位 = 'manager';
 
     function companies()
     {

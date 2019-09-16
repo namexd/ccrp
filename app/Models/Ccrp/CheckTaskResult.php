@@ -2,9 +2,7 @@
 
 namespace App\Models\Ccrp;
 
-use Illuminate\Database\Eloquent\Model;
-
-class CheckTaskResult extends Model
+class CheckTaskResult extends Coldchain2ModelWrite
 {
     protected $fillable=[
         'task_id','key','value'

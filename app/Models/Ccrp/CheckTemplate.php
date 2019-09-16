@@ -2,9 +2,8 @@
 
 namespace App\Models\Ccrp;
 
-use Illuminate\Database\Eloquent\Model;
 
-class CheckTemplate extends Model
+class CheckTemplate extends Coldchain2ModelWrite
 {
     const 月度=1;
     const 季度=2;

@@ -21,6 +21,7 @@ use App\Transformers\Ccrp\CollectorHistoryTransformer;
 use App\Transformers\Ccrp\CollectorRealtimeTransformer;
 use App\Transformers\Ccrp\Sys\CoolerTypeTransformer;
 use function App\Utils\abs2;
+use function App\Utils\http;
 use function App\Utils\to_dianliang;
 use function App\Utils\to_dianya;
 use function App\Utils\to_rssi;
@@ -46,7 +47,9 @@ class CollectorsController extends Controller
         $status = request()->get('status') ?? 1;
         $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->whereOr('supplier_collector_id', 'like', '%'.$keyword.'%');
+            $collectors = $collectors->where(function ($query) use ($keyword){
+                $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
+            });
         }
         if (request()->get('volt_worry') == 1) {
             $collectors = $collectors->whereRaw('(((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COOL'].') and (supplier_product_model="LWTG310") and temp >=-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COLD'].') and (supplier_product_model="LWTG310") and temp <-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S2'].') and (supplier_product_model="LWTGD310") and temp <-10  ))');
@@ -104,14 +107,14 @@ class CollectorsController extends Controller
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
             if ($type == 'overtemp') {
-                $collectors = $collectors->whereIn('warning_type', [$this->collector->预警状态_高温, $this->collector->预警状态_低温]);
+                $collectors = $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
             } elseif ($type == 'offline') {
-                $collectors = $collectors->where('warning_status', $this->collector->预警类型_离线);
+                $collectors = $collectors->where('warning_status', $this->collector::预警类型_离线);
             }
         }
         $count['all'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->count();
-        $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector->预警类型_离线)->count();
-        $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector->预警状态_高温, $this->collector->预警状态_低温])->count();
+        $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector::预警类型_离线)->count();
+        $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温])->count();
         return $this->response->paginator($collectors->paginate($this->pagesize), new CollectorRealtimeTransformer())->addMeta('count', $count);
     }
 
@@ -137,7 +140,7 @@ class CollectorsController extends Controller
         if ($offline_span = $this->company->hasSettings()->where('setting_id', Company::单位设置_离线报警时长)->first()) {
             $request['offline_span'] = $offline_span->value;
 
-        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getParentIds())->first()) {
+        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getManagerId())->first()) {
             $request['offline_span'] = $offline_span->value;
 
         } else {
@@ -149,7 +152,6 @@ class CollectorsController extends Controller
         if ($result) {
             $result->cooler->collector_num++;
             $result->cooler->save();
-
             (new Collectorguanxi())->addnew($request['supplier_collector_id'], $request['supplier_id']);//供应商ID
         }
         return $this->response->item($result, new CollectorDetailTransformer())->setStatusCode(201);
@@ -230,17 +232,18 @@ class CollectorsController extends Controller
         $this->check();
         $collectors = $this->collector->whereIn('status', [0, 1])->where('supplier_product_model', 'LWYL201')->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where('collector_name', 'like', '%'.$keyword.'%')->whereOr('supplier_collector_id', 'like', '%'.$keyword.'%');
+            $collectors = $collectors->where(function ($query) use ($keyword){
+                $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
+            });
         }
-
         $collectors = $collectors
-            ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $sender = new Sender();
-        foreach ($collectors as &$collector) {
-            $DC = $sender->select(['ram_count'])->where('sender_id', $collector['supplier_collector_id'])->first();
-            $collector['power'] = $DC ? $DC['ram_count'] : '';
+           ->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $sender=new Sender;
+        foreach($collectors as &$collector){
+            $DC =$sender->getRealTimeStatus($collector['supplier_collector_id'],$collector['supplier_id']);
+            $collector['power'] = $DC[0]['ram_count'];
             $collector['power'] = to_dianliang($collector['power']);
-            $collector['temp'] = to_wendu($collector['temp'] + $collector['temp_fix']);
+            $collector['temp'] = to_wendu($collector['temp']+$collector['temp_fix']);//temp_fix
             $collector['humi'] = to_shidu($collector['humi']);
             $collector['rssi'] = to_rssi($collector['rssi']);
             $collector['volt'] = to_dianya($collector['volt']);
@@ -319,7 +322,7 @@ class CollectorsController extends Controller
         $model->setTable($table);
         $data = $model->where(['isadd' => 0], ['lac1', '<>', 0])->first();
         $httparr = array('sensor' => $sender_id, 'time' => $data['sender_trans_time']);
-        $http = $this->http('GET', $url, $httparr);
+        $http = http('GET', $url, $httparr);
         $rs = json_decode($http, true);
         $arr = $rs[0];
         $arr['status'] = 0;
@@ -331,7 +334,7 @@ class CollectorsController extends Controller
     {
         $key = env('BAIDU_MAP_API_KEY_SERVER');
         $url = 'http://api.map.baidu.com/geocoder/v2/?ak='.$key.'&location='.$lat.','.$lon.'&output=json&pois=1';
-        $httpstr = $this->http('GET', $url);
+        $httpstr = http('GET', $url);
         $rs_obj = json_decode($httpstr, true);
         return $rs_obj;
     }

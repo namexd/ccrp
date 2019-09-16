@@ -57,6 +57,8 @@ $api->version('v1', [
             'prefix' => 'ccrp',
         ], function ($api) {
             //疫苗分类
+            $api->resource('physical_configs',PhysicalConfigController::class);
+            $api->resource('company_physicals',CompanyPhysicalController::class);
             $api->get('vaccine/category','VaccineTagsController@getCategory');
             $api->resource('vaccines',VaccineTagsController::class);
             //单位基础资料
@@ -103,10 +105,12 @@ $api->version('v1', [
             $api->post('coolers/add_vaccine_tags/{id}', 'CoolersController@addVaccineTags')->name('api.ccrp.coolers.add_vaccine_tags');
             $api->get('coolers', 'CoolersController@index')->name('api.ccrp.coolers.index');
             $api->get('coolers/all', 'CoolersController@all')->name('api.ccrp.coolers.all');
-            $api->get('coolers/cooler_type100', 'CoolersController@coolerType100')->name('api.ccrp.coolers.coolerType100');
+            $api->get('coolers/cooler_type/{code}', 'CoolersController@getCoolerByType')->name('api.ccrp.coolers.coolerType100');
             $api->get('coolers/{cooler}', 'CoolersController@show')->name('api.ccrp.coolers.show');
             $api->get('coolers/{cooler}/history', 'CoolersController@history')->name('api.ccrp.coolers.history');
+            $api->post('coolers/{cooler}/gsp_history', 'CoolersController@gspHistory')->name('api.ccrp.coolers.gspHistory');
             $api->post('coolers', 'CoolersController@store')->name('api.ccrp.coolers.store');
+            $api->get('coolers/{id}/gsp_warning_off', 'CoolersController@gspWarningOff')->name('api.ccrp.coolers.gspWarningOff');
             $api->put('coolers/{id}', 'CoolersController@update')->name('api.ccrp.coolers.update');
             $api->get('sys/cooler_type', 'CoolersController@coolerType')->name('api.ccrp.coolers.cooler_type');
             $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');

@@ -11,7 +11,7 @@ class CompanyHasFunction extends Coldchain2Model
 
     const 签名间隔小时 = 6;
     const 签名上午时间 = [6, 7, 8, 9, 10, 11];
-    const 签名下午时间 = [12, 13, 14, 15, 16, 17, 18];
+    const 签名下午时间 = [12, 13, 14, 15, 16, 17, 18,19,20,21,22];
     const 签名设备类型 =
         [
             Cooler::设备类型_冷藏冰箱,

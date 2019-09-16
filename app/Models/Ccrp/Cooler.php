@@ -7,11 +7,15 @@ use App\Models\Ccrp\Reports\CoolerLog;
 use App\Models\Ccrp\Reports\StatCooler;
 use App\Models\Ccrp\Sys\SysCoolerDetail;
 use App\Models\Ccrp\Sys\SysCoolerPhoto;
+use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Models\CoolerCategory;
 use App\Traits\ControllerDataRange;
 use App\Traits\ModelFields;
 use App\Transformers\Ccrp\CoolerType100Transformer;
+use function App\Utils\abs2;
 use function App\Utils\time_clock;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class  Cooler extends Coldchain2Model
 {
@@ -205,6 +209,199 @@ class  Cooler extends Coldchain2Model
 
         return $cooler;
     }
+    public function gspHistory($cooler, $start, $end,$collectors=null)
+    {
+
+        $_string = '(uninstall_time = 0 or uninstall_time >' . $start . ') and ( install_time <' . $end . ')';
+        //间隔取数
+        if($collectors==null)
+        {
+            $collectors = Collector::query()->where('cooler_id', $cooler['cooler_id'])->whereRaw($_string)->get()->toArray();
+        }else{
+            $collectors = Collector::query()->whereIn('collector_id',$collectors)->get()->toArray();
+        }
+
+        if ($cooler['install_time'] > $start) {
+            $start = $cooler['install_time'];
+        }
+
+        $_start = $start;
+        $_end = $end;
+
+        $time_array = array();
+        $pgModel=new DataHistory();
+        foreach ($collectors as &$collector) {
+            $_data = array();
+            if ($collector['install_time'] > $_start) {
+                $_start = $cooler['install_time'];
+            }
+
+            $sensor_id = strval(abs2($collector['supplier_collector_id']));
+
+            $check = "select to_regclass('sensor.idx_sensor_".$sensor_id."_collect_time');";
+            $rs = \DB::connection('dbhistory')->select($check);
+            if($rs and $rs[0]->to_regclass == null)
+            {
+
+                $update_index = "DO $$
+BEGIN
+IF to_regclass('sensor.idx_sensor_".$sensor_id."_collect_time') IS NULL THEN
+    CREATE INDEX idx_sensor_".$sensor_id."_collect_time ON \"sensor\".\"".$sensor_id."\" (sensor_collect_time);
+END IF;
+END$$;";
+                $rs =\DB::connection('dbhistory')->select($update_index);
+            }
+            $table = "sensor." . $sensor_id;
+            $pgModel = $pgModel->setTable($table);
+            $collector_data = $pgModel->selectRaw('temp,humi,sensor_collect_time')->where([
+                ['sensor_collect_time','>',$_start],
+                ['sensor_collect_time','<',$_end]
+            ])->orderBy('sensor_collect_time')->get()->toArray();
+            //temp_fix 温度偏移修正
+            foreach ($collector_data as &$vo) {
+                $vo['temp'] += $collector['temp_fix'];
+                $_data[$vo['sensor_collect_time']] = $vo;
+                if (!in_array($vo['sensor_collect_time'], $time_array) and (0+date('s',$vo['sensor_collect_time']))==0) {
+                    $time_array[] = $vo['sensor_collect_time'];
+                }
+            }
+            $collector['data'] = $_data;//数据数量
+            $collector['data_count'] = count($collector_data);//数据数量
+            unset($data);
+            unset($_data);
+
+        }
+        if (count($time_array)==0)
+        {
+            return [];
+        }
+        $step = 5;
+        $warning_step = 2;
+        $current = $last = $time_array[0];
+        $is_warning = false;
+        $left = 0; //余数
+        unset($collector);
+        foreach ($time_array as $key => &$time) {
+            $current = $time;
+            foreach ($collectors as $collector) {
+                if (array_has($collector['data'],$time))
+                {
+                    $temp = $collector['data'][$time]['temp'];
+                    if ($temp <= 2 or $temp >= 8) {
+                        $is_warning = true;
+                        $left = ($left + 1) % 2;
+                        continue;
+                    } else {
+                        $is_warning = false;
+                        continue;
+                    }
+                }
+
+            }
+            unset($collector);
+            if ($is_warning == false) {
+                if ($current-$last<($step*60)) {
+                    unset($time_array[$key]);
+                    foreach($collectors as $k=>$collector)
+                    {
+                        unset($collectors[$k]['data'][$time]);
+                    }
+                    unset($k);
+                    continue;
+                } else {
+                    $last = $current;
+                }
+            } else {
+                if ($current-$last<($warning_step*60)) {
+                    unset($time_array[$key]);
+                    foreach($collectors as $k=>$collector)
+                    {
+                        unset($collectors[$k]['data'][$time]);
+                    }
+                    unset($k);
+                    continue;
+                } else {
+                    $last = $current;
+                }
+            }
+        }
+        unset($key);
+
+        return array('times' => array_values($time_array), 'collectors' => $collectors);
+    }
+    public function spacingHistory($cooler, $start, $end,$collectors=null,$spacing=5)
+    {
+
+        $_string = '(uninstall_time = 0 or uninstall_time >' . $start . ') and ( install_time <' . $end . ')';
+        //间隔取数
+        if($collectors==null)
+        {
+            $collectors = Collector::query()->where('cooler_id', $cooler['cooler_id'])->whereRaw($_string)->get()->toArray();
+        }else{
+            $collectors = Collector::query()->whereIn('collector_id',$collectors)->get()->toArray();
+        }
+
+        if ($cooler['install_time'] > $start) {
+            $start = $cooler['install_time'];
+        }
+
+        $_start = $start;
+        $_end = $end;
+
+        $time_array = array();
+        $pgModel=new DataHistory();
+        foreach ($collectors as &$collector) {
+            $_data = array();
+            if ($collector['install_time'] > $_start) {
+                $_start = $cooler['install_time'];
+            }
+            $sensor_id = strval(abs2($collector['supplier_collector_id']));
+            $table = "sensor." . $sensor_id;
+            $pgModel = $pgModel->setTable($table);
+            $collector_data = $pgModel->selectRaw('temp,humi,sensor_collect_time')->where([
+                ['sensor_collect_time','>',$_start],
+                ['sensor_collect_time','<',$_end]
+            ])->orderBy('sensor_collect_time')->get()->toArray();
+
+            //temp_fix 温度偏移修正
+            foreach ($collector_data as &$vo) {
+                $vo['temp'] += $collector['temp_fix'];
+                $_data[$vo['sensor_collect_time']] = $vo;
+                if (!in_array($vo['sensor_collect_time'], $time_array) and (0+date('s',$vo['sensor_collect_time']))==0) {
+                    $time_array[] = $vo['sensor_collect_time'];
+                }
+            }
+            $collector['data'] = $_data;//数据数量
+            $collector['data_count'] = count($collector_data);//数据数量
+            unset($data);
+            unset($_data);
+
+        }
+         if (count($time_array)==0)
+         {
+             return [];
+         }
+        $step = $spacing;
+        $current = $last = $time_array[0];
+        unset($collector);
+        foreach ($time_array as $key => &$time) {
+            $current = $time;
+            if ($current-$last<($step*60)) {
+                unset($time_array[$key]);
+                foreach($collectors as $k=>$collector)
+                {
+                    unset($collectors[$k]['data'][$time]);
+                }
+                unset($k);
+                continue;
+            } else {
+                $last = $current;
+            }
+        }
+        unset($key);
+
+        return array('times' => array_values($time_array), 'collectors' => $collectors);
+    }
 
     function sensors()
     {
@@ -228,43 +425,6 @@ class  Cooler extends Coldchain2Model
         return $value ? $value.'L' : '-';
     }
 
-
-    /**
-     * @param array $map
-     * @param array $where
-     * @return array|false|\PDOStatement|string|\think\Collection
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function list_all($map = [], $where = [])
-    {
-        if ($map == []) {
-            $map['c.status'] = array('egt', 0);
-            $map['b.status'] = 1;
-            $map['a.status'] = array('not in', '3,4');
-            $map['a.cooler_type'] = array('lt', '100');  //固定式设备
-        }
-        if ($where) {
-            $map += $where;
-        }
-        $coolers = $this
-            ->field('a.cooler_name,a.cooler_sn,a.cooler_id,a.collector_num,a.company_id,b.temp_fix,b.collector_id,b.collector_name,b.supplier_collector_id,a.status as cooler_status,a.cooler_type, c.title as category_name,c.sort as category_sort,b.`temp`,b.humi,b.warning_status,b.warning_type,b.refresh_time,b.temp_fix,b.humi_fix,d.pid,b.note,b.temp_type,ifnull(s.temp_high,999) as temp_high,ifnull(s.temp_low,-999) as temp_low')
-            ->alias('a')
-            ->join('__COOLER_CATEGORY__ c', ' a.category_id = c.id', 'RIGHT')
-            ->join('__COLLECTOR__ b ', ' b.cooler_id = a.cooler_id', 'LEFT')
-            ->join('__USER_COMPANY__ d ', ' a.company_id = d.id', 'LEFT')
-            ->join('__WARNING_SETTING__ s ', ' s.collector_id = b.collector_id and s.temp_warning=1 and s.status=1', 'LEFT')
-            ->where($map)->order('d.cdc_level asc,d.sort desc,d.company_type asc,c.sort asc,c.id asc,a.sort asc,a.cooler_type asc,a.cooler_name asc,a.cooler_id desc,b.collector_name asc')->select();
-        //temp_fix 温度偏移修正
-        foreach ($coolers as &$vo) {
-            $vo['temp'] += $vo['temp_fix'];
-            $vo['humi'] += $vo['humi_fix'];
-        }
-        return $coolers;
-
-
-    }
 
     public function getListByCompanyIdsAndMonth($companyIds, $month_start, $month_end)
     {
@@ -320,7 +480,7 @@ class  Cooler extends Coldchain2Model
             ifnull(sum(if(cooler_type="16",1,0)),0)as type_16,
             ifnull(sum(if(cooler_type="17",1,0)),0)as type_17,
             ifnull(sum(if(cooler_type="12",1,0)),0)as type_12'
-        )->first();
+        )->first()->toArray();
     }
 
     //各地设备容积统计
@@ -355,7 +515,7 @@ class  Cooler extends Coldchain2Model
             ifnull(round(sum((if('.$coolerInfoTable.'.ice_state=4,1,0)*(cooler_size+cooler_size2)))),0) as total_count_volume4,
             ifnull(round(sum((if('.$coolerInfoTable.'.ice_state=5,1,0)*(cooler_size+cooler_size2)))),0) as total_count_volume5
            '
-        )->first();
+        )->first()->toArray();
     }
 
 //冷链设备使用状态统计
@@ -393,7 +553,7 @@ class  Cooler extends Coldchain2Model
            round(sum((if('.$coolerInfoTable.'.ice_state=4 and cooler_type=2,1,0)*(cooler_size+cooler_size2)))) as total_count_ld_volume4,
            round(sum((if('.$coolerInfoTable.'.ice_state=5 and cooler_type=2,1,0)*(cooler_size+cooler_size2)))) as total_count_ld_volume5
            '
-        )->first();
+        )->first()->toArray();
     }
 
     //新增冰箱
@@ -519,9 +679,9 @@ class  Cooler extends Coldchain2Model
     }
 
 //巡检报表-冷库类型
-    public function getCoolerByType($company_id, $quarter)
+    public function getCoolerByType($company_id, $date)
     {
-        $date = dateFormatByType($quarter);
+
         $start=Carbon::createFromTimestamp($date['end'])->startOfDay()->timestamp;
         $company_ids = Company::find($company_id)->ids(0);
         $coolers = $this->selectRaw('
@@ -536,7 +696,7 @@ class  Cooler extends Coldchain2Model
     }
 
     //巡检报表-冷链装备信息不规范清单
-    public function getUnCompleteCooler($company_id, $quarter = '')
+    public function getUnCompleteCooler($company_id, $date = '')
     {
         $company_ids = Company::find($company_id)->ids(0);
         return $this
@@ -547,9 +707,9 @@ class  Cooler extends Coldchain2Model
             }])->get()->toArray();
     }
 //巡检报表-冷链装备状态清单
-    public function getUselessCooler($company_id, $quarter = '')
+    public function getUselessCooler($company_id, $date = '')
     {
-        $date = dateFormatByType($quarter);
+
         $company_ids = Company::find($company_id)->ids(0);
         return $this->selectRaw('company_id,cooler_name,cooler_sn,collector_num,status,uninstall_time')
             ->whereRaw('status!=1 and (uninstall_time between ' . $date['start'] . ' and ' . $date['end'] . ')')
@@ -591,5 +751,10 @@ class  Cooler extends Coldchain2Model
                 }
                 return $cooler;
         }
+    }
+
+    public static function getTypeGroup($id)
+    {
+      return  SysCoolerType::query()->find($id)->category;
     }
 }

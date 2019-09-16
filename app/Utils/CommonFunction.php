@@ -4,6 +4,8 @@ namespace App\Utils;
 
 use App\Models\Ccrp\Company;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 function array_trim($arr, $trim = true)
 {
@@ -663,11 +665,36 @@ function dateFormatByType($type=1,$extra='')
             $end=Carbon::now()->subYear(1)->endOfYear()->timestamp;
             break;
         case 4:
-            $extra=explode('-',$extra);
-            $start=$extra[0];
-            $end=$extra[1];
+            $extra=explode('&',$extra);
+            Log::info($extra);
+            $start=Carbon::createFromTimestamp(strtotime($extra[0]))->startOfDay()->timestamp;
+            $end=Carbon::createFromTimestamp(strtotime($extra[1]))->startOfDay()->timestamp;
     }
     $result['start']=$start;
     $result['end']=$end;
     return $result;
+}
+
+
+ function http($method,$url,$params=[])
+{
+    switch ($method) {
+        case 'GET':
+            $options = [
+                'query' => $params,
+            ];
+            break;
+        case 'POST':
+            $options = [
+                'form_params' => $params,
+            ];
+            break;
+    }
+    $client = new Client();
+    try {
+        $response = $client->$method($url, $options);
+        return $response->getBody()->getContents();
+    }catch (\Exception $exception){
+        return $exception->getMessage();
+    }
 }

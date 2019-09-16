@@ -104,9 +104,9 @@ class VehiclesController extends Controller
                 ];
             });
             $fractal = new Manager();
-            return $this->response->array($fractal->createData($resource)->toArray());
+            return $this->response->array(['data'=>$fractal->createData($resource)->toArray()]);
         }
-        return $this->response->errorNotFound('没有数据');
+        return $this->response->array(['data'=>$lists]);
     }
 
     public function vehicle_map(VehicleMapRequest $request)

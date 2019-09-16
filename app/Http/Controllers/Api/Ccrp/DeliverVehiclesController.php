@@ -21,7 +21,9 @@ class DeliverVehiclesController extends Controller
         $this->check();
         $delivervehicle = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
         if ($keyword = request()->get('keyword')) {
-            $delivervehicle = $delivervehicle->where('driver', 'like', '%'.$keyword.'%')->whereOr('vehicle', 'like', '%'.$keyword.'%');
+            $delivervehicle = $delivervehicle->where(function ($query) use ($keyword){
+                $query->where('driver', 'like', '%'.$keyword.'%')->orWhere('vehicle', 'like', '%'.$keyword.'%');
+            });
         }
         $delivervehicle = $delivervehicle->orderBy('delivervehicle_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($delivervehicle, new DeliverVehicleTransformer());

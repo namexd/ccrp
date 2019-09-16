@@ -79,7 +79,7 @@ class CoolerPhotosController extends Controller
         }
         $photos = $this->model->where('cooler_id', $cooler->cooler_id)->get();
         $fractal = new Manager();
-        $sys_photos = new Collection(SysCoolerPhoto::whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->get(), new CoolerPhotoTransformer());
+        $sys_photos = new Collection(SysCoolerPhoto::whereRaw(' (locate('.$cooler->cooler_type.',note) or length(note)=0 or ISNULL(note))')->groupBy('sort')->get(), new CoolerPhotoTransformer());
         $array = $fractal->createData($sys_photos)->toArray();
         return $this->response->collection($photos, new \App\Transformers\Ccrp\CoolerPhotoTransformer())
             ->addMeta('sys_details', $array);

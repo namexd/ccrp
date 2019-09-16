@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\CheckCoolerWarning;
 use App\Models\Ccrp\Company;
+use App\Models\Ccrp\CheckTask;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -21,17 +22,26 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function (){
-            $companyIds=Company::whereHas('useSettings',function ($query){
-                $query->where('setting_id',Company::单位设置_开启冰箱整体离线巡检)->where('value',1);
-            })->pluck('id');
+        if (env('APP_NAME') == 'Ccrp') {
+            $schedule->call(function () {
+                $companyIds = Company::whereHas('useSettings', function ($query) {
+                    $query->where('setting_id', Company::单位设置_开启冰箱整体离线巡检)->where('value', 1);
+                })->pluck('id');
                 dispatch(new CheckCoolerWarning($companyIds));
-        })->everyMinute();
+            })->everyMinute();
+        }
+
+        if (env('APP_NAME') == 'Ccrp2') {
+            $schedule->call(function () {
+                (new CheckTask())->buildTask();
+            })->monthly()->description('生成巡检单');
+        }
+
     }
 
     /**

@@ -46,6 +46,10 @@ class CoolersController extends Controller
         $company_id = $this->company_id ?? $this->company->id;
         $parent = Company::find($company_id);
         $companies = Company::where('pid', $company_id)->where('status', 1)->where('company_group', $parent->company_group)->get();
+        if ($companies->isEmpty())
+        {
+            $companies=Company::where('id',$company_id)->get();
+        }
         $result = [];
         foreach ($companies as $key => $company) {
             $companyIds = $company->ids();
@@ -53,6 +57,17 @@ class CoolersController extends Controller
             $result[$key]['title'] = $company->title;
             $result[$key]['region_code'] = $company->region_code;
         }
+        $key_arrays=array_first($result);
+        array_forget($key_arrays,['title','region_code']);
+        $key_arrays= array_keys($key_arrays);
+        $count_array=[];
+        foreach ($key_arrays as $array)
+        {
+            $count_array[$array]= array_sum(array_column($result,$array));
+        }
+        $count_array['title']='合计';
+        $count_array['region_code']='';
+        array_push($result,$count_array);
         $data['data'] = $result;
         $data['meta']['columns']['parent'] = $parent->title;
         return $this->response->array($data);
@@ -65,6 +80,10 @@ class CoolersController extends Controller
         $company_id = $this->company_id ?? $this->company->id;
         $parent = Company::find($company_id);
         $companies = Company::where('pid', $company_id)->where('status', 1)->where('company_group', $parent->company_group)->get();
+        if ($companies->isEmpty())
+        {
+            $companies=Company::where('id',$company_id)->get();
+        }
         $result = [];
         foreach ($companies as $key => $company) {
             $companyIds = $company->ids();
@@ -72,6 +91,17 @@ class CoolersController extends Controller
             $result[$key]['title'] = $company->title;
             $result[$key]['region_code'] = $company->region_code;
         }
+        $key_arrays=array_first($result);
+        array_forget($key_arrays,['title','region_code']);
+        $key_arrays= array_keys($key_arrays);
+        $count_array=[];
+        foreach ($key_arrays as $array)
+        {
+            $count_array[$array]= array_sum(array_column($result,$array));
+        }
+        $count_array['title']='合计';
+        $count_array['region_code']='';
+        array_push($result,$count_array);
         $data['data'] = $result;
         $data['meta']['columns']['parent'] = $parent->title;
         return $this->response->array($data);
@@ -84,6 +114,10 @@ class CoolersController extends Controller
         $company_id = $this->company_id ?? $this->company->id;
         $parent = Company::find($company_id);
         $companies = Company::where('pid', $company_id)->where('status', 1)->where('company_group', $parent->company_group)->get();
+        if ($companies->isEmpty())
+        {
+            $companies=Company::where('id',$company_id)->get();
+        }
         $result = [];
         foreach ($companies as $key => $company) {
             $companyIds = $company->ids();
@@ -91,6 +125,17 @@ class CoolersController extends Controller
             $result[$key]['title'] = $company->title;
             $result[$key]['region_code'] = $company->region_code;
         }
+        $key_arrays=array_first($result);
+        array_forget($key_arrays,['title','region_code']);
+        $key_arrays= array_keys($key_arrays);
+        $count_array=[];
+        foreach ($key_arrays as $array)
+        {
+            $count_array[$array]= array_sum(array_column($result,$array));
+        }
+        $count_array['title']='合计';
+        $count_array['region_code']='';
+        array_push($result,$count_array);
         $data['data'] = $result;
         $data['meta']['columns']['parent'] = $parent->title;
         return $this->response->array($data);
