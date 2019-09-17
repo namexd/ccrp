@@ -47,7 +47,7 @@ class CollectorsController extends Controller
         $status = request()->get('status') ?? 1;
         $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where(function ($query) use ($keyword){
+            $collectors = $collectors->where(function ($query) use ($keyword) {
                 $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
             });
         }
@@ -103,8 +103,8 @@ class CollectorsController extends Controller
     public function realtime()
     {
         $this->check();
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->whereHas('cooler',function ($query){
-            $query->where('cooler_type','<',100);
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->whereHas('cooler', function ($query) {
+            $query->where('cooler_type', '<', 100);
         })->where('status', 1)->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
@@ -225,29 +225,33 @@ class CollectorsController extends Controller
         $this->check();
         $warning_count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
             $query->where('temp_warning', 1)->where('status', 1);
-        })->whereHas('cooler',function ($query){
-            $query->where('status',Cooler::状态_正常);
+        })->whereHas('cooler', function ($query) {
+            $query->where('status', Cooler::状态_正常);
         })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->count();
-        $status_3=0;//Cooler::状态_备用
-        $status_6=0;//Cooler::状态_除霜
-        $status_5=0;//Cooler::状态_盘苗
-            $coolers=Cooler::query()->whereIn('company_id', $this->company_ids)->get();
-            foreach ($coolers as $cooler)
-            {
-                if ($cooler->status==Cooler::状态_备用)
-                {
-                    $status_3++;
-                }
-                if ($cooler->status==Cooler::状态_除霜)
-                {
-                    $status_6++;
-                }
-                if ($cooler->status==Cooler::状态_盘苗)
-                {
-                    $status_5++;
-                }
+        $status_2 = 0;//Cooler::状态_维修
+        $status_3 = 0;//Cooler::状态_备用
+        $status_6 = 0;//Cooler::状态_除霜
+        $status_5 = 0;//Cooler::状态_盘苗
+        $coolers = Cooler::query()->whereIn('company_id', $this->company_ids)->get();
+        foreach ($coolers as $cooler) {
+            if ($cooler->status == Cooler::状态_备用) {
+                $status_3++;
             }
-        return $this->response->array(['warning_count' => $warning_count,'status_3'=>$status_3,'status_6'=>$status_6,'status_5'=>$status_5]);
+            if ($cooler->status == Cooler::状态_除霜) {
+                $status_6++;
+            }
+            if ($cooler->status == Cooler::状态_盘苗) {
+                $status_5++;
+            }
+            if ($cooler->status == Cooler::状态_维修) {
+                $status_2++;
+            }
+        }
+        return $this->response->array(['warning_count' => $warning_count,
+            'status_2' => $status_2,
+            'status_3' => $status_3,
+            'status_6' => $status_6,
+            'status_5' => $status_5]);
 
     }
 
@@ -256,18 +260,18 @@ class CollectorsController extends Controller
         $this->check();
         $collectors = $this->collector->whereIn('status', [0, 1])->where('supplier_product_model', 'LWYL201')->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where(function ($query) use ($keyword){
+            $collectors = $collectors->where(function ($query) use ($keyword) {
                 $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
             });
         }
         $collectors = $collectors
-           ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $sender=new Sender;
-        foreach($collectors as &$collector){
-            $DC =$sender->getRealTimeStatus($collector['supplier_collector_id'],$collector['supplier_id']);
+            ->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $sender = new Sender;
+        foreach ($collectors as &$collector) {
+            $DC = $sender->getRealTimeStatus($collector['supplier_collector_id'], $collector['supplier_id']);
             $collector['power'] = $DC[0]['ram_count'];
             $collector['power'] = to_dianliang($collector['power']);
-            $collector['temp'] = to_wendu($collector['temp']+$collector['temp_fix']);//temp_fix
+            $collector['temp'] = to_wendu($collector['temp'] + $collector['temp_fix']);//temp_fix
             $collector['humi'] = to_shidu($collector['humi']);
             $collector['rssi'] = to_rssi($collector['rssi']);
             $collector['volt'] = to_dianya($collector['volt']);
