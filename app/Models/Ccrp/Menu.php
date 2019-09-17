@@ -45,16 +45,6 @@ class Menu extends Coldchain2Model
     }
 
     /**
-     * A Menu belongs to many roles.
-     *
-     * @return BelongsToMany
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class, 'role_has_menus', 'menu_id', 'role_id');
-    }
-
-    /**
      * @return array
      */
     public function allNodes(): array
@@ -104,5 +94,10 @@ class Menu extends Coldchain2Model
 //            dd($item->roles);
 //        }
         return $rs;
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class,'menu_role','menu_id','role_id');
     }
 }
