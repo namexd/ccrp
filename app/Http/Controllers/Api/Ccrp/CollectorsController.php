@@ -221,17 +221,15 @@ class CollectorsController extends Controller
     public function countWarningSettingUnset()
     {
         $this->check();
-        $count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
+        $warning_count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
             $query->where('temp_warning', 1)->where('status', 1);
-        })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->get();
-        $warning_count=0;
+        })->whereHas('cooler',function ($query){
+            $query->where('status',Cooler::状态_正常);
+        })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->count();
         $status_3=0;//Cooler::状态_备用
         $status_6=0;//Cooler::状态_除霜
         $status_5=0;//Cooler::状态_盘苗
-        if (!$count->isEmpty())
-        {
-            $coolerIds=collect($count->pluck('cooler_id'))->unique()->values()->all();
-            $coolers=Cooler::query()->whereIn('cooler_id',$coolerIds)->get();
+            $coolers=Cooler::query()->whereIn('company_id', $this->company_ids)->get();
             foreach ($coolers as $cooler)
             {
                 if ($cooler->status==Cooler::状态_备用)
@@ -246,12 +244,7 @@ class CollectorsController extends Controller
                 {
                     $status_5++;
                 }
-                if ($cooler->status==Cooler::状态_正常)
-                {
-                    $warning_count+=$cooler->collector_num;
-                }
             }
-        }
         return $this->response->array(['warning_count' => $warning_count,'status_3'=>$status_3,'status_6'=>$status_6,'status_5'=>$status_5]);
 
     }
