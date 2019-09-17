@@ -103,7 +103,9 @@ class CollectorsController extends Controller
     public function realtime()
     {
         $this->check();
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->with('company')
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->whereHas('cooler',function ($query){
+            $query->where('cooler_type','<',100);
+        })->where('status', 1)->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
             if ($type == 'overtemp') {
