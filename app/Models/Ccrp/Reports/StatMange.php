@@ -46,6 +46,16 @@ class StatMange extends Coldchain2Model
         $result=$this->selectRaw('*,ROUND(avg(grade),2) as grade')->whereRaw('(CONVERT((UNIX_TIMESTAMP(concat(year,"-",if(length(month)=1,concat(0,month),month),"-01"))),SIGNED) between '.$start_month.' and '.$end_month.')')->whereIn('company_id',$company_ids)->groupBy('company_id');
         return $result;
     }
+
+    public function getListByMonths2($company_ids,$start,$end)
+    {
+        $start=Carbon::createFromTimestamp(strtotime($start));
+        $end=Carbon::createFromTimestamp(strtotime($end));
+        $start_month=$start->firstOfMonth()->timestamp;
+        $end_month=$end->endOfMonth()->timestamp;
+        $result=$this->whereRaw('(CONVERT((UNIX_TIMESTAMP(concat(year,"-",if(length(month)=1,concat(0,month),month),"-01"))),SIGNED) between '.$start_month.' and '.$end_month.')')->whereIn('company_id',$company_ids)->groupBy('year')->groupBy('month');
+        return $result;
+    }
 //
 //    public function paginate()
 //    {
