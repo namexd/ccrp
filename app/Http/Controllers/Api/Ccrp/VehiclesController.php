@@ -3,17 +3,10 @@
 namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\VehicleMapRequest;
-use App\Models\Ccrp\Collector;
-use App\Models\Ccrp\Company;
-use App\Models\Ccrp\DataHistory;
-use App\Models\Ccrp\Printer;
 use App\Models\Ccrp\Vehicle;
-use App\Traits\ControllerDataRange;
-use App\Transformers\Ccrp\CollectorDetailTransformer;
 use App\Transformers\Ccrp\VehicleTransformer;
 use App\Transformers\Ccrp\VehicleWarningerTransformer;
 use Carbon\Carbon;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Manager;

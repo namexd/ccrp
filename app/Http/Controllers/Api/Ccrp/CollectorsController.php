@@ -7,15 +7,14 @@ use App\Models\Ccrp\Collector;
 use App\Models\Ccrp\Collectorguanxi;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\CompanyHasSetting;
-use App\Models\Ccrp\CompanyUseSetting;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\DataHistory;
-use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\Product;
 use App\Models\Ccrp\Sender;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Sys\SysCoolerType;
 use App\Traits\ControllerDataRange;
+use App\Traits\OrderColumn;
 use App\Transformers\Ccrp\CollectorDetailTransformer;
 use App\Transformers\Ccrp\CollectorHistoryTransformer;
 use App\Transformers\Ccrp\CollectorRealtimeTransformer;
@@ -31,7 +30,7 @@ use Illuminate\Http\Request;
 
 class CollectorsController extends Controller
 {
-    use ControllerDataRange;
+    use ControllerDataRange,OrderColumn;
     public $default_date = '今日';
     private $collector;
 
@@ -105,15 +104,22 @@ class CollectorsController extends Controller
         $this->check();
         $collectors = $this->collector->whereIn('company_id', $this->company_ids)->whereHas('cooler', function ($query) {
             $query->where('cooler_type', '<', 100);
-        })->where('status', 1)->with('company')
-            ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
+        })->where('status', 1)->with('company');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
             if ($type == 'overtemp') {
-                $collectors = $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
+               $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
             } elseif ($type == 'offline') {
-                $collectors = $collectors->where('warning_status', $this->collector::预警类型_离线);
+              $collectors->where('warning_status', $this->collector::预警类型_离线);
             }
         }
+        if ($keyword = request()->get('keyword')) {
+           $collectors->where(function ($query) use ($keyword) {
+                $query->where('supplier_collector_id', 'like', '%'.$keyword.'%')
+                    ->orWhere('cooler_name', 'like', '%'.$keyword.'%')
+                    ->orWhere('collector_name', 'like', '%'.$keyword.'%');
+            });
+        }
+        $collectors=$this->setOrder($collectors);
         $count['all'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->count();
         $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector::预警类型_离线)->count();
         $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温])->count();
