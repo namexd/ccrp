@@ -11,7 +11,7 @@ class ConcatsController extends Controller
     public function index()
     {
         $this->check();
-        $concats = Contact::whereIn('company_id',$this->company_ids)->where('status',1)->with('company')
+        $concats = Contact::whereIn('company_id',$this->company_ids)->with('company')
             ->orderBy('company_id','asc')->paginate(request()->get('pagesize')??$this->pagesize);
 
         return $this->response->paginator($concats, new ContactTransformer());
@@ -40,9 +40,6 @@ class ConcatsController extends Controller
         $this->check();
         $request=request()->all();
         $concat=Contact::find($id);
-        $request['create_uid']=$this->user->id;
-        $request['company_id']=$this->company->id;
-        $request['create_time']=time();
         $concat->fill($request);
         $concat->save();
         return $this->response->item($concat, new ContactTransformer());
