@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers\Api\Ccrp;
 
-use App\Http\Requests\Api\Ccrp\LedspeakerRequest;
 use App\Http\Requests\Api\Ccrp\SenderRequest;
-use App\Models\Ccrp\Dccharging;
-use App\Models\Ccrp\GatewaybindingdataModel;
-use App\Models\Ccrp\LedspeakerLog;
 use App\Models\Ccrp\Sender;
 use App\Models\Ccrp\SenderWarningSetting;
-use App\Models\Ccrp\WarningSetting;
 use App\Transformers\Ccrp\SenderNewTransformer;
 use App\Transformers\Ccrp\SenderWarningSettingTransformer;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Request;
 
 class SendersController extends Controller
 {
@@ -82,23 +77,26 @@ class SendersController extends Controller
         return $this->response->noContent();
     }
 
-    public function warningSetting($id)
+    public function warningSetting($id,Request $request)
     {
         $this->check();
-        $request=request()->all();
+        $request=$request->all();
         $sender = $this->model->find($id);
         if ($sender)
         {
             if ($sender->warning_setting)
             {
-                $sender->warning_setting()->update($request);
+                $warning_setting=SenderWarningSetting::where('sender_id',$sender->sender_id)->first();
+                $warning_setting->update($request);
             }
             else
             {
                 $request['company_id']=$this->company->id;
                 $request['set_uid']=$this->user->id;
                 $request['set_time']=time();
-                $sender->warning_setting()->create($request);
+                $request['id']=$sender->id;
+                $request['sender_id']=$sender->sender_id;
+                SenderWarningSetting::query()->create($request);
 
             }
         }else
