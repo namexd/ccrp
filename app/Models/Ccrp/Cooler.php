@@ -170,6 +170,14 @@ class  Cooler extends Coldchain2Model
         return $this->belongsToMany(SysCoolerPhoto::class,'cooler_photos','cooler_id','sys_id')->withPivot('value');
 
     }
+    public function logs()
+    {
+        return $this->hasMany(CoolerLog::class,'cooler_id','cooler_id');
+    }
+    public function uninstall_log()
+    {
+        return $this->hasMany(CoolerLog::class,'cooler_id','cooler_id')->where('status',self::状态_报废);
+    }
 
     function history($start_time, $end_time)
     {
