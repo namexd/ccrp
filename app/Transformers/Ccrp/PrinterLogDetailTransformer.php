@@ -39,7 +39,10 @@ class PrinterLogDetailTransformer extends TransformerAbstract
 
     public function includePrinter(PrinterLog $printerLog)
     {
-        return $this->item($printerLog->printer, new PrinterTransformer());
+        if ($printerLog->printer)
+            return $this->item($printerLog->printer,new PrinterTransformer());
+        else
+            return $this->null();
     }
 
 }

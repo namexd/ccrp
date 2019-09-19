@@ -121,7 +121,7 @@ class PrintersController extends Controller
         $printer = $this->printer->find($id);
         if ($printer)
         {
-            $printer->delete();
+            $printer->update(['status'=>0,'printer_sn'=>'-'.$printer->printer_sn]);
             return $this->response->noContent();
         }
        else{
