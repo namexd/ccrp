@@ -25,12 +25,15 @@ class PrintersController extends Controller
     public function index()
     {
         $this->check();
-        $printers = $this->printer->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $printers = $this->printer->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
             $printers = $printers->where(function ($query) use ($keyword){
                 $query->where('printer_name', 'like', '%'.$keyword.'%')
                     ->orWhere('printer_sn', 'like', '%'.$keyword.'%');
             });
+        }
+        if (request()->has('status')) {
+            $printers = $printers->where('status',request()->get('status'));
         }
         if ($this->user->userlevel == 2) {
             if ($this->user->binding_printer <> '')
@@ -202,7 +205,7 @@ class PrintersController extends Controller
     public function test($id)
     {
         $this->check();
-        $resp= $this->printer->printer_print_array($id, '测试打印', '', $this->user->id, '');
+        $resp= $this->printer->printer_print_array($id, '测试打印',PrinterTemplate::test(), $this->user->id, '');
         return $this->response->array($resp);
     }
 }

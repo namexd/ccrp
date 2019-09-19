@@ -70,6 +70,15 @@ class PrinterTemplate extends Coldchain2Model
         return $result;
     }
 
+    public static function test()
+    {
+        $orderInfo = '<CB>测试打印</CB><BR>';
+        $orderInfo .= '=====这是测试打印的内容=====<BR>';
+        $orderInfo .= '打印时间：'.date('Y-m-d H:i:s').'<BR>';
+        return $orderInfo;
+
+    }
+
     private function vehicle_print_data_format($title, $datas)
     {
         $orderInfo = '<CB>'.$title.'</CB><BR>';
