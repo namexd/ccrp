@@ -11,8 +11,13 @@ class ConcatsController extends Controller
     public function index()
     {
         $this->check();
-        $concats = Contact::whereIn('company_id',$this->company_ids)->with('company')
-            ->orderBy('company_id','asc')->paginate(request()->get('pagesize')??$this->pagesize);
+        $concats = Contact::whereIn('company_id',$this->company_ids)->with('company');
+        if ($keyword = request()->get('keyword')) {
+            $concats = $concats->where(function ($query) use ($keyword){
+                $query->where('name', 'like', '%'.$keyword.'%')->orWhere('phone', 'like', '%'.$keyword.'%');
+            });
+        }
+           $concats=$concats ->orderBy('company_id','asc')->paginate(request()->get('pagesize')??$this->pagesize);
 
         return $this->response->paginator($concats, new ContactTransformer());
     }
