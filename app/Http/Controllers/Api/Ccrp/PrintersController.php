@@ -27,13 +27,13 @@ class PrintersController extends Controller
         $this->check();
         $printers = $this->printer->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $printers = $printers->where(function ($query) use ($keyword){
+            $printers = $printers->where(function ($query) use ($keyword) {
                 $query->where('printer_name', 'like', '%'.$keyword.'%')
                     ->orWhere('printer_sn', 'like', '%'.$keyword.'%');
             });
         }
         if (request()->has('status')) {
-            $printers = $printers->where('status',request()->get('status'));
+            $printers = $printers->where('status', request()->get('status'));
         }
         if ($this->user->userlevel == 2) {
             if ($this->user->binding_printer <> '')
@@ -122,14 +122,12 @@ class PrintersController extends Controller
     public function destroy($id)
     {
         $printer = $this->printer->find($id);
-        if ($printer)
-        {
-            $printer->update(['status'=>0,'printer_sn'=>'-'.$printer->printer_sn]);
+        if ($printer && $printer->status==1) {
+            $printer->update(['status' => 0, 'printer_sn' => '-'.$printer->printer_sn]);
             return $this->response->noContent();
+        } else {
+            return $this->response->errorBadRequest('该打印机已报废');
         }
-       else{
-           return $this->response->errorBadRequest('该打印机不存在');
-       }
     }
 
     public function printTemp(Request $request, Vehicle $vehicleModel, Collector $collectorModel, PrinterTemplate $printTemplate)
@@ -151,23 +149,21 @@ class PrintersController extends Controller
             $lists = $collector->history(strtotime($start), strtotime($end))->toArray();
             $title = $collector->supplier_collector_id;
         }
-        if ($collector_ids=$request->get('collector_ids')) {
-            $start=strtotime($start);
-            $end=strtotime($end);
-            if (is_string($collector_ids))
-            {
-                $collector_ids=json_decode($collector_ids,true);
+        if ($collector_ids = $request->get('collector_ids')) {
+            $start = strtotime($start);
+            $end = strtotime($end);
+            if (is_string($collector_ids)) {
+                $collector_ids = json_decode($collector_ids, true);
             }
             $model = new Cooler();
             $cooler = $model->find($request->cooler_id);
             if ($cooler['install_time'] > $start)
                 $start = $cooler['install_time'];
-            $spacing_time=$request->spacing_time??0;
-            if($spacing_time>0)
-            {
-                $lists = $model->spacingHistory($cooler,$start,$end,$collector_ids,$spacing_time);
-            }else{
-                $lists = $model->gspHistory($cooler,$start,$end,$collector_ids);
+            $spacing_time = $request->spacing_time ?? 0;
+            if ($spacing_time > 0) {
+                $lists = $model->spacingHistory($cooler, $start, $end, $collector_ids, $spacing_time);
+            } else {
+                $lists = $model->gspHistory($cooler, $start, $end, $collector_ids);
             }
             $title = $cooler->cooler_name;
         }
@@ -205,7 +201,7 @@ class PrintersController extends Controller
     public function test($id)
     {
         $this->check();
-        $resp= $this->printer->printer_print_array($id, '测试打印',PrinterTemplate::test(), $this->user->id, '');
+        $resp = $this->printer->printer_print_array($id, '测试打印', PrinterTemplate::test(), $this->user->id, '');
         return $this->response->array($resp);
     }
 }

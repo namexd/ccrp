@@ -25,7 +25,7 @@ class LoginLog extends Coldchain2pgModel
 
     public function getDetailByDate($companyIds,$start,$end)
     {
-       return $this->whereBetween('login_time',[$start,$end])->whereIn('company_id',$companyIds)->orderBy('login_time');
+       return $this->whereBetween('login_time',[$start,$end])->whereIn('company_id',$companyIds);
     }
     public function getReportByMonth($companyIds,$date)
     {
@@ -78,5 +78,18 @@ ORDER BY lf.`day`,lf.id,lf.tm;';
             'login_time'=>'登录时间',
             'note'=>'备注',
         ];
+    }
+
+    public function getLoginType()
+    {
+        $result=[];
+        foreach (self::LOGIN_TYPE as $k=> $value)
+        {
+            $result[]=[
+                'value'=>$k,
+                'label'=>$value
+            ];
+        }
+        return $result;
     }
 }

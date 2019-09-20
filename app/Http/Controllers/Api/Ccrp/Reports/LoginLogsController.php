@@ -51,8 +51,21 @@ class LoginLogsController extends Controller
         $this->check($this->company_id);
         $start = strtotime(Input::get('start'));
         $end = strtotime(Input::get('end'));
-        $lists=$loginLog->getDetailByDate($this->company_ids,$start,$end)->paginate(request()->get('pagesize')??$this->pagesize);
+        $lists=$loginLog->getDetailByDate($this->company_ids,$start,$end);
+        if ($keyword=$request->keyword)
+        {
+            $lists=$lists->where(function ($query) use ($keyword){
+               $query->where('note','like','%'.$keyword.'%')->orWhere('username','like','%'.$keyword.'%');
+            });
+        }
+        if ($type=$request->type)
+        {
+            $lists=$lists->where('type',$type);
+        }
+         $lists=$lists->orderBy('login_time')->paginate(request()->get('pagesize')??$this->pagesize);
         $transformer=new LoginLogTransformer();
-        return $this->response->paginator($lists,$transformer)->addMeta('colums',$transformer->columns());
+        return $this->response->paginator($lists,$transformer)
+            ->addMeta('login_type',$loginLog->getLoginType())
+            ->addMeta('colums',$transformer->columns());
     }
 }
