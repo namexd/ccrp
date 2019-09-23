@@ -69,8 +69,11 @@ class CollectorsController extends Controller
         if (request()->has('offline_check')) {
             $collectors = $collectors->where('offline_check', request()->get('offline_check'));
         }
-        if ($install_time = request()->get('install_time')) {
-            $collectors = $collectors->where('install_time', strtotime($install_time));
+        if ($install_start_time = request()->get('install_start_time')) {
+            $collectors = $collectors->where('install_time','>=', strtotime($install_start_time));
+        }
+        if ($install_end_time = request()->get('install_end_time')) {
+            $collectors = $collectors->where('install_end_time','<=', strtotime($install_end_time));
         }
 
         $collectors = $collectors->with('company')
