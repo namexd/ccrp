@@ -171,7 +171,7 @@ class CollectorsController extends Controller
         if ($offline_span = $this->company->hasSettings()->where('setting_id', Company::单位设置_离线报警时长)->first()) {
             $request['offline_span'] = $offline_span->value;
 
-        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getManagerId())->first()) {
+        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->where('company_id', $this->company->getManagerId())->first()) {
             $request['offline_span'] = $offline_span->value;
 
         } else {

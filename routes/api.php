@@ -153,6 +153,7 @@ $api->version('v1', [
             $api->get('stat_manual_records/list/{month?}', 'StatManualRecordsController@index')->name('api.ccrp.stat_manual_records.index');
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
            //报警设置
+            $api->get('warning_settings/change_warning_setting_all', 'WarningSettingsController@changeWarningSettingAll');
             $api->resource('warning_settings', WarningSettingsController::class);
             //0,探头,1,报警器,2一体机，3中继器
             $api->resource('products', ProductsController::class);

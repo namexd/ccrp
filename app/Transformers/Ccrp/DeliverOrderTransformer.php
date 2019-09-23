@@ -9,7 +9,7 @@ use League\Fractal\TransformerAbstract;
 class DeliverOrderTransformer extends TransformerAbstract
 {
 
-    protected $availableIncludes=['collectors','company','warning_Setting'];
+    protected $availableIncludes=['collector','company','warningSetting'];
     public function transform(DeliverOrder $deliverOrder)
     {
         $rs =  [
@@ -31,9 +31,12 @@ class DeliverOrderTransformer extends TransformerAbstract
 
         return $rs;
     }
-    public function includeCollectors(DeliverOrder $deliverOrder)
+    public function includeCollector(DeliverOrder $deliverOrder)
     {
-        return $this->collection($deliverOrder->collectors(),new CollectorDetailTransformer());
+        if ($deliverOrder->collector)
+        return $this->item($deliverOrder->collector,new CollectorTransformer());
+        else
+            return $this->null();
     }
     public function includeCompany(DeliverOrder $deliver)
     {
@@ -42,7 +45,10 @@ class DeliverOrderTransformer extends TransformerAbstract
 
     public function includeWarningSetting(DeliverOrder $deliver)
     {
+        if ($deliver->warningSetting)
         return $this->item($deliver->warningSetting(),new DeliverWarningSettingTransformer());
+        else
+            return $this->null();
     }
 
 }
