@@ -116,9 +116,10 @@ $api->version('v1', [
             $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');
             $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
-            $api->get('collectors/couveuse/{id}', 'CollectorsController@couveuse_current')->name('api.ccrp.coolers.couveuse_current');
-            $api->get('collectors/couveuse', 'CollectorsController@couveuse')->name('api.ccrp.coolers.couveuse');
-            $api->get('collectors/count_warningSetting_unset', 'CollectorsController@countWarningSettingUnset')->name('api.ccrp.coolers.count_warningSetting_unset');
+            $api->get('collectors/change/{id}', 'CollectorsController@change')->name('api.ccrp.collectors.change');
+            $api->get('collectors/couveuse/{id}', 'CollectorsController@couveuse_current')->name('api.ccrp.collectors.couveuse_current');
+            $api->get('collectors/couveuse', 'CollectorsController@couveuse')->name('api.ccrp.collectors.couveuse');
+            $api->get('collectors/count_warningSetting_unset', 'CollectorsController@countWarningSettingUnset')->name('api.ccrp.collectors.count_warningSetting_unset');
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
             $api->get('collectors/realtime', 'CollectorsController@realtime')->name('api.ccrp.collectors.realtime');
             $api->get('collectors/{collector}/history', 'CollectorsController@history')->name('api.ccrp.collectors.history');
