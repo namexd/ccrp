@@ -21,7 +21,10 @@ class SendersController extends Controller
     public function index()
     {
         $this->check();
-        $sender = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $sender = $this->model->whereIn('company_id', $this->company_ids);
+        if (request()->has('status')) {
+            $sender = $sender->where('status', request()->get('status'));
+        }
         $sender = $sender->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($sender, new SenderNewTransformer());
     }

@@ -199,6 +199,9 @@ $api->version('v1', [
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
 
+            $api->get('users/unbind_wxmember/{id}','UsersController@unbindWxmember')->name('api.ccrp.users.unbindWxmember');
+            $api->get('users/weixin_member','UsersController@weixinMember')->name('api.ccrp.users.weixinMember');
+            $api->put('users/weixin_member/{id}','UsersController@updateWxMember')->name('api.ccrp.users.updateWxMember');
             $api->post('users/login','UsersController@login')->name('api.ccrp.users.login');
 
             //CCrp数据报表

@@ -46,7 +46,7 @@ class DeliverOrderTransformer extends TransformerAbstract
     public function includeWarningSetting(DeliverOrder $deliver)
     {
         if ($deliver->warningSetting)
-        return $this->item($deliver->warningSetting(),new DeliverWarningSettingTransformer());
+        return $this->item($deliver->warningSetting,new DeliverWarningSettingTransformer());
         else
             return $this->null();
     }
