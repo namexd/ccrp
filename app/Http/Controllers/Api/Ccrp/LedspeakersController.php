@@ -6,6 +6,7 @@ use App\Http\Requests\Api\Ccrp\LedspeakerRequest;
 use App\Models\Ccrp\GatewaybindingdataModel;
 use App\Models\Ccrp\Ledspeaker;
 use App\Models\Ccrp\LedspeakerLog;
+use App\Models\Ccrp\Product;
 use App\Transformers\Ccrp\LedspeakerTransformer;
 use Illuminate\Support\Facades\Input;
 
@@ -21,11 +22,14 @@ class LedspeakersController extends Controller
     public function index()
     {
         $this->check();
-        $ledspeaker = $this->model->whereIn('company_id', $this->company_ids)->where('status', 1);
+        $ledspeaker = $this->model->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
             $ledspeaker = $ledspeaker->where(function ($query) use ($keyword){
                 $query->where('ledspeaker_name', 'like', '%'.$keyword.'%')->orWhere('supplier_ledspeaker_id', 'like', '%'.$keyword.'%');
             });
+        }
+        if (request()->has('status')) {
+            $ledspeaker = $ledspeaker->where('status',request()->get('status'));
         }
         $ledspeaker = $ledspeaker->orderBy('ledspeaker_id', 'desc')->paginate(request()->get('pagesize') ?? $this->pagesize);
         return $this->response->paginator($ledspeaker, new LedspeakerTransformer())->addMeta('ledspeaker_module', $this->model->getLedspeaker_module());
@@ -67,6 +71,8 @@ class LedspeakersController extends Controller
         $request['install_uid'] = $this->user->id;
         $request['install_time'] = time();
         $request['company_id'] = $this->company->id;
+        $product = Product::where('supplier_product_model', $request->supplier_model)->first();
+        $request['supplier_id'] = $product['supplier_id'];
         $result = $this->model->create($request->all());
         if ($result) {
             return $this->response->item($result, new LedspeakerTransformer());
@@ -77,14 +83,16 @@ class LedspeakersController extends Controller
 
     public function destroy($id)
     {
-        if (Input::get('change_note') == '')
+        if (request()->get('change_note') == '')
             return $this->response->errorBadRequest('备注不能为空');
         $ledspeaker = $this->model->find($id);
         if ($ledspeaker->status == 2) {
             return $this->response->errorBadRequest('该报警器已经报废');
         }
+        $attribute=$ledspeaker->toArray();
         $attribute['change_time'] = time();
         $attribute['change_option'] = 1;
+        $attribute['change_note'] = request()->get('change_note');
         $logmodel = LedspeakerLog::create($attribute);
         $supplier_ledspeaker_id = is_numeric($ledspeaker->supplier_ledspeaker_id) ? $ledspeaker->supplier_ledspeaker_id : 0;
         if ($logmodel) {

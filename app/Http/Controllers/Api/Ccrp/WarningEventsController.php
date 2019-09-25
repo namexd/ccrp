@@ -4,15 +4,9 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\WarningEventRequest;
 use App\Models\Ccrp\WarningEvent;
-use App\Models\Ccrp\WarningSenderEvent;
 use App\Traits\ControllerDataRange;
-use App\Transformers\Ccrp\WarningAllEventTransformer;
 use App\Transformers\Ccrp\WarningEventTransformer;
-use App\Transformers\Ccrp\WarningSenderEventTransformer;
 use DB;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Input;
 
 class WarningEventsController extends Controller
 {

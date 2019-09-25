@@ -45,6 +45,9 @@ class CoolersController extends Controller
         if (request()->get('has_collector')) {
             $coolers = $coolers->where('collector_num', '>', 0);
         }
+        if ($category_id=request()->get('category_id')) {
+            $coolers = $coolers->where('category_id',$category_id);
+        }
         if ($keyword = request()->get('keyword')) {
             $coolers = $coolers->where(function ($query) use ($keyword) {
                 $query->where('cooler_name', 'like', '%'.$keyword.'%')->orWhere('cooler_sn', 'like', '%'.$keyword.'%');

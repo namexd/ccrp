@@ -7,6 +7,7 @@ class SenderWarningSetting extends Coldchain2Model
     protected $table = 'sender_warning_setting';
     public $timestamps = false;
     protected $fillable = [
+        'id',
         'sender_id',
         'power_warning',
         'power_warning_last',

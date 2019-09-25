@@ -44,12 +44,14 @@ class Warninger extends Coldchain2Model
         self::不切换 => '不切换',
         self::自动切换 => '自动切换',
     ];
+    const 发送类型_不报警 = 0;
     const 发送类型_短信 = 1;
     const 发送类型_邮件 = 2;
     const 发送类型_微信 = 3;
     const 发送类型_电话 = 4;
     const 发送类型_短信2 = 6;
     const WARNINGER_TYPES = [
+        self::发送类型_不报警 => '不报警',
         self::发送类型_短信 => '短信',
         self::发送类型_邮件 => '邮件',
         self::发送类型_微信 => '微信',
