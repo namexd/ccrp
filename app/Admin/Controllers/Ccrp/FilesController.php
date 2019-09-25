@@ -83,20 +83,29 @@ class FilesController extends Controller
         $grid = new Grid(new File);
 
         $grid->id('Id');
-        $grid->file_name('File name');
-        $grid->file_server('File server');
-        $grid->file_url('File url');
-        $grid->file_type('File type');
-        $grid->file_category('File category');
-        $grid->file_desc('File desc');
-        $grid->company_id('Company id');
-        $grid->company_name('Company name');
-        $grid->create_time('Create time');
-        $grid->out_date('Out date');
-        $grid->file_url2('File url2');
-        $grid->status('Status');
-        $grid->note('Note');
+        $grid->file_name('探头名称');
+//        $grid->file_server('存储服务器');
+//        $grid->file_url('文件地址');
+        $grid->file_type('文件类型');
+        $grid->file_category('文件分类');
+        $grid->file_desc('文件描述');
+//        $grid->company_id('单位id');
+        $grid->company_name('单位名称');
+        $grid->create_time('创建时间')->display(function($item){
+            return date('Y-m-d',$item);
+        });
+//        $grid->out_date('过期时间');
+//        $grid->file_url2('File url2');
+        $grid->status('状态')->switch();
+        $grid->note('备注');
 
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+                $filter->equal('company', '单位名称');
+//            $filter->like('short_title', '单位简称');
+                $filter->equal('file_name', '探头名称');
+
+        });
         return $grid;
     }
 
