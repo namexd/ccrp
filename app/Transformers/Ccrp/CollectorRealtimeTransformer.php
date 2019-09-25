@@ -12,9 +12,9 @@ class CollectorRealtimeTransformer extends TransformerAbstract
     public function transform(Collector $collector)
     {
         $rs = [
-            'id' => $collector->collector_id,
-            'sn' => $collector->supplier_collector_id,
-            'name' => $collector->collector_name,
+            'collector_id' => $collector->collector_id,
+            'supplier_collector_id' => $collector->supplier_collector_id,
+            'collector_name' => $collector->collector_name,
             'cooler_id' => $collector->cooler_id,
             'cooler_name' => $collector->cooler_name,
             'company_id' => $collector->company_id,
