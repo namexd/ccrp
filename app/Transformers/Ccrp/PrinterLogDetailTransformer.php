@@ -17,7 +17,7 @@ class PrinterLogDetailTransformer extends TransformerAbstract
             'title'=>$printer_log->title,
             'subtitle'=>$printer_log->subtitle,
             'content'=>$printer_log->content,
-            'print_time'=>$printer_log->print_time>0?Carbon::createFromTimestamp($printer_log->printer_time)->toDateTimeString():0,
+            'print_time'=>$printer_log->print_time>0?Carbon::createFromTimestamp($printer_log->print_time)->toDateTimeString():0,
             'company_id'=>$printer_log->company_id,
             'uid'=>$printer_log->uid,
             'orderindex'=>$printer_log->orderindex,
@@ -39,7 +39,10 @@ class PrinterLogDetailTransformer extends TransformerAbstract
 
     public function includePrinter(PrinterLog $printerLog)
     {
-        return $this->item($printerLog->printer, new PrinterTransformer());
+        if ($printerLog->printer)
+            return $this->item($printerLog->printer,new PrinterTransformer());
+        else
+            return $this->null();
     }
 
 }

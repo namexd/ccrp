@@ -7,6 +7,7 @@ use App\Models\Ccrp\MenuCommon;
 use App\Models\Ccrp\MenuCompany;
 use App\Models\Ccrp\MenuRole;
 use App\Models\Ccrp\MenuUSer;
+use App\Models\Ccrp\Role;
 use Illuminate\Http\Request;
 
 class MenusController extends Controller
@@ -18,7 +19,8 @@ class MenusController extends Controller
         $role = $this->company->cdc_admin ? 'cdc' : 'unit';
         $commonMenu = MenuCommon::pluck('menu_id')->toArray();
         $companyMenu = MenuCompany::where('company_id', $this->user->company_id)->pluck('menu_id')->toArray();
-        $roleMenu = MenuRole::where('role', $role)->pluck('menu_id')->toArray();
+        $role_id=Role::where('role',$role)->first()->id;
+        $roleMenu = MenuRole::where('role_id', $role_id)->pluck('menu_id')->toArray();
         $userMenu = MenuUSer::where('status', 1)->where('user_id', $this->user->id)->pluck('menu_id')->toArray();
         $combine_menus = array_keys(
             array_flip($commonMenu)

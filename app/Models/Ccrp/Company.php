@@ -1136,6 +1136,6 @@ class Company extends Coldchain2Model
         $manager= $this->whereIn('id',$ids)->whereHas('tags',function ($query){
             $query->where('slug',Tag::管理单位);
         })->first();
-        return $manager?$manager->id:0;
+        return $manager?$manager->id:$this->id;
     }
 }

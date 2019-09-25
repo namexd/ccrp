@@ -4,18 +4,19 @@ namespace App\Http\Controllers\Api\Ccrp;
 
 use App\Http\Requests\Api\Ccrp\CollectorRequest;
 use App\Models\Ccrp\Collector;
+use App\Models\Ccrp\CollectorChangeLog;
 use App\Models\Ccrp\Collectorguanxi;
 use App\Models\Ccrp\Company;
 use App\Models\Ccrp\CompanyHasSetting;
-use App\Models\Ccrp\CompanyUseSetting;
 use App\Models\Ccrp\Cooler;
 use App\Models\Ccrp\DataHistory;
-use App\Models\Ccrp\Dccharging;
 use App\Models\Ccrp\Product;
 use App\Models\Ccrp\Sender;
 use App\Models\Ccrp\Sys\Setting;
 use App\Models\Ccrp\Sys\SysCoolerType;
+use App\Models\Ccrp\WarningSetting;
 use App\Traits\ControllerDataRange;
+use App\Traits\OrderColumn;
 use App\Transformers\Ccrp\CollectorDetailTransformer;
 use App\Transformers\Ccrp\CollectorHistoryTransformer;
 use App\Transformers\Ccrp\CollectorRealtimeTransformer;
@@ -31,7 +32,7 @@ use Illuminate\Http\Request;
 
 class CollectorsController extends Controller
 {
-    use ControllerDataRange;
+    use ControllerDataRange, OrderColumn;
     public $default_date = '今日';
     private $collector;
 
@@ -44,16 +45,37 @@ class CollectorsController extends Controller
     public function index()
     {
         $this->check();
-        $status = request()->get('status') ?? 1;
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', $status);
+
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids);
+        if (request()->has('status')) {
+            $collectors = $collectors->where('status', request()->get('status'));
+        }
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where(function ($query) use ($keyword){
+            $collectors = $collectors->where(function ($query) use ($keyword) {
                 $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
             });
         }
         if (request()->get('volt_worry') == 1) {
             $collectors = $collectors->whereRaw('(((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COOL'].') and (supplier_product_model="LWTG310") and temp >=-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S1_COLD'].') and (supplier_product_model="LWTG310") and temp <-10  ) OR ((volt < '.$this->collector::COLLECTOR_WORRY_VOLT['ZKS_S2'].') and (supplier_product_model="LWTGD310") and temp <-10  ))');
         }
+        if (request()->get('warning_unset') == 1) {
+            $collectors = $collectors->whereDoesntHave('warningSetting', function ($query) {
+                $query->where('temp_warning', 1)->where('status', 1);
+            });
+        }
+        if ($supplier_product_model = request()->get('supplier_product_model')) {
+            $collectors = $collectors->where('supplier_product_model', $supplier_product_model);
+        }
+        if (request()->has('offline_check')) {
+            $collectors = $collectors->where('offline_check', request()->get('offline_check'));
+        }
+        if ($install_start_time = request()->get('install_start_time')) {
+            $collectors = $collectors->where('install_time','>=', strtotime($install_start_time));
+        }
+        if ($install_end_time = request()->get('install_end_time')) {
+            $collectors = $collectors->where('install_end_time','<=', strtotime($install_end_time));
+        }
+
         $collectors = $collectors->with('company')
             ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc')->paginate(request()->get('pagesize') ?? $this->pagesize);
 
@@ -103,15 +125,24 @@ class CollectorsController extends Controller
     public function realtime()
     {
         $this->check();
-        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->with('company')
-            ->orderBy('company_id', 'asc')->orderBy('collector_name', 'asc');
+        $collectors = $this->collector->whereIn('company_id', $this->company_ids)->whereHas('cooler', function ($query) {
+            $query->where('cooler_type', '<', 100);
+        })->where('status', 1)->with('company');
         if ($type = request()->get('type') and $type != '' and $type != 'all') {
             if ($type == 'overtemp') {
-                $collectors = $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
+                $collectors->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温]);
             } elseif ($type == 'offline') {
-                $collectors = $collectors->where('warning_status', $this->collector::预警类型_离线);
+                $collectors->where('warning_status', $this->collector::预警类型_离线);
             }
         }
+        if ($keyword = request()->get('keyword')) {
+            $collectors->where(function ($query) use ($keyword) {
+                $query->where('supplier_collector_id', 'like', '%'.$keyword.'%')
+                    ->orWhere('cooler_name', 'like', '%'.$keyword.'%')
+                    ->orWhere('collector_name', 'like', '%'.$keyword.'%');
+            });
+        }
+        $collectors = $this->setOrder($collectors);
         $count['all'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->count();
         $count['offline'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->where('warning_status', $this->collector::预警类型_离线)->count();
         $count['overtemp'] = $this->collector->whereIn('company_id', $this->company_ids)->where('status', 1)->whereIn('warning_type', [$this->collector::预警状态_高温, $this->collector::预警状态_低温])->count();
@@ -140,7 +171,7 @@ class CollectorsController extends Controller
         if ($offline_span = $this->company->hasSettings()->where('setting_id', Company::单位设置_离线报警时长)->first()) {
             $request['offline_span'] = $offline_span->value;
 
-        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->whereIn('company_id', $this->company->getManagerId())->first()) {
+        } elseif ($offline_span = CompanyHasSetting::query()->where('setting_id', Company::单位设置_离线报警时长)->where('company_id', $this->company->getManagerId())->first()) {
             $request['offline_span'] = $offline_span->value;
 
         } else {
@@ -221,10 +252,36 @@ class CollectorsController extends Controller
     public function countWarningSettingUnset()
     {
         $this->check();
-        $count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
+        $warning_count = $this->collector->whereDoesntHave('warningSetting', function ($query) {
             $query->where('temp_warning', 1)->where('status', 1);
+        })->whereHas('cooler', function ($query) {
+            $query->where('status', Cooler::状态_正常);
         })->where('status', Collector::状态_正常)->whereIn('company_id', $this->company_ids)->count();
-        return $this->response->array(['count' => $count]);
+        $status_2 = 0;//Cooler::状态_维修
+        $status_3 = 0;//Cooler::状态_备用
+        $status_6 = 0;//Cooler::状态_除霜
+        $status_5 = 0;//Cooler::状态_盘苗
+        $coolers = Cooler::query()->whereIn('company_id', $this->company_ids)->get();
+        foreach ($coolers as $cooler) {
+            if ($cooler->status == Cooler::状态_备用) {
+                $status_3++;
+            }
+            if ($cooler->status == Cooler::状态_除霜) {
+                $status_6++;
+            }
+            if ($cooler->status == Cooler::状态_盘苗) {
+                $status_5++;
+            }
+            if ($cooler->status == Cooler::状态_维修) {
+                $status_2++;
+            }
+        }
+        return $this->response->array(['warning_count' => $warning_count,
+            'status_2' => $status_2,
+            'status_3' => $status_3,
+            'status_6' => $status_6,
+            'status_5' => $status_5]);
+
     }
 
     public function couveuse()
@@ -232,18 +289,18 @@ class CollectorsController extends Controller
         $this->check();
         $collectors = $this->collector->whereIn('status', [0, 1])->where('supplier_product_model', 'LWYL201')->whereIn('company_id', $this->company_ids);
         if ($keyword = request()->get('keyword')) {
-            $collectors = $collectors->where(function ($query) use ($keyword){
+            $collectors = $collectors->where(function ($query) use ($keyword) {
                 $query->where('collector_name', 'like', '%'.$keyword.'%')->orWhere('supplier_collector_id', 'like', '%'.$keyword.'%');
             });
         }
         $collectors = $collectors
-           ->paginate(request()->get('pagesize') ?? $this->pagesize);
-        $sender=new Sender;
-        foreach($collectors as &$collector){
-            $DC =$sender->getRealTimeStatus($collector['supplier_collector_id'],$collector['supplier_id']);
+            ->paginate(request()->get('pagesize') ?? $this->pagesize);
+        $sender = new Sender;
+        foreach ($collectors as &$collector) {
+            $DC = $sender->getRealTimeStatus($collector['supplier_collector_id'], $collector['supplier_id']);
             $collector['power'] = $DC[0]['ram_count'];
             $collector['power'] = to_dianliang($collector['power']);
-            $collector['temp'] = to_wendu($collector['temp']+$collector['temp_fix']);//temp_fix
+            $collector['temp'] = to_wendu($collector['temp'] + $collector['temp_fix']);//temp_fix
             $collector['humi'] = to_shidu($collector['humi']);
             $collector['rssi'] = to_rssi($collector['rssi']);
             $collector['volt'] = to_dianya($collector['volt']);
@@ -308,6 +365,65 @@ class CollectorsController extends Controller
             }
         } else {
             return $this->response->errorInternal('获取位置失败');
+        }
+    }
+
+    public function change($id, ChangeCollectorRequest $request)
+    {
+
+        $old = $this->collector->find($id);
+        if (!$old) {
+            return $this->response->errorBadRequest('探头不存在');
+        }
+
+        if ($request->get('new_supplier_collector_id') == '')
+            return $this->response->errorBadRequest('新的监控探头编号不能为空');
+        if ($request->get('new_supplier_collector_id') == $request->get('supplier_collector_id'))
+            return $this->response->errorBadRequest('探头编号没有任何修改');
+        $exsit = $this->collector->where(array('supplier_collector_id' => $request->get('new_supplier_collector_id')))->first();
+        if ($exsit)
+            return $this->response->errorBadRequest('设备序号被占用。');
+        if ($request->get('change_note') == '')
+            return $this->response->errorBadRequest('备注不能为空');
+        $log = $old->toArray();
+        $log['change_note'] = $request->change_note;
+        $log['change_time'] = time();
+        $log['new_supplier_collector_id'] = $request->new_supplier_collector_id;
+        $log['supplier_product_model'] = $request->supplier_product_model;
+        $logmodel = CollectorChangeLog::query()->create($log);
+        if ($logmodel) {
+            $new['collector_name'] = $old['collector_name'];
+            $new['collector_name'] = $old['collector_name'];
+            $new['cooler_id'] = $old['cooler_id'];
+            $new['cooler_name'] = $old['cooler_name'];
+            $new['supplier_id'] = $old['supplier_id'];
+            $new['supplier_product_model'] = $request->get('supplier_product_model');
+            $new['supplier_collector_id'] = $request->get('new_supplier_collector_id');
+            $new['category_id'] = $old['category_id'];
+            $new['company_id'] = $old['company_id'];
+            $new['temp_type'] = $old['temp_type'];
+            $new['install_time'] = time();
+            $nid = $this->collector->create($new);
+            if ($nid) {
+                //报警设置
+                $olds = WarningSetting::query()->where(array('collector_id' => $request->get('collector_id')))->first();
+                if ($olds) {
+                    $olds['collector_id'] = $nid;
+                    unset($olds['id']);
+                    WarningSetting::query()->create($olds);
+                }
+                $this->collector->uninstall($old['collector_id'], $request->get('change_note'));
+                (new Cooler)->flush_collector_num($new['cooler_id']);
+                (new Collectorguanxi)->addnew($new['supplier_collector_id'], $new['supplier_id']);//供应商$request->getD
+            }
+            if ($nid) {
+                return $this->response->item($nid, new CollectorDetailTransformer());
+            } else {
+                return $this->response->errorBadRequest('更换失败');
+            }
+
+        } else {
+            return $this->response->errorBadRequest('更换失败');
         }
     }
 

@@ -53,6 +53,10 @@ class Ledspeaker extends Coldchain2Model
         return Sender::whereIn('sender_id', explode(',', $this->sender_id))->select('sender_id','note')->get() ??[];
     }
 
+    public function change_logs()
+    {
+        return $this->hasMany(LedspeakerLog::class,'ledspeaker_id','ledspeaker_id');
+    }
     public function get_products()
     {
         $products = Product::where('status',1)->whereIn('product_type',[1, 2])->orderBy('sort','desc')->get();

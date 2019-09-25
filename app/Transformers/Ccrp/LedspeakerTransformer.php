@@ -10,7 +10,7 @@ use League\Fractal\TransformerAbstract;
 
 class LedspeakerTransformer extends TransformerAbstract
 {
-    protected $availableIncludes=['collectors','senders'];
+    protected $availableIncludes=['collectors','senders','change_logs'];
     public function transform(Ledspeaker $ledspeaker)
     {
         $rs =  [
@@ -27,6 +27,7 @@ class LedspeakerTransformer extends TransformerAbstract
             'status' =>$ledspeaker->status,
             'collectors' =>$ledspeaker->collectors(),
             'senders' =>$ledspeaker->senders(),
+            'status' =>$ledspeaker->status
         ];
 
         return $rs;
@@ -38,5 +39,16 @@ class LedspeakerTransformer extends TransformerAbstract
     public function includeSenders(Ledspeaker $ledspeaker)
     {
         return $this->collection($ledspeaker->senders(),new SenderTransformer());
+    }
+
+    public function includeChangeLogs(Ledspeaker $ledspeaker)
+    {
+        if ($ledspeaker->changeLog)
+        {
+            return $this->collection($ledspeaker->changeLog()->get()->toArray(),function ($arr){
+                return $arr;
+            });
+        }else
+            return $this->null();
     }
 }

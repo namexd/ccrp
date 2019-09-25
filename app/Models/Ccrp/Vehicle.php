@@ -19,15 +19,15 @@ class Vehicle extends Coldchain2Model
         'refresh_time',
         'install_time'];
     const VECHICLE_CONFIG = [
-        'VEHICLE_WEBSERIVES' => 'http://www.chinacoldchain.com:8178/WebService.asmx?wsdl',
+        'VEHICLE_WEBSERIVES' => 'https://chinacoldchain.coldyun.net/WebService.asmx?wsdl',
 //        'VEHICLE_WEBSERIVES_LW' => 'http://www.chinacoldchain.com:9998/ServiceLw.asmx?wsdl', //chinacoldchain车载用户名
         'VEHICLE_USERNAME' => 'shlw', //chinacoldchain车载用户名
         'VEHICLE_PASSWORD' => '098765',//chinacoldchain车载密码
         'BAIDU_MAP_API_KEY' => 'GzGStHdTgf1Z774pqvWPITMR',//浏览器端KEY
         'BAIDU_MAP_API_KEY_SERVER' => 'C2721ec9a71667919ac7eb857e24cfeb',//服务器端KEY
-        'VEHICLE_GETPOSITION' => 'http://www.chinacoldchain.com:8178/interface/MapServices/GetPosition.aspx',//获取位置
-        'VEHICLE_ORIENTATION' => 'http://www.chinacoldchain.com:8178/interface/MapServices/Orientation.aspx',//当前位置
-        'VEHICLE_PlAYTRACk' => 'http://www.chinacoldchain.com:8178/interface/MapServices/PlayTrack.aspx',//历史轨迹
+        'VEHICLE_GETPOSITION' => 'https://chinacoldchain.coldyun.net/interface/MapServices/GetPosition.aspx',//获取位置
+        'VEHICLE_ORIENTATION' => 'https://chinacoldchain.coldyun.net/interface/MapServices/Orientation.aspx',//当前位置
+        'VEHICLE_PlAYTRACk' => 'https://chinacoldchain.coldyun.net/interface/MapServices/PlayTrack.aspx',//历史轨迹
         'VEHICLE_LOGINNAME' => array(
             'zhll' => '123456',
             'shlw' => '098765',

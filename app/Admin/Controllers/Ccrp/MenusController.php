@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers\Ccrp;
 
 use App\Models\Ccrp\Menu;
+use App\Models\Ccrp\Role;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -127,7 +128,7 @@ class MenusController extends AdminController
         $show->field('ctime', __('Ctime'));
         $show->field('utime', __('Utime'));
         $show->field('comment', __('Comment'));
-        $show->field('sort', __('Sort'));
+        $show->field('order', __('Sort'));
         $show->field('status', __('Status'));
 
         return $show;
@@ -155,9 +156,9 @@ class MenusController extends AdminController
         $form->number('ctime', __('Ctime'));
         $form->number('utime', __('Utime'));
         $form->text('comment', __('Comment'));
-        $form->switch('sort', __('Sort'));
+        $form->text('order', __('Sort'));
         $form->switch('status', __('Status'))->default(1);
-
+        $form->multipleSelect('roles','单位类型')->options(Role::all()->pluck('name','id'));
         return $form;
     }
 }

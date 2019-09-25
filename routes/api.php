@@ -116,9 +116,10 @@ $api->version('v1', [
             $api->get('sys/cooler_status', 'CoolersController@getCoolerStatus')->name('api.ccrp.coolers.cooler_status');
             $api->post('coolers/cooler_status/{id}', 'CoolersController@coolerStatus')->name('api.ccrp.coolers.cooler_status');
             // 所有探头
-            $api->get('collectors/couveuse/{id}', 'CollectorsController@couveuse_current')->name('api.ccrp.coolers.couveuse_current');
-            $api->get('collectors/couveuse', 'CollectorsController@couveuse')->name('api.ccrp.coolers.couveuse');
-            $api->get('collectors/count_warningSetting_unset', 'CollectorsController@countWarningSettingUnset')->name('api.ccrp.coolers.count_warningSetting_unset');
+            $api->get('collectors/change/{id}', 'CollectorsController@change')->name('api.ccrp.collectors.change');
+            $api->get('collectors/couveuse/{id}', 'CollectorsController@couveuse_current')->name('api.ccrp.collectors.couveuse_current');
+            $api->get('collectors/couveuse', 'CollectorsController@couveuse')->name('api.ccrp.collectors.couveuse');
+            $api->get('collectors/count_warningSetting_unset', 'CollectorsController@countWarningSettingUnset')->name('api.ccrp.collectors.count_warningSetting_unset');
             $api->get('collectors', 'CollectorsController@index')->name('api.ccrp.collectors.index');
             $api->get('collectors/realtime', 'CollectorsController@realtime')->name('api.ccrp.collectors.realtime');
             $api->get('collectors/{collector}/history', 'CollectorsController@history')->name('api.ccrp.collectors.history');
@@ -152,6 +153,7 @@ $api->version('v1', [
             $api->get('stat_manual_records/list/{month?}', 'StatManualRecordsController@index')->name('api.ccrp.stat_manual_records.index');
             $api->get('stat_manual_records/show/{day?}/{session?}', 'StatManualRecordsController@show')->name('api.ccrp.stat_manual_records.show');
            //报警设置
+            $api->get('warning_settings/change_warning_setting_all', 'WarningSettingsController@changeWarningSettingAll');
             $api->resource('warning_settings', WarningSettingsController::class);
             //0,探头,1,报警器,2一体机，3中继器
             $api->resource('products', ProductsController::class);
@@ -197,6 +199,9 @@ $api->version('v1', [
             $api->get('menus','MenusController@index');
             $api->post('export/callback', 'ExportController@callback')->name('api.ccrp.export_data');
 
+            $api->get('users/unbind_wxmember/{id}','UsersController@unbindWxmember')->name('api.ccrp.users.unbindWxmember');
+            $api->get('users/weixin_member','UsersController@weixinMember')->name('api.ccrp.users.weixinMember');
+            $api->put('users/weixin_member/{id}','UsersController@updateWxMember')->name('api.ccrp.users.updateWxMember');
             $api->post('users/login','UsersController@login')->name('api.ccrp.users.login');
 
             //CCrp数据报表
@@ -207,8 +212,9 @@ $api->version('v1', [
                 $api->get('devices/statistic', 'DevicesController@statistic')->name('api.ccrp.reports.devices.statistic');
                 $api->get('devices/stat_manages', 'DevicesController@statManage')->name('api.ccrp.reports.devices.stat_manage');
                 $api->get('devices/stat_coolers', 'DevicesController@statCooler')->name('api.ccrp.reports.devices.stat_cooler');
-                $api->get('devices/stat_coolers2', 'DevicesController@statCooler2')->name('api.ccrp.reports.devices.stat_cooler');
-                $api->get('devices/stat_manages2', 'DevicesController@statManage2')->name('api.ccrp.reports.devices.stat_cooler');
+                $api->get('devices/stat_coolers2', 'DevicesController@statCooler2')->name('api.ccrp.reports.devices.stat_coolers2');
+                $api->get('devices/stat_manages2', 'DevicesController@statManage2')->name('api.ccrp.reports.devices.stat_manages2');
+                $api->get('devices/stat_manages3', 'DevicesController@statManage3')->name('api.ccrp.reports.devices.stat_manages3');
                 $api->post('devices/stat_cooler_history_temp', 'TemperatureController@statCoolerHistoryTemp')->name('api.ccrp.reports.devices.stat_cooler_history_temp');
                 $api->get('temperatures/coolers_history_30/list/{month} ', 'TemperatureController@CoolerHistoryList')->name('api.ccrp.reports.coolers_history_30.list');
                 $api->get('temperatures/coolers_history_30/{cooler_id}/{month}', 'TemperatureController@CoolerHistoryShow')->name('api.ccrp.reports.coolers_history_30.show');

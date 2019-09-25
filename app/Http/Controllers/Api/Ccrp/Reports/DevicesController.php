@@ -83,7 +83,7 @@ class DevicesController extends Controller
     }
 
     /**
-     * note:冷链管理评估表(多月份)
+     * note:冷链管理评估表(多月份平均值)
      * author: xiaodi
      * date: 2019/8/15 14:30
      * @param MonthRequest $request
@@ -100,6 +100,26 @@ class DevicesController extends Controller
         return $this->response->paginator($stat_manages, $transfer)
             ->addMeta('columns', $transfer->columns());
     }
+
+    /**
+     * note:冷链管理评估表(多月份)
+     * author: xiaodi
+     * date: 2019/9/18 15:31
+     * @param MonthRequest $request
+     * @param StatMange $statMange
+     * @return Response
+     */
+    public function statManage3(MonthRequest $request, StatMange $statMange)
+    {
+        $this->check();
+        $start = $request->get('start_month', Carbon::now()->subMonths(6));
+        $end = $request->get('end_month', Carbon::now()->subMonths(1));
+        $stat_manages = $statMange->getListByMonths2($this->company_ids, $start, $end)->paginate($request->get('pagesize') ?? $this->pagesize);
+        $transfer = new StatManageTransformer();
+        return $this->response->paginator($stat_manages, $transfer)
+            ->addMeta('columns', $transfer->columns());
+    }
+
 
     /**
      * note:冷链设备评估表(多月份)
