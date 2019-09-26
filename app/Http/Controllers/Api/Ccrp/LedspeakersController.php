@@ -72,7 +72,7 @@ class LedspeakersController extends Controller
         $request['install_time'] = time();
         $request['company_id'] = $this->company->id;
         $product = Product::where('supplier_product_model', $request->supplier_model)->first();
-        $request['supplier_id'] = $product['supplier_id'];
+        $request['supplier_id'] = $product->supplier_id;
         $result = $this->model->create($request->all());
         if ($result) {
             return $this->response->item($result, new LedspeakerTransformer());

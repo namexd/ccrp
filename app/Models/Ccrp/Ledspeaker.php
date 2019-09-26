@@ -55,7 +55,7 @@ class Ledspeaker extends Coldchain2Model
 
     public function change_logs()
     {
-        return $this->hasMany(LedspeakerLog::class,'ledspeaker_id','ledspeaker_id');
+        return $this->hasOne(LedspeakerLog::class,'ledspeaker_id','ledspeaker_id');
     }
     public function get_products()
     {

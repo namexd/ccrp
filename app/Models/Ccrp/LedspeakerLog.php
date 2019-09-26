@@ -23,5 +23,8 @@ class LedspeakerLog extends Coldchain2Model
         'change_option',
 
     ];
+    const  CHANGE_OPTION=[
+        '更换','报废'
+    ];
 
 }

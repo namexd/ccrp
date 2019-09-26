@@ -20,6 +20,9 @@ class WarningSendlogTransformer extends TransformerAbstract
         $result['send_to'] = $log->send_to;
         $result['content'] = $log->send_content_all;
         $result['company'] = $log->company->title;
+        $result['cooler_name'] = $log->cooler_name;
+        $result['collector_name'] = $log->collector_name;
+        $result['send_status'] = $log->send_status;
         $result['creat_time'] =  Carbon::createFromTimestamp($log->send_time)->toDateTimeString();
         return $result;
     }

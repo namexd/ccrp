@@ -43,11 +43,9 @@ class LedspeakerTransformer extends TransformerAbstract
 
     public function includeChangeLogs(Ledspeaker $ledspeaker)
     {
-        if ($ledspeaker->changeLog)
+        if ($ledspeaker->change_logs)
         {
-            return $this->collection($ledspeaker->changeLog()->get()->toArray(),function ($arr){
-                return $arr;
-            });
+            return $this->item($ledspeaker->change_logs,new LedspeakerChangeLogTransformer());
         }else
             return $this->null();
     }
