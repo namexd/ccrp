@@ -32,7 +32,7 @@ class SendersController extends AdminController
     {
         $grid = new Grid(new Sender);
 
-        $grid->model()->where('status',1)->orderBy('id', 'desc');
+        $grid->model()->whereIn('status',request()->get('status')??[1])->orderBy('id', 'desc');
         $grid->id('Id');
         $grid->company()->title('单位名称');
         $grid->category()->title('单位分类');

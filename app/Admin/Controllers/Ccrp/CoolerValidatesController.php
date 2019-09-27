@@ -111,6 +111,9 @@ class CoolerValidatesController extends Controller
         $grid->cooler()->is_medical('医用（冰箱表）')->display(function ($value){
             return Cooler::IS_MEDICAL[$value];
         });
+        $grid->cooler()->status('冰箱状态')->display(function ($value){
+            return Cooler::STATUSES[$value];
+        });
         $grid->created_at('Created at');
         $grid->updated_at('Updated at');
         $grid->validate_status('填报状态')->using(['0'=>'否','1'=>'是']);
